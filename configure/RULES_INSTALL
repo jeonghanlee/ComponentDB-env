@@ -63,7 +63,7 @@ src_versions:
 
 
 ## Uninstall 
-uninstall: sd_stop sd_clean
+uninstall:
 	$(QUIET)$(SUDO) rm -rf $(INSTALL_LOCATION)
 
 

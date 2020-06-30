@@ -1,4 +1,4 @@
-#
+#-*- mode: Makefile;-*-
 .DEFAULT_GOAL := help
 
 .PHONY: help default init distclean deinit
@@ -46,17 +46,26 @@ else
 endif
 
 
-.PHONY: build conf
+.PHONY: support
 
-## Build Source
-build:
-	echo "mvn $(MVN_OPTS) -f $(SRC_PATH) clean install -Dmaven.test.skip=true"
-	$(QUIET) mvn $(MVN_OPTS) -f $(SRC_PATH) clean install -Dmaven.test.skip=true
+## Build support needed for the application
+support:
+	$(QUIET) $(MAKE) -C $(SRC_PATH) support
 
-## Copy the site specific files into sources
+## Create deployment configuration
 conf:
-	$(QUIET)sed -e "s:_KEYSTORE_:$(KEYSTORE_FILENAME):g" \
-		    -e "s:_CFLDIF_:$(CFLDIF_FILENAME):g" \
-		    < $(SITE_TEMPLATE_PATH)/application.properties.in \
-		    > $(SITE_TEMPLATE_PATH)/application.properties
-	$(QUIET)cp $(SITE_TEMPLATE_PATH)/application.properties $(SITE_SPECIFIC_FILES_PATH)/
+	$(QUIET) $(MAKE) -C $(SRC_PATH) configuration
+
+## Create a clean db for the distribution 
+clean-db:
+	$(QUIET) $(MAKE) -C $(SRC_PATH) clean-db
+## Prepare web portal configuraiton
+conf-portal:
+	$(QUIET) $(MAKE) -C $(SRC_PATH) configure-web-portal
+## Deploy web portal
+deploy-portal:
+	$(QUIET) $(MAKE) -C $(SRC_PATH) deploy-web-portal
+
+## Deploy REST web service
+deploy-service:
+	$(QUIET) $(MAKE) -C $(SRC_PATH) deploy-web-service

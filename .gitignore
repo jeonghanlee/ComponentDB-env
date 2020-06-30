@@ -46,3 +46,7 @@ auto_positions.sav*
 \#*
 .versions
 *-src
+support-*
+etc
+data
+docker/scripts/.sourceme

@@ -1,11 +1,14 @@
+# -*- mode: Makefile;-*-
 
 # .PHONY: es_install es_start es_status es_mapping es_mapping_clean es_all
 
-# ## Build Source for Debian 10
-# es_install:
-# 	$(QUIET) wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.3.1.deb
-# 	$(QUIET)$(SUDO) dpkg -i elasticsearch-6.3.1.deb
-# 	$(QUIET)$(SUDO) systemctl enable elasticsearch
+.PHONY: install.pkgs
+
+install.pkgs:
+	$(SUDOBASH) "$(TOP)/docker/scripts/required_pkgs.sh $(CDB_SUPPORT_DIR)"
+	$(QUIET)echo "\nPlease source $(TOP)/docker/scripts/.sourceme\n"
+
+
 
 # es_start:
 # 	$(QUIET)$(SUDO) systemctl start elasticsearch
@@ -23,4 +26,3 @@
 
 
 # es_all: es_install es_start es_start es_mapping
-	
