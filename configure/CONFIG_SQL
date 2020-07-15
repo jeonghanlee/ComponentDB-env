@@ -1,0 +1,85 @@
+
+SQL_PATH:=$(SRC_PATH)/db/sql
+
+
+
+SQL_STATIC_PATH:=$(SQL_PATH)/static
+SQL_CLEAN_PATH:=$(SQL_PATH)/clean
+
+SQL_BASE_TYPES:=cdb_tables views stored_procedures
+
+SQL_STATIC_TYPES:=setting_type \
+    domain \
+    entity_type \
+    allowed_entity_type_domain \
+    relationship_type_handler \
+    relationship_type
+
+SQL_CLEAN_TYPES:=user_info \
+    user_group \
+    user_user_group \
+    user_group_setting \
+    user_setting \
+    entity_info \
+    role_type \
+    user_role \
+    list \
+    user_list \
+    user_group_list \
+    attachment \
+    log_topic \
+    log \
+    log_attachment \
+    log_level \
+    system_log \
+    item \
+    item_element \
+#    item_element_history \
+    item_element_log \
+    item_element_list \
+    item_category \
+    item_item_category \
+    item_type \
+    item_item_type \
+    item_category_item_type \
+    item_project \
+    item_item_project \
+    item_entity_type \
+    allowed_child_entity_type \
+    source \
+    item_source \
+    resource_type_category \
+    resource_type \
+    connector_type \
+    connector \
+    item_connector \
+    item_resource \
+    item_element_relationship \
+    item_element_relationship_history \
+    property_type_handler \
+    property_type_category \
+    property_type \
+    property_type_metadata \
+    allowed_property_metadata_value \
+    allowed_property_value \
+    allowed_entity_type \
+    allowed_property_domain \
+    property_value \
+    property_metadata \
+    property_value_history \
+ #   property_metadata_history \
+    item_connector_property \
+    item_element_relationship_property \
+    item_element_property \
+    connector_property
+
+SQL_BASE_FILES:=$(addprefix $(SQL_PATH)/, $(addprefix create_, $(addsuffix .sql,$(basename $(SQL_BASE_TYPES)))))
+SQL_STATIC_FILES:=$(addprefix $(SQL_STATIC_PATH)/, $(addprefix populate_, $(addsuffix .sql,$(basename $(SQL_STATIC_TYPES)))))
+SQL_CLEAN_FILES:=$(addprefix $(SQL_CLEAN_PATH)/, $(addprefix populate_, $(addsuffix .sql,$(basename $(SQL_CLEAN_TYPES)))))
+
+VARS_EXCLUDES+=SQL_BASE_TYPES
+VARS_EXCLUDES+=SQL_BASE_FILES
+VARS_EXCLUDES+=SQL_STATIC_TYPES
+VARS_EXCLUDES+=SQL_CLEAN_TYPES
+VARS_EXCLUDES+=SQL_STATIC_FILES
+#VARS_EXCLUDES+=SQL_CLEAN_FILES

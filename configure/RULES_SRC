@@ -45,7 +45,6 @@ else
 	$(QUIET)echo "There is no $(SRC_PATH)."
 endif
 
-
 .PHONY: support
 
 ## Build support needed for the application

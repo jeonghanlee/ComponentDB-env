@@ -1,0 +1,26 @@
+.PHONY: sql.static
+
+sql.base.conf:
+	$(QUIET)cat $(SQL_BASE_FILES) > $(SITE_TEMPLATE_PATH)/.base.sql
+
+sql.base:
+	bash scripts/mariadb_setup.bash tableCreate "$(SITE_TEMPLATE_PATH)/.base.sql"
+
+sql.base.show:
+	bash scripts/mariadb_setup.bash allShow
+
+sql.base.clean:
+	bash scripts/mariadb_setup.bash allDrop
+	@(QUIET) rm -f $(SITE_TEMPLATE_PATH)/.base.sql
+
+sql.static: 
+	bash scripts/mariadb_setup.bash tableCreate "$(SITE_TEMPLATE_PATH)/.static.sql"
+
+sql.static.conf: 
+	$(QUIET)cat $(SQL_STATIC_FILES) > $(SITE_TEMPLATE_PATH)/.static.sql
+	
+sql.clean: 
+	bash scripts/mariadb_setup.bash tableCreate "$(SITE_TEMPLATE_PATH)/.clean.sql"
+
+sql.clean.conf: 
+	$(QUIET)cat $(SQL_CLEAN_FILES) > $(SITE_TEMPLATE_PATH)/.clean.sql

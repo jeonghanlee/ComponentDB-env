@@ -50,3 +50,5 @@ support-*
 etc
 data
 docker/scripts/.sourceme
+support-*
+site-template/.*.sql
