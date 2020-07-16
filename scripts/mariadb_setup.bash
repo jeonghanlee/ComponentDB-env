@@ -28,12 +28,12 @@ SQL_DBUSER_CMD="mysql --user=${DB_USER_NAME} --password=${DB_USER_PASS} --port=$
 EXIST=1
 NON_EXIST=0
 
-VERBOSE=
+VERBOSE=YES
 
 function noDbMessage
 {
     local db_name="$1"; shift;
-    if [ "$VERBOSE" == "YES" ]; then
+    if [ "${VERBOSE}" == "YES" ]; then
         printf ">> There is no >> %s << in the dababase, please check your SQL enviornment.\\n" "${db_name}"
     fi
 }
@@ -48,7 +48,7 @@ function usage
 	echo "";
     echo "          <arg>              : info";
 	echo "";
-	echo "          ssetup             : mariaDB secure installation";
+	echo "          secureSetup        : mariaDB secure installation";
     echo "          adminAdd           : add the admin account";
     echo "";
     # shellcheck disable=SC2153 
@@ -217,6 +217,8 @@ function commandPrn
 {
     local cmd="$1"; shift;   
     if [ "$VERBOSE" == "YES" ]; then
+        # shellcheck disable=SC2001
+        cmd=$(echo "${cmd}" | sed "s/--password=.*--port/--password=* --port/g")
         printf ">> command :\\n"
         printf "%s\\n" "$cmd"
         printf ">>\\n"

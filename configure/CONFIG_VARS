@@ -11,9 +11,7 @@ SRC_GITURL:=$(SRC_URL)/$(SRC_NAME)
 SRC_PATH:=$(SRC_NAME)-src
 
 CDB_SHORT_HOSTNAME=$(shell hostname -s)
-_HOST=$(shell uname | tr [A-Z] [a-z])
-_ARCH=$(shell uname -m)
-CDB_HOST_ARCH=$(_HOST)-$(_ARCH)
+CDB_HOST_ARCH=$(shell uname -sm | tr -s '[:upper:][:blank:]' '[:lower:][\-]')
 CDB_SUPPORT_DIR=$(TOP)/support-$(CDB_SHORT_HOSTNAME)/anaconda/$(CDB_HOST_ARCH)
 PYTHONPATH=CDB_SUPPORT_DIR
 

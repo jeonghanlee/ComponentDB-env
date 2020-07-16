@@ -1,21 +1,23 @@
 
-SQL_PATH:=$(SRC_PATH)/db/sql
+SQL_TOP_PATH:=$(SRC_PATH)/db/sql
 
+SQL_STATICPATH_PATH:=$(SQL_TOP_PATH)/static
+SQL_CLEANPATH_PATH:=$(SQL_TOP_PATH)/clean
+SQL_SITE_PATH:=$(SITE_TEMPLATE_PATH)/sql
 
+# CREATE TABLE
+SQL_TOP_TYPES:=cdb_tables views stored_procedures
 
-SQL_STATIC_PATH:=$(SQL_PATH)/static
-SQL_CLEAN_PATH:=$(SQL_PATH)/clean
-
-SQL_BASE_TYPES:=cdb_tables views stored_procedures
-
-SQL_STATIC_TYPES:=setting_type \
+# INSERT TABLE
+SQL_STATICPATH_TYPES:=setting_type \
     domain \
     entity_type \
     allowed_entity_type_domain \
     relationship_type_handler \
     relationship_type
 
-SQL_CLEAN_TYPES:=user_info \
+# INSERT TABLE
+SQL_CLEANPATH_TYPES:=user_info \
     user_group \
     user_user_group \
     user_group_setting \
@@ -34,7 +36,10 @@ SQL_CLEAN_TYPES:=user_info \
     system_log \
     item \
     item_element \
-#    item_element_history \
+    #  Please check CDB_Anatomy.md
+    #  We have to do `INSERT` into `item_element_history` defined in `db/sql/update`
+    #  We create the relevant part in site-template/populate_item_element_history.sql`
+    #  item_element_history \
     item_element_log \
     item_element_list \
     item_category \
@@ -67,19 +72,33 @@ SQL_CLEAN_TYPES:=user_info \
     property_value \
     property_metadata \
     property_value_history \
- #   property_metadata_history \
+    #   Please check CDB_Anatomy.md 
+    #   There is no `populate` sql file to `INSERT` into property_metadata_history table,
+    #   So we remove it from this populate list 
+    #   property_metadata_history \
     item_connector_property \
     item_element_relationship_property \
     item_element_property \
     connector_property
 
-SQL_BASE_FILES:=$(addprefix $(SQL_PATH)/, $(addprefix create_, $(addsuffix .sql,$(basename $(SQL_BASE_TYPES)))))
-SQL_STATIC_FILES:=$(addprefix $(SQL_STATIC_PATH)/, $(addprefix populate_, $(addsuffix .sql,$(basename $(SQL_STATIC_TYPES)))))
-SQL_CLEAN_FILES:=$(addprefix $(SQL_CLEAN_PATH)/, $(addprefix populate_, $(addsuffix .sql,$(basename $(SQL_CLEAN_TYPES)))))
+SQL_SITE_TYPES:=item_element_history
 
-VARS_EXCLUDES+=SQL_BASE_TYPES
-VARS_EXCLUDES+=SQL_BASE_FILES
-VARS_EXCLUDES+=SQL_STATIC_TYPES
-VARS_EXCLUDES+=SQL_CLEAN_TYPES
-VARS_EXCLUDES+=SQL_STATIC_FILES
-#VARS_EXCLUDES+=SQL_CLEAN_FILES
+SQL_TOP_FILES:=$(addprefix $(SQL_TOP_PATH)/, $(addprefix create_, $(addsuffix .sql,$(basename $(SQL_TOP_TYPES)))))
+SQL_STATICPATH_FILES:=$(addprefix $(SQL_STATICPATH_PATH)/, $(addprefix populate_, $(addsuffix .sql,$(basename $(SQL_STATICPATH_TYPES)))))
+SQL_CLEANPATH_FILES:=$(addprefix $(SQL_CLEANPATH_PATH)/, $(addprefix populate_, $(addsuffix .sql,$(basename $(SQL_CLEANPATH_TYPES)))))
+SQL_SITE_FILES:=$(addprefix $(SQL_SITE_PATH)/, $(addprefix populate_, $(addsuffix .sql,$(basename $(SQL_SITE_TYPES)))))
+
+TEMP_ALL_SQL:=$(SITE_TEMPLATE_PATH)/.all.sql
+TEMP_TOP_SQL:=$(SITE_TEMPLATE_PATH)/.top.sql
+TEMP_STATICPATH_SQL:=$(SITE_TEMPLATE_PATH)/.staticpath.sql
+TEMP_CLEANPATH_SQL:=$(SITE_TEMPLATE_PATH)/.cleanpath.sql
+TEMP_SITE_SQL:=$(SITE_TEMPLATE_PATH)/.site.sql
+
+VARS_EXCLUDES+=SQL_TOP_TYPES
+VARS_EXCLUDES+=SQL_TOP_FILES
+VARS_EXCLUDES+=SQL_STATICPATH_TYPES
+VARS_EXCLUDES+=SQL_CLEANPATH_TYPES
+VARS_EXCLUDES+=SQL_STATICPATH_FILES
+VARS_EXCLUDES+=SQL_CLEANPATH_FILES
+VARS_EXCLUDES+=SQL_SITE_TYPES
+VARS_EXCLUDES+=SQL_SITE_FILES

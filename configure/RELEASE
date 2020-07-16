@@ -11,7 +11,7 @@ SRC_NAME:=${APPNAME}
 
 # Which the source tag / branch / hash id would like to use
 #SRC_TAG:=tags/v3.9.6
-SRC_TAG:=master
+SRC_TAG:=424df13
 #install_support
 # Placeholder for the site-specific version control 
 SRC_VERSION:=${SRC_TAG}

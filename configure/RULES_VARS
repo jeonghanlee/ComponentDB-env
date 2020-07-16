@@ -46,4 +46,6 @@ exist:
 	$(if $(wildcard $(INSTALL_LOCATION)), tree -aL $(LEVEL) $(INSTALL_LOCATION), $(QUIET)echo "No $(INSTALL_LOCATION)")
 
 
+.DELETE_ON_ERROR:
+
 VARS_EXCLUDES+=FILTER

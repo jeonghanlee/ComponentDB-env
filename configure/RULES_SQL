@@ -1,26 +1,57 @@
-.PHONY: sql.static
+.PHONY: db.init db.create db.drop db.show sql.conf.clean sql.conf 
 
-sql.base.conf:
-	$(QUIET)cat $(SQL_BASE_FILES) > $(SITE_TEMPLATE_PATH)/.base.sql
+db.init:
+	$(QUIET)bash scripts/mariadb_setup.bash secureSetup
+	$(QUIET)bash scripts/mariadb_setup.bash adminAdd
 
-sql.base:
-	bash scripts/mariadb_setup.bash tableCreate "$(SITE_TEMPLATE_PATH)/.base.sql"
+db.create:
+	$(QUIET)bash scripts/mariadb_setup.bash dbCreate
 
-sql.base.show:
-	bash scripts/mariadb_setup.bash allShow
+db.drop:
+	$(QUIET)bash scripts/mariadb_setup.bash allDrop
 
-sql.base.clean:
-	bash scripts/mariadb_setup.bash allDrop
-	@(QUIET) rm -f $(SITE_TEMPLATE_PATH)/.base.sql
+db.show:
+	$(QUIET)bash scripts/mariadb_setup.bash allShow
 
-sql.static: 
-	bash scripts/mariadb_setup.bash tableCreate "$(SITE_TEMPLATE_PATH)/.static.sql"
 
-sql.static.conf: 
-	$(QUIET)cat $(SQL_STATIC_FILES) > $(SITE_TEMPLATE_PATH)/.static.sql
-	
-sql.clean: 
-	bash scripts/mariadb_setup.bash tableCreate "$(SITE_TEMPLATE_PATH)/.clean.sql"
+.PHONY: sql.conf.clean sql.conf sql.Fill sql.top.conf sql.topFill sql.topShow sql.staticpath.conf sql.staticpathFill
 
-sql.clean.conf: 
-	$(QUIET)cat $(SQL_CLEAN_FILES) > $(SITE_TEMPLATE_PATH)/.clean.sql
+sql.conf.clean:
+	-rm -f $(TEMP_ALL_SQL) $(TEMP_TOP_SQL) $(TEMP_STATICPATH_SQL) $(TEMP_CLEANPATH_SQL) $(TEMP_SITE_SQL)
+
+sql.conf:
+	$(QUIET)cat $(SQL_TOP_FILES) $(SQL_STATICPATH_FILES) $(SQL_CLEANPATH_FILES) $(SQL_SITE_FILES) > $(TEMP_ALL_SQL)
+
+sql.Fill: sql.conf
+	$(QUIET)bash scripts/mariadb_setup.bash tableCreate "$(TEMP_ALL_SQL)"
+
+sql.top.conf:
+	$(QUIET)cat $(SQL_TOP_FILES)        > $(TEMP_TOP_SQL)
+
+sql.topFill: sql.top.conf
+	$(QUIET)bash scripts/mariadb_setup.bash tableCreate "$(TEMP_TOP_SQL)"
+
+sql.topShow:
+	$(QUIET)bash scripts/mariadb_setup.bash allShow
+
+sql.staticpath.conf:
+	$(QUIET)cat $(SQL_STATICPATH_FILES) > $(TEMP_STATICPATH_SQL)
+
+sql.staticpathFill: sql.staticpath.conf
+	$(QUIET)bash scripts/mariadb_setup.bash tableCreate "$(TEMP_STATICPATH_SQL)"
+
+
+
+.PHONY: sql.cleanpathFill sql.cleanpath.conf sql.site.conf sql.siteFill sql.allShow sql.allDrop
+
+sql.cleanpath.conf:
+	$(QUIET)cat $(SQL_CLEANPATH_FILES)  > $(TEMP_CLEANPATH_SQL)
+
+sql.cleanpathFill: sql.cleanpath.conf
+	$(QUIET)bash scripts/mariadb_setup.bash tableCreate "$(TEMP_CLEANPATH_SQL)"
+
+sql.site.conf:
+	$(QUIET)cat $(SQL_SITE_FILES)       > $(TEMP_SITE_SQL)
+
+sql.siteFill: sql.site.conf
+	$(QUIET)bash scripts/mariadb_setup.bash tableCreate "$(TEMP_SITE_SQL)"

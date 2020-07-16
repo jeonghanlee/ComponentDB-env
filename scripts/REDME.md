@@ -29,7 +29,7 @@ Usage    : scripts/mariadb_setup.bash <arg>
           query "sql query"  : Send any sql query to DB -cdb-
 ```
 
-## `ssetup`
+## `secureSetup`
 
 When MariaDB / MySQL is running from scratch, this procedure will do `mysql secure installation` partly. They call the individual queries based on the functions in `mysql_secure_installation`.
 
@@ -198,4 +198,81 @@ $ bash scripts/mariadb_setup.bash query "SELECT SCHEMA_NAME 'database', default_
 | information_schema | utf8    | utf8_general_ci    |
 | cdb                | utf8mb4 | utf8mb4_general_ci |
 +--------------------+---------+--------------------+
+```
+
+* Get the schema of a table
+
+There are several ways we can do
+
+* `describe [dbname.]table_name;`
+
+* `SHOW COLUMNS from table_name;`
+
+* `explain [dbname.]table_name;`
+
+The output result is identical, so I prefer to use `explain`.
+
+```bash
+bash scripts/mariadb_setup.bash query "describe item_element_history;"
++--------------------------------+----------------------+------+-----+---------+----------------+
+| Field                          | Type                 | Null | Key | Default | Extra          |
++--------------------------------+----------------------+------+-----+---------+----------------+
+| id                             | int(11) unsigned     | NO   | PRI | NULL    | auto_increment |
+| snapshot_element_name          | varchar(64)          | YES  |     | NULL    |                |
+| item_element_id                | int(11) unsigned     | YES  | MUL | NULL    |                |
+| snapshot_parent_name           | varchar(256)         | YES  |     | NULL    |                |
+| parent_item_id                 | int(11) unsigned     | YES  | MUL | NULL    |                |
+| snapshot_contained_item_1_name | varchar(256)         | YES  |     | NULL    |                |
+| contained_item_id1             | int(11) unsigned     | YES  | MUL | NULL    |                |
+| snapshot_contained_item_2_name | varchar(256)         | YES  |     | NULL    |                |
+| contained_item_id2             | int(11) unsigned     | YES  | MUL | NULL    |                |
+| derived_from_item_element_id   | int(11) unsigned     | YES  | MUL | NULL    |                |
+| is_required                    | tinyint(1)           | YES  |     | 0       |                |
+| description                    | varchar(256)         | YES  |     | NULL    |                |
+| sort_order                     | float(10,2) unsigned | YES  |     | NULL    |                |
+| entered_on_date_time           | datetime             | NO   |     | NULL    |                |
+| entered_by_user_id             | int(11) unsigned     | NO   |     | NULL    |                |
++--------------------------------+----------------------+------+-----+---------+----------------+
+```
+
+```bash
+$ bash scripts/mariadb_setup.bash query "explain property_metadata_history;"
+>> command :
+mysql --user=cdb --password=* --port=3306 --host=127.0.0.1 cdb --execute="explain property_metadata_history;"
+>>
++---------------------------+------------------+------+-----+---------+----------------+
+| Field                     | Type             | Null | Key | Default | Extra          |
++---------------------------+------------------+------+-----+---------+----------------+
+| id                        | int(11) unsigned | NO   | PRI | NULL    | auto_increment |
+| property_value_history_id | int(11) unsigned | NO   | MUL | NULL    |                |
+| metadata_key              | varchar(64)      | NO   |     | NULL    |                |
+| metadata_value            | varchar(256)     | YES  |     | NULL    |                |
++---------------------------+------------------+------+-----+---------+----------------+
+
+$ bash scripts/mariadb_setup.bash query "describe property_metadata_history;"
+>> command :
+mysql --user=cdb --password=* --port=3306 --host=127.0.0.1 cdb --execute="describe property_metadata_history;"
+>>
++---------------------------+------------------+------+-----+---------+----------------+
+| Field                     | Type             | Null | Key | Default | Extra          |
++---------------------------+------------------+------+-----+---------+----------------+
+| id                        | int(11) unsigned | NO   | PRI | NULL    | auto_increment |
+| property_value_history_id | int(11) unsigned | NO   | MUL | NULL    |                |
+| metadata_key              | varchar(64)      | NO   |     | NULL    |                |
+| metadata_value            | varchar(256)     | YES  |     | NULL    |                |
++---------------------------+------------------+------+-----+---------+----------------+
+
+$ bash scripts/mariadb_setup.bash query "show columns from property_metadata_history;"
+>> command :
+mysql --user=cdb --password=* --port=3306 --host=127.0.0.1 cdb --execute="show columns from property_metadata_history;"
+>>
++---------------------------+------------------+------+-----+---------+----------------+
+| Field                     | Type             | Null | Key | Default | Extra          |
++---------------------------+------------------+------+-----+---------+----------------+
+| id                        | int(11) unsigned | NO   | PRI | NULL    | auto_increment |
+| property_value_history_id | int(11) unsigned | NO   | MUL | NULL    |                |
+| metadata_key              | varchar(64)      | NO   |     | NULL    |                |
+| metadata_value            | varchar(256)     | YES  |     | NULL    |                |
++---------------------------+------------------+------+-----+---------+----------------+
+
 ```
