@@ -6,7 +6,7 @@ There are several issues on the upstream repository of ComponentDB as follows:
 
 * <https://github.com/AdvancedPhotonSource/ComponentDB/issues/657>
 
-Thus, we have to develop our one way to handle the CDB MariaDB. 
+Thus, we have to develop our one way to handle the CDB MariaDB.
 
 ## Procedure
 
@@ -31,12 +31,13 @@ mariadb.service - MariaDB 10.3.22 database server
 ```
 
 * step 0
+
 ```bash
 make db.init
 ```
 
-
 * step 1
+
 ```bash
 make db.show
 make db.create
@@ -47,13 +48,14 @@ make db.show
 
 Due to one issue which was mentioned before, we have to apply a patch file to the upstream repository before creating and populating database.
 
-```
+```bash
 make patch
 make sql.Fill
-make sql.allShow 
+make sql.allShow
 ```
 
 * reset step 1 and step 2
-```
+
+```bash
 make db.drop
 ```

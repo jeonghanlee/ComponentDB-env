@@ -1,6 +1,6 @@
 
 ### channelfinder installation location
-INSTALL_LOCATION=/opt/${APPNAME}
+CDB_INSTALL_LOCATION=/opt/${APPNAME}
 
 
 # ### Placeholder

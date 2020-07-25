@@ -270,3 +270,39 @@ src/java/CdbWebPortal/src/java/gov/anl/aps/cdb/portal/model/db/entities/Property
 table list. However there is no `populate_property_metadata.sql` in `db/sql/clean` path.
 
 * Conclusion : We can ignore `populate_property_metadata.sql` because I don't see any history to fill this table by using additional sql files.
+
+## JAVA 8
+
+In order to compile the cdb web application through ant, we need the openjdk 11
+
+```bash
+-do-compile:
+    [javac] Compiling 394 source files to /home/jhlee/gitsrc/ComponentDB-env/ComponentDB-src/src/java/CdbWebPortal/build/web/WEB-INF/classes
+    [javac] /home/jhlee/gitsrc/ComponentDB-env/ComponentDB-src/src/java/CdbWebPortal/src/java/gov/anl/aps/cdb/portal/controllers/extensions/ImportHelperMachineDesign.java:606: error: cannot find symbol
+    [javac]             String varName = nameValueArray[0].strip();
+    [javac]                                               ^
+    [javac]   symbol:   method strip()
+    [javac]   location: class String
+    [javac] /home/jhlee/gitsrc/ComponentDB-env/ComponentDB-src/src/java/CdbWebPortal/src/java/gov/anl/aps/cdb/portal/controllers/extensions/ImportHelperMachineDesign.java:607: error: cannot find symbol
+    [javac]             String varValue = nameValueArray[1].strip();
+    [javac]                                                ^
+    [javac]   symbol:   method strip()
+    [javac]   location: class String
+    [javac] Note: Some input files use or override a deprecated API.
+    [javac] Note: Recompile with -Xlint:deprecation for details.
+    [javac] Note: Some input files use unchecked or unsafe operations.
+    [javac] Note: Recompile with -Xlint:unchecked for details.
+    [javac] 2 errors
+```
+
+```bash
+$ sudo update-alternatives --config java
+There are 2 choices for the alternative java (providing /usr/bin/java).
+
+  Selection    Path                                                  Priority   Status
+------------------------------------------------------------
+  0            /usr/lib/jvm/java-1.8.0-amazon-corretto/jre/bin/java   10800262  auto mode
+  1            /usr/lib/jvm/java-1.8.0-amazon-corretto/jre/bin/java   10800262  manual mode
+* 2            /usr/lib/jvm/java-11-openjdk-amd64/bin/java            1111      manual mode
+````
+

@@ -68,3 +68,20 @@ deploy-portal:
 ## Deploy REST web service
 deploy-service:
 	$(QUIET) $(MAKE) -C $(SRC_PATH) deploy-web-service
+
+
+.PHONY: build build.java build.python
+
+build: build.java build.python
+
+build.java:
+	CDB_INSTALL_DIR=$(CDB_INSTALL_DIR) CDB_ROOT_DIR=$(CDB_ROOT_DIR) PYTHONPATH=$(SRC_PATH)/src/python  python $(SRC_PATH)/tools/developer_tools/cdb_plugins/update_plugin_generated_files.py $(DB_NAME) 0
+	if [ -f $(BUILD_PROPERTIES_FILE) ]; then mv $(BUILD_PROPERTIES_FILE) $(BUILD_PROPERTIES_FILE).orig; fi
+	$(QUIET)sed -e "s:CDB_GLASSFISH_DIR:$(PAYARA_INSTALL_PATH):g" < $(GENERIC_BUILD_PROPERTIES_FILE) > $(BUILD_PROPERTIES_FILE)
+	$(QUIET)sed -e "s:CDB_DATA_DIR:cdb:g" < $(GLASSFISH_WEB_XML_FILE).template                       > $(GLASSFISH_WEB_XML_FILE)
+	$(QUIET)sed -e "s:CDB_DATA_DIR:cdb:g" < $(CDB_PORTAL_PROPERTIES_FILE).template                   > $(CDB_PORTAL_PROPERTIES_FILE)
+	$(CDB_ANT) -f $(CDB_JAVA_SRC)/build.xml -nice 7 $(ANT_ARGS) dist 
+	if [ -f $(BUILD_PROPERTIES_FILE).orig ]; then mv $(BUILD_PROPERTIES_FILE).orig $(BUILD_PROPERTIES_FILE); fi
+
+build.python:
+	PYTHONPATH=$(SRC_PATH)/src/python  $(MAKE) -C $(SRC_PATH)/src/python dist

@@ -40,8 +40,6 @@ sql.staticpath.conf:
 sql.staticpathFill: sql.staticpath.conf
 	$(QUIET)bash scripts/mariadb_setup.bash tableCreate "$(TEMP_STATICPATH_SQL)"
 
-
-
 .PHONY: sql.cleanpathFill sql.cleanpath.conf sql.site.conf sql.siteFill sql.allShow sql.allDrop
 
 sql.cleanpath.conf:
@@ -55,3 +53,45 @@ sql.site.conf:
 
 sql.siteFill: sql.site.conf
 	$(QUIET)bash scripts/mariadb_setup.bash tableCreate "$(TEMP_SITE_SQL)"
+
+
+.PHONY: jdbc.conf jdbc.conf.show jdbc.install jdbc.ping jdbc.list jdbc.flush
+
+jdbc.conf: 
+	-rm -f $(SITE_TEMPLATE_PATH)/$(JDBC_PAYARA_MARIADB_XML)
+	$(QUIET)sed -e "s:@JDBC_DATASOURCE_CLASSNAME@:$(JDBC_DATASOURCE_CLASSNAME):g" \
+		    -e "s:@JDBC_RES_TYPE@:$(JDBC_RES_TYPE):g" \
+			-e "s:@JDBC_DB_USER@:$(JDBC_DB_USER):g" \
+			-e "s:@JDBC_DB_USER_PASS@:$(JDBC_DB_USER_PASS):g" \
+			-e "s:@JDBC_DB_TYPE@:$(JDBC_DB_TYPE):g" \
+			-e "s:@JDBC_DB_HOSTNAME@:$(JDBC_DB_HOSTNAME):g" \
+			-e "s:@JDBC_DB_PORTNUM@:$(JDBC_DB_PORTNUM):g" \
+			-e "s:@JDBC_DB_NAME@:$(JDBC_DB_NAME):g" \
+			-e "s:@JDBC_DB_CONNECTION_POOLNAME@:$(JDBC_DB_CONNECTION_POOLNAME):g" \
+			-e "s:@JDBC_JNID_NAME@:$(JDBC_JNID_NAME):g" \
+		    < $(SITE_TEMPLATE_PATH)/$(JDBC_PAYARA_MARIADB_XML).in > $(SITE_TEMPLATE_PATH)/$(JDBC_PAYARA_MARIADB_XML)
+
+jdbc.conf.show:
+	$(QUIET) cat -b $(SITE_TEMPLATE_PATH)/$(JDBC_PAYARA_MARIADB_XML)
+
+jdbc.install: jdbc.conf
+	$(PAYARA_ASADMIN) add-resources $(SITE_TEMPLATE_PATH)/$(JDBC_PAYARA_MARIADB_XML)
+
+jdbc.ping:
+	$(PAYARA_ASADMIN) ping-connection-pool $(JDBC_DB_CONNECTION_POOLNAME)
+
+jdbc.list:
+	$(PAYARA_ASADMIN) list-jdbc-connection-pools $(JDBC_DB_CONNECTION_POOLNAME)
+
+jdbc.flush:
+	$(PAYARA_ASADMIN) flush-connection-pool $(JDBC_DB_CONNECTION_POOLNAME)
+
+.PHONY: jdbc.uninstall jdbc.resource.rm jdbc.pool.rm
+
+jdbc.uninstall: jdbc.resource.rm jdbc.pool.rm
+
+jdbc.resource.rm:
+	$(PAYARA_ASADMIN) delete-jdbc-resource $(JDBC_JNID_NAME)
+
+jdbc.pool.rm:
+	$(PAYARA_ASADMIN) delete-jdbc-connection-pool $(JDBC_DB_CONNECTION_POOLNAME)

@@ -2,7 +2,7 @@
 # hash id is the full length
 define make_p0_patch
 	printf "\nCreating a p0 patch file in $(TOP)/patch\\n";
-	cd $(SRC_PATH) && git diff --no-prefix > $(TOP)/patch/$$(git rev-parse HEAD).p0.patch
+	cd $(SRC_PATH) && git diff --no-prefix > $(TOP)/patch/$$(git rev-parse HEAD)-$$(date +%Y%m%d%H%M).p0.patch
 endef
 
 define patch_src
@@ -32,7 +32,7 @@ endif
 
 
 ### Exclude the following variables to display
-VARS_EXCLUDES+=make_p1_patch
+VARS_EXCLUDES+=make_p0_patch
 VARS_EXCLUDES+=patch_src
 VARS_EXCLUDES+=revert_patch_src
 VARS_EXCLUDES+=QUIET

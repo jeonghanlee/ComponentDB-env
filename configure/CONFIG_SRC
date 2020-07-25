@@ -3,8 +3,24 @@
 INSTALL:= install
 INSTALL_PROGRAM:=$(INSTALL)
 INSTALL_DATA:=$(INSTALL) -m 644
-SUDO := sudo
-SUDOBASH:=$(SUDO) -E bash -c
+
+# IF INSTALL_LOCATION is not WRITABLE, SUDO and SUDOBASH should be used 
+# SUDO_INFO 1 : SUDO is needed (NOT writable)
+# SUDO_INFO 0 : SUDO is not needed
+SUDO_INFO := $(shell test -w $(INSTALL_LOCATION) 1>&2 2> /dev/null; echo $$?)
+SUDO_CMD := $(shell which sudo)
+
+# For CentOS, devtoolset-{7,8} has -E option within sudo shell
+# So we have to remove -E option as well if we would like to use devtoolset
+#
+ifeq "$(SUDO_INFO)" "1"
+SUDO = $(SUDO_CMD)
+SUDOBASH := $(SUDO) -E bash -c
+else
+SUDO :=
+SUDOBASH = bash -c
+endif
+
 #
 #
 # SRC_PATH_INFO 1 : the directory is not there
@@ -18,6 +34,18 @@ endif
 #
 #
 SITE_TEMPLATE_PATH:=$(TOP)/site-template
+
+
+CDB_ANT=ant
+
+CDB_JAVA_SRC:=$(SRC_PATH)/src/java/CdbWebPortal
+ANT_ARGS=-Dlibs.CopyLibs.classpath=lib/org-netbeans-modules-java-j2seproject-copylibstask.jar 
+
+BUILD_PROPERTIES_FILE=$(CDB_JAVA_SRC)/nbproject/private/private.properties
+GENERIC_BUILD_PROPERTIES_FILE=$(BUILD_PROPERTIES_FILE).generic.build
+CDB_PORTAL_PROPERTIES_FILE=$(CDB_JAVA_SRC)/src/java/cdb.portal.properties
+GLASSFISH_WEB_XML_FILE=$(CDB_JAVA_SRC)/web/WEB-INF/glassfish-web.xml
+
 #
 #
 VARS_EXCLUDES+=SRC_PATH_INFO

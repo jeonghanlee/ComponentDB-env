@@ -8,11 +8,20 @@ JAVA_PATH=/usr/bin
 #ES_PORT:=9200
 
 
-#CF_PRTO:=http
-#CF_HOST:=localhost
-#CF_PORT:=8080
-#
-#
+
+
+PAYARA_INSTALL_PATH:=/opt/payara
+
+DB_NAME:=cdb
+DB_USER:=cdb
+DB_USER_PASS:=cdb
+DB_HOSTNAME:=127.0.0.1
+DB_PORTNUM:=3306
+
+
+CDB_INSTALL_DIR=$(TOP) 
+
+CDB_ROOT_DIR=$(SRC_PATH) 
 
 # These allow developers to override the variable
 -include $(TOP)/../CONFIG_COMMON.local
