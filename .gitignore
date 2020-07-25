@@ -52,3 +52,6 @@ data
 docker/scripts/.sourceme
 support-*
 site-template/.*.sql
+.vscode
+*.in
+
