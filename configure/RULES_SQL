@@ -95,3 +95,9 @@ jdbc.resource.rm:
 
 jdbc.pool.rm:
 	$(PAYARA_ASADMIN) delete-jdbc-connection-pool $(JDBC_DB_CONNECTION_POOLNAME)
+
+domain.start:
+	$(PAYARA_ASADMIN) start-domain $(PAYARA_DOMAIN)
+
+domain.stop:
+	$(PAYARA_ASADMIN) stop-domain $(PAYARA_DOMAIN)
