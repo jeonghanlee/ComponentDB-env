@@ -74,14 +74,46 @@ deploy-service:
 
 build: build.java build.python
 
-build.java:
+PHONY: build.java conf.cdb build.ant revertconf.cdb conf.cdb.view  clean.conf.cdb
+
+build.java: conf.cdb build.ant revertconf.cdb
+
+conf.cdb:
 	CDB_INSTALL_DIR=$(CDB_INSTALL_DIR) CDB_ROOT_DIR=$(CDB_ROOT_DIR) PYTHONPATH=$(SRC_PATH)/src/python  python $(SRC_PATH)/tools/developer_tools/cdb_plugins/update_plugin_generated_files.py $(DB_NAME) 0
-	if [ -f $(BUILD_PROPERTIES_FILE) ]; then mv $(BUILD_PROPERTIES_FILE) $(BUILD_PROPERTIES_FILE).orig; fi
+ifneq ("$(wildcard $(BUILD_PROPERTIES_FILE))","")
+	$(QUIET)echo ">>> Found $(BUILD_PROPERTIES_FILE), renamed it to $(BUILD_PROPERTIES_FILE).orig"
+	$(QUIET)mv $(BUILD_PROPERTIES_FILE) $(BUILD_PROPERTIES_FILE).orig
+endif
 	$(QUIET)sed -e "s:CDB_GLASSFISH_DIR:$(PAYARA_INSTALL_PATH):g" < $(GENERIC_BUILD_PROPERTIES_FILE) > $(BUILD_PROPERTIES_FILE)
+#   This harded-code cdb is strange, because CDB_DATA_DIR is CDB_INSTALL_DIR/data. Of cources, data/$CDB_DB_NAME, where 
+#   CDB_DB_NAME is cdb
 	$(QUIET)sed -e "s:CDB_DATA_DIR:cdb:g" < $(GLASSFISH_WEB_XML_FILE).template                       > $(GLASSFISH_WEB_XML_FILE)
 	$(QUIET)sed -e "s:CDB_DATA_DIR:cdb:g" < $(CDB_PORTAL_PROPERTIES_FILE).template                   > $(CDB_PORTAL_PROPERTIES_FILE)
+
+build.ant:
+	$(QUIET)echo ">>> Ant"
+	$(QUIET)$(CDB_ANT) -version
+	$(QUIET)echo ">>> JAVA"
+	$(QUIET)$(JAVA_PATH)/java -version
+	$(QUIET)echo ">>> "
 	$(CDB_ANT) -f $(CDB_JAVA_SRC)/build.xml -nice 7 $(ANT_ARGS) dist 
-	if [ -f $(BUILD_PROPERTIES_FILE).orig ]; then mv $(BUILD_PROPERTIES_FILE).orig $(BUILD_PROPERTIES_FILE); fi
+
+revertconf.cdb:
+ifneq ("$(wildcard $(BUILD_PROPERTIES_FILE).orig)","")
+	$(QUIET)echo ">>> Revert $(BUILD_PROPERTIES_FILE).orig to the original one $(BUILD_PROPERTIES_FILE)"
+	$(QUIET)mv $(BUILD_PROPERTIES_FILE).orig $(BUILD_PROPERTIES_FILE)
+endif
+
+conf.cdb.view:
+	-ls -ltar $(SRC_PATH)/src/java/CdbWebPortal/web/views/plugins/private
+	-ls -ltar $(SRC_PATH)/src/java/CdbWebPortal/src/java/gov/anl/aps/cdb/portal/plugins/support
+	-ls -ltar $(SRC_PATH)/src/python/cdb/cdb_web_service/plugins
+
+clean.conf.cdb:
+	rm -rf $(SRC_PATH)/src/java/CdbWebPortal/web/views/plugins/private
+	rm -rf $(SRC_PATH)/src/java/CdbWebPortal/src/java/gov/anl/aps/cdb/portal/plugins/support
+	rm -rf $(SRC_PATH)/src/python/cdb/cdb_web_service/plugins
 
 build.python:
+	$(QUIET)echo "\n>>> This rule is empty, what do we want to do???"
 	PYTHONPATH=$(SRC_PATH)/src/python  $(MAKE) -C $(SRC_PATH)/src/python dist

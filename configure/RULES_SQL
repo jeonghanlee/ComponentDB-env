@@ -74,7 +74,7 @@ jdbc.conf:
 jdbc.conf.show:
 	$(QUIET) cat -b $(SITE_TEMPLATE_PATH)/$(JDBC_PAYARA_MARIADB_XML)
 
-jdbc.install: jdbc.conf
+jdbc.install: jdbc.conf domain.restart
 	$(PAYARA_ASADMIN) add-resources $(SITE_TEMPLATE_PATH)/$(JDBC_PAYARA_MARIADB_XML)
 
 jdbc.ping:
@@ -93,7 +93,7 @@ jdbc.uninstall: jdbc.resource.rm jdbc.pool.rm
 jdbc.resource.rm:
 	$(PAYARA_ASADMIN) delete-jdbc-resource $(JDBC_JNID_NAME)
 
-jdbc.pool.rm:
+jdbc.pool.rm: 
 	$(PAYARA_ASADMIN) delete-jdbc-connection-pool $(JDBC_DB_CONNECTION_POOLNAME)
 
 domain.start:
@@ -101,3 +101,6 @@ domain.start:
 
 domain.stop:
 	$(PAYARA_ASADMIN) stop-domain $(PAYARA_DOMAIN)
+
+domain.restart:
+	$(PAYARA_ASADMIN) restart-domain $(PAYARA_DOMAIN)

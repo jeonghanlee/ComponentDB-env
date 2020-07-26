@@ -35,6 +35,8 @@ endif
 #
 SITE_TEMPLATE_PATH:=$(TOP)/site-template
 
+CDB_DATA_DIR:=$(CDB_INSTALL_LOCATION)/data
+
 
 CDB_ANT=ant
 
