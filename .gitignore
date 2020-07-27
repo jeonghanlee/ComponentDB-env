@@ -54,4 +54,6 @@ support-*
 site-template/.*.sql
 .vscode
 *.in
+templates
+test
 

@@ -38,10 +38,14 @@ SITE_TEMPLATE_PATH:=$(TOP)/site-template
 CDB_DATA_DIR:=$(CDB_INSTALL_LOCATION)/data
 
 
-CDB_ANT=ant
+
+
+ANT_HOME=/usr/share/ant
+ANT_CDB=$(ANT_HOME)/bin/ant
 
 CDB_JAVA_SRC:=$(SRC_PATH)/src/java/CdbWebPortal
-ANT_ARGS=-Dlibs.CopyLibs.classpath=lib/org-netbeans-modules-java-j2seproject-copylibstask.jar 
+ANT_ARGS+=-Dant.home=$(ANT_HOME)
+ANT_ARGS+=-Dlibs.CopyLibs.classpath=lib/org-netbeans-modules-java-j2seproject-copylibstask.jar
 
 BUILD_PROPERTIES_FILE=$(CDB_JAVA_SRC)/nbproject/private/private.properties
 GENERIC_BUILD_PROPERTIES_FILE=$(BUILD_PROPERTIES_FILE).generic.build
