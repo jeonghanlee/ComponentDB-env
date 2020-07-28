@@ -62,7 +62,7 @@ function debian_pkgs
     ## python-suds 
     ## ---------------------
     ## Debian 10
-    apt update
+    apt update -y
     apt install -y \
     	wget \
         curl \
@@ -73,7 +73,6 @@ function debian_pkgs
         gawk \
         unzip \
         make \
-        cmake \
         build-essential \
         gcc \
     	libssl-dev \
