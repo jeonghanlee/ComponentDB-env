@@ -23,6 +23,7 @@ jobs:
           bash ComponentDB-src/support/bin/install_java.sh
           bash ComponentDB-src/support/bin/install_ant.sh
           export JAVA_HOME=${PWD}/ComponentDB-src/support/java/linux-x86_64
+          export PATH=$JAVA_HOME/bin:$PATH
       - name: Building
         run: |
           echo "JAVA_PATH=${PWD}/ComponentDB-src/support/java/linux-x86_64/bin" > configure/CPNFIG_COMMON.local
