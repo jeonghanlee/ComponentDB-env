@@ -9,7 +9,7 @@ install.pkgs:
 install.jdk.local:
 	$(QUIET)echo "CDB provided OpenJDK will be in $(SRC_PATH)/support/java/linux-x86_64/bin"
 	$(QUIET)bash $(SRC_PATH)/support/bin/install_java.sh
-	$(QUIET)echo "JAVA_PATH=$(TOP)/$(SRC_PATH)/ComponentDB-src/support/java/linux-x86_64/bin" >> $(TOP)/configure/CONFIG_COMMON.local
+	$(QUIET)echo "JAVA_PATH=$(TOP)/$(SRC_PATH)/support/java/linux-x86_64/bin" >> $(TOP)/configure/CONFIG_COMMON.local
 
 install.ant.local:
 	$(QUIET)echo "CDB provided ANT will be in $(SRC_PATH)/support/java/linux-x86_64/bin"
