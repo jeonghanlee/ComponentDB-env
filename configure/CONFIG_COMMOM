@@ -3,6 +3,8 @@
 
 JAVA_PATH=/usr/bin
 
+ANT_HOME=/usr/share/ant
+
 ## Elasticsearch Server
 #ES_HOST:=localhost
 #ES_PORT:=9200

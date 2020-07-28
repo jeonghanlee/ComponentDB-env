@@ -39,7 +39,6 @@ SITE_TEMPLATE_PATH:=$(TOP)/site-template
 
 
 
-ANT_HOME=/usr/share/ant
 ANT_CDB=$(ANT_HOME)/bin/ant
 
 CDB_JAVA_SRC:=$(SRC_PATH)/src/java/CdbWebPortal
