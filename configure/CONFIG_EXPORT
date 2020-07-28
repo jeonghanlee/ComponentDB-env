@@ -8,3 +8,4 @@ $(eval $(foreach v,$(EXPORT_VARS),$(call export_version,$v)))
 
 
 VARS_EXCLUDES+=export_version
+VARS_EXCLUDES+=EXPORT_VARS

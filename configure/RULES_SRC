@@ -102,32 +102,90 @@ library-inclusion-in-archive.ant: info.ant
 compile.ant: info.ant
 	$(ANT_CDB) -f $(CDB_JAVA_SRC)/build.xml $(ANT_ARGS) compile
 
-.PHONY: conf.cdb  revertconf.cdb conf.cdb.view clean.conf.cdb
+.PHONY: conf.cdb conf.update_plugin conf.propertiles_file conf.web.xml conf.persistence.xml
 
-conf.cdb:
+conf.cdb: conf.update_plugin conf.build_propertiles_file conf.web.xml conf.cdb_portal_properties_file conf.persistence.xml conf.css.changecolor
+
+conf.update_plugin:
 	CDB_INSTALL_DIR=$(CDB_INSTALL_DIR) CDB_ROOT_DIR=$(CDB_ROOT_DIR) PYTHONPATH=$(SRC_PATH)/src/python  python $(SRC_PATH)/tools/developer_tools/cdb_plugins/update_plugin_generated_files.py $(DB_NAME) 0
-ifneq ("$(wildcard $(BUILD_PROPERTIES_FILE))","")
-	$(QUIET)echo ">>> Found $(BUILD_PROPERTIES_FILE), renamed it to $(BUILD_PROPERTIES_FILE).orig"
-	$(QUIET)mv $(BUILD_PROPERTIES_FILE) $(BUILD_PROPERTIES_FILE).orig
+
+conf.build_propertiles_file:
+ifneq ("$(wildcard $(CDB_BUILD_PROPERTIES_FILE))","")
+	$(QUIET)echo ">>> Found $(CDB_BUILD_PROPERTIES_FILE), renamed it to $(CDB_BUILD_PROPERTIES_FILE).orig"
+	$(QUIET)mv $(CDB_BUILD_PROPERTIES_FILE) $(CDB_BUILD_PROPERTIES_FILE).orig
 endif
-	$(QUIET)sed -e "s:CDB_GLASSFISH_DIR:$(PAYARA_INSTALL_PATH):g" < $(GENERIC_BUILD_PROPERTIES_FILE) > $(BUILD_PROPERTIES_FILE)
+	$(QUIET)sed -e "s:CDB_GLASSFISH_DIR:$(PAYARA_INSTALL_PATH):g" < $(CDB_GENERIC_BUILD_PROPERTIES_FILE) > $(CDB_BUILD_PROPERTIES_FILE)
+
+conf.web.xml:
 #   This harded-code cdb is strange, because CDB_DATA_DIR is CDB_INSTALL_DIR/data. Of cources, data/$CDB_DB_NAME, where 
 #   CDB_DB_NAME is cdb
-	$(QUIET)sed -e "s:CDB_DATA_DIR:cdb:g" < $(GLASSFISH_WEB_XML_FILE).template                       > $(GLASSFISH_WEB_XML_FILE)
-	$(QUIET)sed -e "s:CDB_DATA_DIR:cdb:g" < $(CDB_PORTAL_PROPERTIES_FILE).template                   > $(CDB_PORTAL_PROPERTIES_FILE)
+	$(QUIET)echo ">>> Generate $(CDB_GLASSFISH_WEB_XML_FILE)"
+	$(QUIET)sed -e "s:CDB_DATA_DIR:$(CDB_DATA_DIR):g" \
+				-e "s:<context-root.*:<context-root>$(CDB_CONTEXT_ROOT)</context-root>:g" \
+				< $(CDB_GLASSFISH_WEB_XML_FILE).template > $(CDB_GLASSFISH_WEB_XML_FILE)
+
+conf.cdb_portal_properties_file:
+	$(QUIET)echo ">>> Generate $(CDB_PORTAL_PROPERTIES_FILE)"
+	$(QUIET)sed -e "s:CDB_DATA_DIR:$(CDB_DATA_DIR):g" \
+				-e "s|cdb.webService.url=.*|cdb.webService.url=$(CDB_WEBSERVICE_URL)|g" \
+				-e "s|cdb.permanentContextRoot.url=.*|cdb.permanentContextRoot.url=$(CDB_CONTEXTROOT_URL)|g" \
+				-e "s:CDB_ADMIN:$(CDB_ADMIN):g" \
+				-e "s|CDB_LDAP_AUTH_SERVER_URL|$(CDB_LDAP_AUTH_SERVER_URL)|"g \
+				-e "s:CDB_LDAP_AUTH_DN_FORMAT:$(CDB_LDAP_AUTH_DN_FORMAT):"g \
+				-e "s:CDB_LDAP_SERVICE_DN:$(CDB_LDAP_SERVICE_DN):g" \
+				-e "s:CDB_LDAP_SERVICE_PASS:$(CDB_LDAP_SERVICE_PASS):g" \
+				-e "s:CDB_LDAP_LOOKUP_FILTER:$(CDB_LDAP_LOOKUP_FILTER):g" \
+				< $(CDB_PORTAL_PROPERTIES_FILE).template > $(CDB_PORTAL_PROPERTIES_FILE)
+
+conf.persistence.xml:
+ifneq ("$(wildcard $(CDB_CONF_PERSISTENCE_XML_FILE))","")
+	$(QUIET)echo ">>> Found $(CDB_CONF_PERSISTENCE_XML_FILE), renamed it to $(CDB_CONF_PERSISTENCE_XML_FILE).orig"
+	$(QUIET)mv $(CDB_CONF_PERSISTENCE_XML_FILE) $(CDB_CONF_PERSISTENCE_XML_FILE).orig
+endif
+	$(QUIET)sed -e "s:<jta-data-source.*:<jta-data-source>$(JDBC_JNID_NAME)</jta-data-source>:g" \
+				< $(CDB_CONF_PERSISTENCE_XML_FILE).orig > $(CDB_CONF_PERSISTENCE_XML_FILE)
+
+
+conf.resources.properties:
+ifneq ("$(wildcard $(CDB_RESOURCE_PROPERTIES))","")
+	$(QUIET)echo ">>> Found $(CDB_RESOURCE_PROPERTIES), renamed it to $(CDB_RESOURCE_PROPERTIES).orig"
+	$(QUIET)mv $(CDB_RESOURCE_PROPERTIES) $(CDB_RESOURCE_PROPERTIES).orig
+endif
+	$(QUIET)echo ">>> Generate $(CDB_RESOURCE_PROPERTIES)"
+	$(QUIET)sed -e "s|CdbPortalTitle=.*|CdbPortalTitle="$(CDB_PORTAL_TITLE)"|g" \
+				-e "s|CdbSoftwareVersion=.*|CdbSoftwareVersion=${CDB_SW_VERSION}|g" \
+				-e "s|CdbSoftwareVersionUrl=.*|CdbSoftwareVersionUrl=$(CDB_SW_VERSION_URL)|g" \
+				-e "s|CdbBugReportUrl=.*|CdbBugReportUrl=$(CDB_SW_VERSION_URL)|g" \
+				-e "s|CdbCodeRepository=.*|CdbCodeRepository=$(CDB_CODE_REPO)|g" \
+				< $(CDB_RESOURCE_PROPERTIES).orig > $(CDB_RESOURCE_PROPERTIES)
+
+.PHONY: conf.css.changecolor $(CDB_WEB_RESOURCES_CSS_FILES)
+
+conf.css.changecolor: $(CDB_WEB_RESOURCES_CSS_FILES)
+
+$(CDB_WEB_RESOURCES_CSS_FILES):
+	$(QUIET)echo  ">>> Change all $(CDB_WEB_RESOURCES_COLOR_DEFAULT) color to $(CDB_WEB_RESOURCES_COLOR_CHANGE) at $(@)"
+	$(QUIET)sed -i "s@color: $(CDB_WEB_RESOURCES_COLOR_DEFAULT)@color: $(CDB_WEB_RESOURCES_COLOR_CHANGE)@g" $(@)
+
+
+.PHONY: revertconf.cdb conf.cdb.view clean.conf.cdb
 
 revertconf.cdb:
-ifneq ("$(wildcard $(BUILD_PROPERTIES_FILE).orig)","")
-	$(QUIET)echo ">>> Revert $(BUILD_PROPERTIES_FILE).orig to the original one $(BUILD_PROPERTIES_FILE)"
-	$(QUIET)mv $(BUILD_PROPERTIES_FILE).orig $(BUILD_PROPERTIES_FILE)
+ifneq ("$(wildcard $(CDB_BUILD_PROPERTIES_FILE).orig)","")
+	$(QUIET)echo ">>> Revert $(CDB_BUILD_PROPERTIES_FILE).orig to the original one $(CDB_BUILD_PROPERTIES_FILE)"
+	$(QUIET)mv $(CDB_BUILD_PROPERTIES_FILE).orig $(CDB_BUILD_PROPERTIES_FILE)
+endif
+ifneq ("$(wildcard $(CDB_CONF_PERSISTENCE_XML_FILE).orig)","")
+	$(QUIET)echo ">>> Revert $(CDB_CONF_PERSISTENCE_XML_FILE).orig to the original - source version -one $(CDB_CONF_PERSISTENCE_XML_FILE)"
+	$(QUIET)mv $(CDB_CONF_PERSISTENCE_XML_FILE).orig $(CDB_CONF_PERSISTENCE_XML_FILE)
 endif
 
-conf.cdb.view:
+conf.update_plugin.view:
 	-ls -ltar $(SRC_PATH)/src/java/CdbWebPortal/web/views/plugins/private
 	-ls -ltar $(SRC_PATH)/src/java/CdbWebPortal/src/java/gov/anl/aps/cdb/portal/plugins/support
 	-ls -ltar $(SRC_PATH)/src/python/cdb/cdb_web_service/plugins
 
-clean.conf.cdb:
+clean.conf.update_plugin:
 	rm -rf $(SRC_PATH)/src/java/CdbWebPortal/web/views/plugins/private
 	rm -rf $(SRC_PATH)/src/java/CdbWebPortal/src/java/gov/anl/aps/cdb/portal/plugins/support
 	rm -rf $(SRC_PATH)/src/python/cdb/cdb_web_service/plugins
@@ -135,3 +193,7 @@ clean.conf.cdb:
 build.python:
 	$(QUIET)echo "\n>>> This rule is empty, what do we want to do???"
 	PYTHONPATH=$(SRC_PATH)/src/python  $(MAKE) -C $(SRC_PATH)/src/python dist
+
+
+VARS_EXCLUDES+=FILTER
+VARS_EXCLUDES+=$(filter CDB_WEB_RESOURCES_%, $(.VARIABLES))

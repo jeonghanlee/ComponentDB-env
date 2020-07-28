@@ -20,7 +20,6 @@ for i in $(wildcard $(TOP)/patch/$(SRC_TAG)*.p0.patch); do\
 done
 endef
 
-
 ifndef VERBOSE
   QUIET := @
 endif
