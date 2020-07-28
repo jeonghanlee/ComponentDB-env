@@ -21,7 +21,7 @@ jobs:
           architecture: x64
       - name: Preparation 
         run: |
-          sudo apt-get install tree mariadb-server
+          sudo apt-get install tree mariadb-server-10.1
           make vars
           make install.pkgs
           make info.ant
