@@ -16,9 +16,6 @@ jobs:
       - name: Preparation 
         run: |
           sudo apt-get install tree ant libjaxb-api-java
-          make vars
-          make info.ant
-          echo $PATH
       - name: JAVA 
         run: |
           make init
@@ -30,6 +27,9 @@ jobs:
         run: |
           echo "JAVA_PATH=${PWD}/ComponentDB-src/support/java/linux-x86_64/bin" > configure/CPNFIG_COMMON.local
           echo "ANT_HOME=${PWD}/ComponentDB-src/support/ant" >>  configure/CPNFIG_COMMON.local
+          make info.ant
+          make vars
+          echo $PATH
           make build
       - name: A WAR file
         run: |
