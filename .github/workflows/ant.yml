@@ -24,11 +24,12 @@ jobs:
       - name: Preparation 
         run: |
           sudo apt-get install make tree git 
+          make vars
+          make install.pkgs
           make info.ant
           echo $PATH
       - name: Building
         run: |
-          make vars
           make init
           make patch.apply
           make build
