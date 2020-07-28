@@ -1,7 +1,4 @@
-
-name: Java CI
-
-name: Build Test
+name: ANT CI
 
 on:
   push:
