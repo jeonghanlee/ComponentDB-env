@@ -21,8 +21,10 @@ jobs:
           make init
           make patch.apply
           make install.jdk.local
+          make install.ant.local
           export JAVA_HOME=${GITHUB_WORKSPACE}/ComponentDB-src/support/java/linux-x86_64
-          export PATH=$JAVA_HOME/bin:$PATH
+          export ANT_HOME=${GITHUB_WORKSPACE}}/ComponentDB-src/support/ant/
+          export PATH=${ANT_HOME}/bin:$JAVA_HOME/bin:$PATH
           make info.ant
           make vars
           echo "PATH"
