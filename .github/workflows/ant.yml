@@ -1,0 +1,41 @@
+
+name: Java CI
+
+name: Build Test
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set Up JDK 11
+        uses: actions/setup-java@v1
+        with:
+          java-version: '11.0.x'
+          java-package: jdk
+          architecture: x64
+      - name: Preparation 
+        run: |
+          sudo apt-get install make tree git 
+          make info.ant
+          echo $PATH
+      - name: Building
+        run: |
+          make vars
+          make init
+          make patch.apply
+          make build
+      - name: A WAR file
+        run: |
+          mkdir WARFILE
+          cd WARFILE && jar xf ComponentDB-src/src/java/CdbWebPortal/dist/CdbWebPortal.war
+          tree -L 2 WARFILE
+      - name: Compare build and WAR file
+        run: diff -rq ComponentDB-src/src/java/CdbWebPortal/build/web/ WARFILE/
