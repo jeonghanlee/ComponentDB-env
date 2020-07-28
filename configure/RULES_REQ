@@ -9,11 +9,15 @@ install.pkgs:
 install.jdk.local:
 	$(QUIET)echo "CDB provided OpenJDK will be in $(SRC_PATH)/support/java/linux-x86_64/bin"
 	$(QUIET)bash $(SRC_PATH)/support/bin/install_java.sh
-	$(QUIET)echo "JAVA_PATH=$(TOP)/$(SRC_PATH)/support/java/linux-x86_64/bin" >> $(TOP)/configure/CONFIG_COMMON.local
+	$(QUIET)echo "JAVA_PATH=$(TOP)/$(SRC_PATH)/support/java/linux-x86_64/bin" > $(TOP)/configure/CONFIG_COMMON.local
 
+
+# Java 11 package javax.xml.bind does not exist with JDK 11
+# Somehow strange enough, 
+# https://stackoverflow.com/questions/48204141/replacements-for-deprecated-jpms-modules-with-java-ee-apis
 install.ant.local:
 	$(QUIET)echo "CDB provided ANT will be in $(SRC_PATH)/support/java/linux-x86_64/bin"
 	$(QUIET)bash $(SRC_PATH)/support/bin/install_ant.sh
+	$(QUIET)wget -c https://repo1.maven.org/maven2/javax/xml/bind/jaxb-api/2.3.1/jaxb-api-2.3.1.jar
 	$(QUIET)echo "ANT_HOME=$(TOP)/$(SRC_PATH)/support/ant" >> $(TOP)/configure/CONFIG_COMMON.local
-	$(QUIET)wget -c https://repo1.maven.org/maven2/javax/jws/javax.jws-api/1.1/javax.jws-api-1.1.jar
-	$(QUIET)echo "ANT_ARGS+=-lib $(TOP)/javax.jws-api-1.1.jar" >> $(TOP)/configure/CONFIG_COMMON.local
+	$(QUIET)echo "ANT_ARGS+=-lib $(TOP)/jaxb-api-2.3.1.jar" >> $(TOP)/configure/CONFIG_COMMON.local

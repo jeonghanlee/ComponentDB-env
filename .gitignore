@@ -56,4 +56,5 @@ site-template/.*.sql
 *.in
 templates
 test
+*.jar
 

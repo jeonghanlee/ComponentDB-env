@@ -5,6 +5,9 @@ JAVA_PATH=/usr/bin
 
 ANT_HOME=/usr/share/ant
 
+ANT_ARGS+=-Dant.home=$(ANT_HOME)
+
+
 ## Elasticsearch Server
 #ES_HOST:=localhost
 #ES_PORT:=9200
