@@ -20,14 +20,12 @@ jobs:
         run: |
           make init
           make patch.apply
-          bash ComponentDB-src/support/bin/install_java.sh
-          bash ComponentDB-src/support/bin/install_ant.sh
+          make install.jdk.local
+          make install.ant.local
           export JAVA_HOME=${PWD}/ComponentDB-src/support/java/linux-x86_64
           export PATH=$JAVA_HOME/bin:$PATH
       - name: Building
         run: |
-          echo "JAVA_PATH=${PWD}/ComponentDB-src/support/java/linux-x86_64/bin" > configure/CPNFIG_COMMON.local
-          echo "ANT_HOME=${PWD}/ComponentDB-src/support/ant" >>  configure/CPNFIG_COMMON.local
           make info.ant
           make vars
           echo $PATH
