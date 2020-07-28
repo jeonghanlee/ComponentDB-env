@@ -21,7 +21,7 @@ jobs:
           make init
           make patch.apply
           make install.jdk.local
-          export JAVA_HOME= /home/runner/work/ComponentDB-env/ComponentDB-env/ComponentDB-src/support/java/linux-x86_64
+          export JAVA_HOME=/home/runner/work/ComponentDB-env/ComponentDB-env/ComponentDB-src/support/java/linux-x86_64
           export PATH=$JAVA_HOME/bin:$PATH
       - name: Building
         run: |
