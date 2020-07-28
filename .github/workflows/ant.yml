@@ -13,22 +13,21 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Set Up JDK 10
-        uses: actions/setup-java@v1
-        with:
-          java-version: '10'
-          java-package: jdk
-          architecture: x64
       - name: Preparation 
         run: |
           sudo apt-get install tree ant libjaxb-api-java
           make vars
           make info.ant
           echo $PATH
-      - name: Building
+      - name: JAVA 
         run: |
           make init
           make patch.apply
+          bash ComponentDB-src/support/bin/install_java.sh
+          export JAVA_HOME=${PWD}/ComponentDB-src/support/java/linux-x86_64
+      - name: Building
+        run: |
+          echo "JAVA_PATH=${PWD}/ComponentDB-src/support/java/linux-x86_64/bin" > configure/CPNFIG_COMMON.local
           make build
       - name: A WAR file
         run: |
