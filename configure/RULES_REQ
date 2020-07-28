@@ -18,6 +18,5 @@ install.jdk.local:
 install.ant.local:
 	$(QUIET)echo "CDB provided ANT will be in $(SRC_PATH)/support/java/linux-x86_64/bin"
 	$(QUIET)bash $(SRC_PATH)/support/bin/install_ant.sh
-#	$(QUIET)wget -c https://repo1.maven.org/maven2/javax/xml/bind/jaxb-api/2.3.1/jaxb-api-2.3.1.jar
 	$(QUIET)echo "ANT_HOME=$(TOP)/$(SRC_PATH)/support/ant" >> $(TOP)/configure/CONFIG_COMMON.local
-	$(QUIET)echo "ANT_ARGS+=-lib $(SITE_TEMPLATE_PATH)/javaee-endorsed-api-7.0.jar" >> $(TOP)/configure/CONFIG_COMMON.local
+	$(QUIET)echo "ANT_ARGS+=-lib $(SITE_TEMPLATE_PATH)/jakarta.xml.bind-api-2.3.3.jar" >> $(TOP)/configure/CONFIG_COMMON.local
