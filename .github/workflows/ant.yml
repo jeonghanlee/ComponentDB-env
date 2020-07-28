@@ -21,7 +21,7 @@ jobs:
           architecture: x64
       - name: Preparation 
         run: |
-          sudo apt-get install tree ant
+          sudo apt-get install tree ant libjaxb-api-java
           make vars
           make info.ant
           echo $PATH
