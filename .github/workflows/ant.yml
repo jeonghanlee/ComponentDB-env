@@ -21,13 +21,15 @@ jobs:
           make init
           make patch.apply
           make install.jdk.local
-          export JAVA_HOME=${PWD}/ComponentDB-src/support/java/linux-x86_64
+          export JAVA_HOME= /home/runner/work/ComponentDB-env/ComponentDB-env/ComponentDB-src/support/java/linux-x86_64
           export PATH=$JAVA_HOME/bin:$PATH
       - name: Building
         run: |
           make info.ant
           make vars
-          echo $PATH
+          echo "PATH"
+          echo ">>> PATH:       $PATH"
+          echo ">>> JAVA_HOME : $JAVA_HOME"
           make build
       - name: A WAR file
         run: |
