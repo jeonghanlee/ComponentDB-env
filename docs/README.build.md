@@ -142,16 +142,27 @@ Ant-Version: Apache Ant 1.10.5
 Created-By: 11+28 (Oracle Corporation)
 ```
 
-## Deploy
+## Deploy and Undeploy
 
-The following two methods are evaluated.
-
-* command line
+We can deploy and undeploy with the running Payara server.
 
 ```bash
-asadmin deploy CdbWebPortal.war
+make deploy.cdb
+make undeploy.cdb
 ```
 
-* auto-deploy
+## Procedures
 
-Put `CdbWebPortal.war` into `domains/production/autodeploy`. I will test them later with <https://github.com/jeonghanlee/Payara-env> before we actaully setup / install Paraya service.
+```bash
+make build
+make redeploy.cdb
+```
+
+## Make Rules
+
+```bash
+make deploy.cdb
+make undeploy.cdb
+make redeploy.cdb
+make list.cdb
+```

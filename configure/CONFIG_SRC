@@ -40,7 +40,12 @@ SITE_TEMPLATE_PATH:=$(TOP)/site-template
 
 ANT_CDB=$(ANT_HOME)/bin/ant
 
-CDB_JAVA_SRC:=$(SRC_PATH)/src/java/CdbWebPortal
+CDB_JAVA_SRC:=$(SRC_PATH)/src/java/$(WAR_NAME)
+
+_CDB_WEB:=$(CDB_JAVA_SRC)/web
+_CDB_WEB_TEMPLATES:=$(_CDB_WEB)/templates
+_CDB_WEB_RESOURCES:=$(_CDB_WEB)/resources
+_CDB_WEB_WEB-INF:=$(_CDB_WEB)/WEB-INF
 
 ANT_ARGS+=-Dlibs.CopyLibs.classpath=lib/org-netbeans-modules-java-j2seproject-copylibstask.jar
 
@@ -52,11 +57,12 @@ CDB_CONF_PERSISTENCE_XML_FILE=$(CDB_JAVA_SRC)/src/conf/persistence.xml
 CDB_RESOURCE_PROPERTIES=$(CDB_JAVA_SRC)/src/java/resources.properties
 CDB_PORTAL_PROPERTIES_FILE=$(CDB_JAVA_SRC)/src/java/cdb.portal.properties
 
-CDB_GLASSFISH_WEB_XML_FILE=$(CDB_JAVA_SRC)/web/WEB-INF/glassfish-web.xml
+CDB_GLASSFISH_WEB_XML_FILE=$(_CDB_WEB)/WEB-INF/glassfish-web.xml
 
 ## We have to define them one by one, because before `make init` we have to define them all
 ##
-_CDB_WEB_RESOURCES_CSS_PATH:=$(CDB_JAVA_SRC)/web/resources/css
+
+_CDB_WEB_RESOURCES_CSS_PATH:=$(_CDB_WEB_RESOURCES)/css
 CDB_WEB_RESOURCES_CSS_CATALOG:=$(_CDB_WEB_RESOURCES_CSS_PATH)/catalog.css
 CDB_WEB_RESOURCES_CSS_COMPONENTINVENTORY:=$(_CDB_WEB_RESOURCES_CSS_PATH)/componentInventory.css
 CDB_WEB_RESOURCES_CSS_DESIGNCATALOG:=$(_CDB_WEB_RESOURCES_CSS_PATH)/designCatalog.css
@@ -75,23 +81,37 @@ CDB_WEB_RESOURCES_CSS_MAARC:=$(_CDB_WEB_RESOURCES_CSS_PATH)/maarc.css
 CDB_WEB_RESOURCES_CSS_PORTAL:=$(_CDB_WEB_RESOURCES_CSS_PATH)/portal.css
 
 CDB_WEB_RESOURCES_CSS_FILES:=$(foreach v, $(filter CDB_WEB_RESOURCES_CSS_%, $(.VARIABLES)), $($(v)))
-CDB_WEB_RESOURCES_COLOR_DEFAULT:=\#f2f4f7
-# https://www.color-hex.com/color/f7f7f7
-# f7f7f7 : Gray97
-CDB_WEB_RESOURCES_COLOR_CHANGE:=\#f7f7f7
+CDB_WEB_LBNL_FONTS:="@import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,600;0,700;0,800;1,300;1,400;1,600;1,700;1,800&display=swap');"
+
+
+
+CDB_WEB_RESOURCES_GRAYCOLOR_DEFAULT:=\#f2f4f7
+CDB_WEB_RESOURCES_GRAYCOLOR_97:=\#F7F7F7
+CDB_WEB_RESOURCES_MAIN_COLOR_DEFAULT:=\#6da5d8
+## Berkeley Lab Brand Guidelines OVERVIEW
+## Light Gray
+CDB_WEB_RESOURCES_GRAYCOLOR_BERKELEY:=\#B1B3B3
+## DARK BLUE
+CDB_WEB_RESOURCES_MAIN_COLOR_BERKELEY:=\#00313C
 
 CDB_SW_VERSION=$(SRC_VERSION)-Build-$(shell date +%y%m%d%H%M)
 CDB_BUG_REPORT_URL=$(SRC_URL)/$(SRC_NAME)/issues/new
-CDB_SW_VERSION_URL=$(SRC_URL)/$(SRC_NAME)
-#https://api.github.com/repos/AdvancedPhotonSource/ComponentDB/commits/$(SRC_TAG)
+CDB_SW_VERSION_URL=$(REPO_GITURL)
 CDB_CODE_REPO:=$(SRC_URL)/$(SRC_NAME)
-CDB_PORTAL_TITLE:="ALS-U Component Database Portal 3 - $(SRC_VERSION)"
+CDB_PORTAL_TITLE:="ALS-U Component Database Portal"
+#CDB_WEB_TEMPLATE_XHTML_PORTALVIEW:=$(_CDB_WEB_TEMPLATES)/portalViewTemplate.xhtml
+#CDB_WEB_TEMPLATE_XHTML_LOGINVIEW:=$(_CDB_WEB_TEMPLATES)/loginViewTemplate.xhtml
+#CDB_WEB_TEMPLATE_XHTML_ERRORVIEW:=$(_CDB_WEB_TEMPLATES)/errorViewTemplate.xhtml
 
+CDB_WEB_RESOURCES_ALS_IMAGES:=$(wildcard $(SITE_TEMPLATE_PATH)/images/*)
+CBS_WEB_RESOURCES_IMAGES_PATH:=$(_CDB_WEB_RESOURCES)/images
 
 CDB_CONTEXT_ROOT=cdb
 CDB_DATA_DIR=cdb
 CDB_HOST_NAME=$(shell hostname -f)
 CDB_CONTEXT_ROOT_PORT=8080
+
+## Unclear what is this? What is webserver? I cannot connect this port at all
 CDB_WEBSERVER_PORT=10232
 
 CDB_WEBSERVICE_URL:=https://$(CDB_HOST_NAME):$(CDB_WEBSERVER_PORT)/$(CDB_CONTEXT_ROOT)

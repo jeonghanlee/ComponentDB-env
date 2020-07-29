@@ -1,28 +1,7 @@
 #-*- mode: Makefile;-*-
-.DEFAULT_GOAL := help
+.DEFAULT_GOAL := vars
 
-.PHONY: help default init distclean deinit
-
-# # help is defined in 
-# # https://gist.github.com/rcmachado/af3db315e31383502660
-help:
-	$(info --------------------------------------- )	
-	$(info Make Targets)
-	$(info --------------------------------------- )
-	$(QUIET) awk '/^[a-zA-Z\-\_0-9]+:/ {            \
-	  nb = sub( /^## /, "", helpMsg );              \
-	  if(nb == 0) {                                 \
-	    helpMsg = $$0;                              \
-	    nb = sub( /^[^:]*:.* ## /, "", helpMsg );   \
-	  }                                             \
-	  if (nb)                                       \
-	    print  $$1 "\t" helpMsg;                    \
-	}                                               \
-	{ helpMsg = $$0 }'                              \
-	$(MAKEFILE_LIST) | column -ts:
-
-
-default: help
+.PHONY: default init distclean deinit
 
 
 ## Clone Source
@@ -45,30 +24,6 @@ else
 	$(QUIET)echo "There is no $(SRC_PATH)."
 endif
 
-#.PHONY: support
-## Build support needed for the application
-#support:
-#	$(QUIET) $(MAKE) -C $(SRC_PATH) support
-
-## Create deployment configuration
-#conf:
-#	$(QUIET) $(MAKE) -C $(SRC_PATH) configuration
-
-## Create a clean db for the distribution 
-#clean-db:
-#	$(QUIET) $(MAKE) -C $(SRC_PATH) clean-db
-## Prepare web portal configuraiton
-#conf-portal:
-#	$(QUIET) $(MAKE) -C $(SRC_PATH) configure-web-portal
-## Deploy web portal
-#deploy-portal:
-#	$(QUIET) $(MAKE) -C $(SRC_PATH) deploy-web-portal
-
-## Deploy REST web service
-#deploy-service:
-#	$(QUIET) $(MAKE) -C $(SRC_PATH) deploy-web-service
-
-
 .PHONY: build build.java build.python clean clean.java
 
 build: build.java build.python
@@ -77,18 +32,22 @@ clean: clean.java
 
 .PHONY: conf.cdb dist.ant revertconf.cdb
 
-build.java: conf.cdb dist.ant revertconf.cdb
+build.java: conf.cdb dist.ant
 
-clean.java: clean.conf.cdb clean.ant
+clean.java: clean.conf.cdb clean.ant  revertconf.cdb
 
 .PHONY: info.ant dist.ant clean.ant library-inclusion-in-archive.ant compile.ant
 
 info.ant:
-	$(QUIET)echo ">>> Ant"
+	$(QUIET)echo "-------------------------------------------------------------"
+	$(QUIET)echo ">>> Ant  information"
+	$(QUIET)echo "Ant : $(ANT_CDB)"	
 	$(QUIET)$(ANT_CDB) -version
-	$(QUIET)echo ">>> JAVA"
+	$(QUIET)echo "-------------------------------------------------------------"
+	$(QUIET)echo ">>> JAVA information"
+	$(QUIET)echo "JAVA : $(JAVA_PATH)/java"
 	$(QUIET)$(JAVA_PATH)/java -version
-	$(QUIET)echo ">>> "
+	$(QUIET)echo "-------------------------------------------------------------"
 
 dist.ant: info.ant
 	$(ANT_CDB) -f $(CDB_JAVA_SRC)/build.xml $(ANT_ARGS) dist
@@ -102,9 +61,9 @@ library-inclusion-in-archive.ant: info.ant
 compile.ant: info.ant
 	$(ANT_CDB) -f $(CDB_JAVA_SRC)/build.xml $(ANT_ARGS) compile
 
-.PHONY: conf.cdb conf.update_plugin conf.propertiles_file conf.web.xml conf.persistence.xml
+.PHONY: conf.cdb conf.update_plugin conf.propertiles_file conf.web.xml conf.persistence.xml conf.resources.properties
 
-conf.cdb: conf.update_plugin conf.build_propertiles_file conf.web.xml conf.cdb_portal_properties_file conf.persistence.xml conf.css.changecolor
+conf.cdb: conf.update_plugin conf.build_propertiles_file conf.web.xml conf.cdb_portal_properties_file conf.persistence.xml conf.resources.properties conf.css.web
 
 conf.update_plugin:
 	CDB_INSTALL_DIR=$(CDB_INSTALL_DIR) CDB_ROOT_DIR=$(CDB_ROOT_DIR) PYTHONPATH=$(SRC_PATH)/src/python  python $(SRC_PATH)/tools/developer_tools/cdb_plugins/update_plugin_generated_files.py $(DB_NAME) 0
@@ -117,6 +76,8 @@ endif
 	$(QUIET)sed -e "s:CDB_GLASSFISH_DIR:$(PAYARA_INSTALL_PATH):g" < $(CDB_GENERIC_BUILD_PROPERTIES_FILE) > $(CDB_BUILD_PROPERTIES_FILE)
 
 conf.web.xml:
+	$(QUIET)echo ">>> Disable primefaces.THEME "
+	$(QUIET)cp -rf $(SITE_TEMPLATE_PATH)/web/web.xml $(_CDB_WEB_WEB-INF)/
 #   This harded-code cdb is strange, because CDB_DATA_DIR is CDB_INSTALL_DIR/data. Of cources, data/$CDB_DB_NAME, where 
 #   CDB_DB_NAME is cdb
 	$(QUIET)echo ">>> Generate $(CDB_GLASSFISH_WEB_XML_FILE)"
@@ -138,35 +99,72 @@ conf.cdb_portal_properties_file:
 				< $(CDB_PORTAL_PROPERTIES_FILE).template > $(CDB_PORTAL_PROPERTIES_FILE)
 
 conf.persistence.xml:
-ifneq ("$(wildcard $(CDB_CONF_PERSISTENCE_XML_FILE))","")
-	$(QUIET)echo ">>> Found $(CDB_CONF_PERSISTENCE_XML_FILE), renamed it to $(CDB_CONF_PERSISTENCE_XML_FILE).orig"
-	$(QUIET)mv $(CDB_CONF_PERSISTENCE_XML_FILE) $(CDB_CONF_PERSISTENCE_XML_FILE).orig
-endif
-	$(QUIET)sed -e "s:<jta-data-source.*:<jta-data-source>$(JDBC_JNID_NAME)</jta-data-source>:g" \
-				< $(CDB_CONF_PERSISTENCE_XML_FILE).orig > $(CDB_CONF_PERSISTENCE_XML_FILE)
+	$(QUIET)echo ">>> Generate $(CDB_CONF_PERSISTENCE_XML_FILE)"
+	$(QUIET)sed -i \
+				-e "s:<jta-data-source.*:<jta-data-source>$(JDBC_JNID_NAME)</jta-data-source>:g" \
+				$(CDB_CONF_PERSISTENCE_XML_FILE)
 
 
 conf.resources.properties:
-ifneq ("$(wildcard $(CDB_RESOURCE_PROPERTIES))","")
-	$(QUIET)echo ">>> Found $(CDB_RESOURCE_PROPERTIES), renamed it to $(CDB_RESOURCE_PROPERTIES).orig"
-	$(QUIET)mv $(CDB_RESOURCE_PROPERTIES) $(CDB_RESOURCE_PROPERTIES).orig
-endif
 	$(QUIET)echo ">>> Generate $(CDB_RESOURCE_PROPERTIES)"
-	$(QUIET)sed -e "s|CdbPortalTitle=.*|CdbPortalTitle="$(CDB_PORTAL_TITLE)"|g" \
+	$(QUIET)sed -i \
+				-e "s|CdbPortalTitle=.*|CdbPortalTitle="$(CDB_PORTAL_TITLE)"|g" \
 				-e "s|CdbSoftwareVersion=.*|CdbSoftwareVersion=${CDB_SW_VERSION}|g" \
 				-e "s|CdbSoftwareVersionUrl=.*|CdbSoftwareVersionUrl=$(CDB_SW_VERSION_URL)|g" \
-				-e "s|CdbBugReportUrl=.*|CdbBugReportUrl=$(CDB_SW_VERSION_URL)|g" \
+				-e "s|CdbBugReportUrl=.*|CdbBugReportUrl=$(CDB_BUG_REPORT_URL)|g" \
 				-e "s|CdbCodeRepository=.*|CdbCodeRepository=$(CDB_CODE_REPO)|g" \
-				< $(CDB_RESOURCE_PROPERTIES).orig > $(CDB_RESOURCE_PROPERTIES)
+				-e "s|CdbCopyrightNotice=.*|CdbCopyrightNotice=2014-2020 UChicago Argonne, LLC and Copyright 2020 Lawrence Berkeley National Laboratory|g" \
+				$(CDB_RESOURCE_PROPERTIES)
 
-.PHONY: conf.css.changecolor $(CDB_WEB_RESOURCES_CSS_FILES)
+
+
+.PHONY: conf.css.web conf.css.portal conf.css.changecolor $(CDB_WEB_RESOURCES_CSS_FILES) conf.copy.images conf.update.images
+
+conf.css.web: conf.css.portal conf.css.changecolor conf.copy.images conf.update.images
+
+
+
+conf.css.portal:
+	$(QUIET)echo ">>> Update $(CDB_WEB_RESOURCES_CSS_PORTAL)"
+	$(QUIET)cp -rf $(SITE_TEMPLATE_PATH)/css/portal.css $(_CDB_WEB_RESOURCES_CSS_PATH)/
+#	$(QUIET)sed -i -e "/^\@import url.*/d" $(CDB_WEB_RESOURCES_CSS_PORTAL)
+#	$(QUIET)sed -i \
+#				-e "/^html, body.*/i "$(CDB_WEB_LBNL_FONTS)"\n" \
+#				 $(CDB_WEB_RESOURCES_CSS_PORTAL)
+#	$(QUIET)sed -i \
+#				-e "s|font-family:|font-family: 'Open Sans', sans-serif,|g" \
+#				-e "s|text-wrap|word-wrap|g" \
+#				 $(CDB_WEB_RESOURCES_CSS_PORTAL)
+	$(QUIET)echo ">>> Update $(CDB_WEB_RESOURCES_CSS_JSFCRUD_1)"	
+	$(QUIET)sed -i \
+				-e "s|font-family:|font-family: 'Open Sans', sans-serif,|g" \
+				 $(CDB_WEB_RESOURCES_CSS_JSFCRUD_1)
+	$(QUIET)echo ">>> Update $(CDB_WEB_RESOURCES_CSS_JSFCRUD)"				
+	$(QUIET)sed -i \
+				-e "s|font-family:|font-family: 'Open Sans', sans-serif,|g" \
+				 $(CDB_WEB_RESOURCES_CSS_JSFCRUD)
+
 
 conf.css.changecolor: $(CDB_WEB_RESOURCES_CSS_FILES)
 
 $(CDB_WEB_RESOURCES_CSS_FILES):
-	$(QUIET)echo  ">>> Change all $(CDB_WEB_RESOURCES_COLOR_DEFAULT) color to $(CDB_WEB_RESOURCES_COLOR_CHANGE) at $(@)"
-	$(QUIET)sed -i "s@color: $(CDB_WEB_RESOURCES_COLOR_DEFAULT)@color: $(CDB_WEB_RESOURCES_COLOR_CHANGE)@g" $(@)
+	$(QUIET)echo  ">>> Change all $(CDB_WEB_RESOURCES_GRAYCOLOR_DEFAULT) color to $(CDB_WEB_RESOURCES_GRAYCOLOR_97) at $(@)"
+	$(QUIET)sed -i \
+				-e "s@$(CDB_WEB_RESOURCES_GRAYCOLOR_DEFAULT)@$(CDB_WEB_RESOURCES_GRAYCOLOR_97)@g" \
+				$(@)
 
+
+conf.copy.images:
+	$(QUIET)cp -rf $(CDB_WEB_RESOURCES_ALS_IMAGES) $(CBS_WEB_RESOURCES_IMAGES_PATH)/
+
+conf.update.images:
+	$(QUIET)grep -Ril "anl.ico" $(_CDB_WEB) | xargs -i@ sed -i "s/anl.ico/als.ico/g" @
+#	$(QUIET)grep -r "als.ico" $(_CDB_WEG)
+	$(QUIET)grep -Ril "ApsStorageRing.png" $(_CDB_WEB) | xargs -i@ sed -i "s/ApsStorageRing.png/dome.png/g" @
+#	$(QUIET)grep -r "dome.png" $(_CDB_WEG)
+	$(QUIET)grep -Ril "AnlLogo167x75.png" $(_CDB_WEB) | xargs -i@ sed -i "s/AnlLogo167x75.png/LBNLLogo.png/g" @
+#	$(QUIET)grep -r "LBNLLogo.png" $(_CDB_WEG)
+	$(QUIET)grep -Ril "background-size: 20" $(_CDB_WEB) | xargs -i@ sed -i "s/ackground-size: 20/ackground-size: 100/g" @
 
 .PHONY: revertconf.cdb conf.cdb.view clean.conf.cdb
 
@@ -181,19 +179,36 @@ ifneq ("$(wildcard $(CDB_CONF_PERSISTENCE_XML_FILE).orig)","")
 endif
 
 conf.update_plugin.view:
-	-ls -ltar $(SRC_PATH)/src/java/CdbWebPortal/web/views/plugins/private
-	-ls -ltar $(SRC_PATH)/src/java/CdbWebPortal/src/java/gov/anl/aps/cdb/portal/plugins/support
+	-ls -ltar $(CDB_JAVA_SRC)/web/views/plugins/private
+	-ls -ltar $(CDB_JAVA_SRC)/src/java/gov/anl/aps/cdb/portal/plugins/support
 	-ls -ltar $(SRC_PATH)/src/python/cdb/cdb_web_service/plugins
 
 clean.conf.update_plugin:
-	rm -rf $(SRC_PATH)/src/java/CdbWebPortal/web/views/plugins/private
-	rm -rf $(SRC_PATH)/src/java/CdbWebPortal/src/java/gov/anl/aps/cdb/portal/plugins/support
+	rm -rf $(CDB_JAVA_SRC)/web/views/plugins/private
+	rm -rf $(CDB_JAVA_SRC)/src/java/gov/anl/aps/cdb/portal/plugins/support
 	rm -rf $(SRC_PATH)/src/python/cdb/cdb_web_service/plugins
 
 build.python:
 	$(QUIET)echo "\n>>> This rule is empty, what do we want to do???"
 	PYTHONPATH=$(SRC_PATH)/src/python  $(MAKE) -C $(SRC_PATH)/src/python dist
 
+.PHONY: redeploy.cdb undeploy.cdb deploy.cdb clean.local
 
-VARS_EXCLUDES+=FILTER
+redeploy.cdb: undeploy.cdb deploy.cdb 
+
+deploy.cdb:
+	$(QUIET)$(PAYARA_ASADMIN) deploy $(CDB_JAVA_SRC)/dist/$(WAR_FILENAME)
+
+undeploy.cdb:
+	$(QUIET)$(PAYARA_ASADMIN) undeploy $(WAR_NAME)
+
+list.cdb:
+	$(QUIET)$(PAYARA_ASADMIN) list-applications
+#
+clean.local:
+	@-rm -f $(TOP)/*.local
+	@-rm -f $(TOP)/configure/*.local
+	@-rm -f $(TOP)/*.jar
+
+
 VARS_EXCLUDES+=$(filter CDB_WEB_RESOURCES_%, $(.VARIABLES))

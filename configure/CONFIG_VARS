@@ -10,10 +10,14 @@ SRC_GITURL:=$(SRC_URL)/$(SRC_NAME)
 ### CF_SRC_PATH used for a local directory which is a clone git repository
 SRC_PATH:=$(SRC_NAME)-src
 
+REPO_URL:=$(shell git config --get remote.origin.url)
+REPO_SRC_TAG:=$(shell git rev-parse HEAD)
+REPO_GITURL:=$(REPO_URL)/tree/$(REPO_SRC_TAG)
+
 CDB_SHORT_HOSTNAME=$(shell hostname -s)
 CDB_HOST_ARCH=$(shell uname -sm | tr -s '[:upper:][:blank:]' '[:lower:][\-]')
-CDB_SUPPORT_DIR=$(TOP)/support-$(CDB_SHORT_HOSTNAME)/anaconda/$(CDB_HOST_ARCH)
-PYTHONPATH=CDB_SUPPORT_DIR
+#CDB_SUPPORT_DIR=$(TOP)/support-$(CDB_SHORT_HOSTNAME)/anaconda/$(CDB_HOST_ARCH)
+#PYTHONPATH=CDB_SUPPORT_DIR
 
 
 # These allow developers to override the variable

@@ -8,13 +8,6 @@ ANT_HOME=/usr/share/ant
 ANT_ARGS+=-Dant.home=$(ANT_HOME)
 
 
-## Elasticsearch Server
-#ES_HOST:=localhost
-#ES_PORT:=9200
-
-
-
-
 PAYARA_INSTALL_PATH:=/opt/payara
 
 DB_NAME:=cdb

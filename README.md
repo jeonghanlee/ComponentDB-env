@@ -13,3 +13,10 @@ make init
 ```bash
 make install.pkgs
 ```
+
+```bash
+make patch.apply
+make build
+make deploy.cdb
+```
+
