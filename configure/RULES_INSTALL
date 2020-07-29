@@ -12,3 +12,4 @@ restart: build reinstall
 
 reset.repo:
 	@git -C $(SCR_PATH) restore ./*
+	

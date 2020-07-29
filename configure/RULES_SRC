@@ -50,6 +50,8 @@ info.ant:
 	$(QUIET)echo "-------------------------------------------------------------"
 
 dist.ant: info.ant
+	mkdir -p $(CDB_JAVA_SRC)/build/web/WEB-INF/lib/
+	cp -rf $(SITE_TEMPLATE_PATH)/jakarta.xml.bind-api-2.3.3.jar $(CDB_JAVA_SRC)/build/web/WEB-INF/lib/
 	$(ANT_CDB) -f $(CDB_JAVA_SRC)/build.xml $(ANT_ARGS) dist
 
 clean.ant: info.ant
