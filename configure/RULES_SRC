@@ -113,7 +113,7 @@ conf.resources.properties:
 				-e "s|CdbSoftwareVersionUrl=.*|CdbSoftwareVersionUrl=$(CDB_SW_VERSION_URL)|g" \
 				-e "s|CdbBugReportUrl=.*|CdbBugReportUrl=$(CDB_BUG_REPORT_URL)|g" \
 				-e "s|CdbCodeRepository=.*|CdbCodeRepository=$(CDB_CODE_REPO)|g" \
-				-e "s|CdbCopyrightNotice=.*|CdbCopyrightNotice=2014-2020 UChicago Argonne, LLC and Copyright 2020 Lawrence Berkeley National Laboratory|g" \
+				-e "s|CdbCopyrightNotice=.*|CdbCopyrightNotice=2014-2020 UChicago Argonne, LLC and 2020 Lawrence Berkeley National Laboratory|g" \
 				$(CDB_RESOURCE_PROPERTIES)
 
 
