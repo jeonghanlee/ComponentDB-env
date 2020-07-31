@@ -31,10 +31,3 @@ jobs:
           echo ">>> PATH:       $PATH"
           echo ">>> JAVA_HOME : $JAVA_HOME"
           make build
-      - name: A WAR file
-        run: |
-          mkdir WARFILE
-          cd WARFILE && jar xf ComponentDB-src/src/java/CdbWebPortal/dist/CdbWebPortal.war
-          tree -L 2 WARFILE
-      - name: Compare build and WAR file
-        run: diff -rq ComponentDB-src/src/java/CdbWebPortal/build/web/ WARFILE/
