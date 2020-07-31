@@ -138,5 +138,4 @@ case "$dist" in
 	;;
 esac
 
-
-define_python_path "$1"
+#define_python_path "$1"

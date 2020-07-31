@@ -3,7 +3,7 @@
 .PHONY: install.pkgs
 
 install.pkgs:
-	$(QUIET)sudo -E bash -c "$(TOP)/docker/scripts/required_pkgs.sh $(CDB_SUPPORT_DIR)"
+	$(QUIET)sudo -E bash -c "$(TOP)/scripts/required_pkgs.sh"
 #	$(QUIET)echo "\nPlease source $(TOP)/docker/scripts/.sourceme\n"
 
 install.jdk.local:
