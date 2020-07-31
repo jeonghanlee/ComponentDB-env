@@ -1,4 +1,4 @@
-# MariaDB Configuration
+# MariaDB Configuration (Old, not valid)
 
 There are several issues on the upstream repository of ComponentDB as follows:
 

@@ -18,6 +18,20 @@ WAR_FILENAME:=$(WAR_NAME).war
 #SYSTEMD_PATH:=/etc/systemd/system
 #SYSTEMD_FILENAME:=${APPNAME}.service
 
+
+LDAP_AUTH_SERVER_URL=
+LDAP_AUTH_DN_FORMAT=
+LDAP_SERVICE_DN=
+LDAP_SERVICE_PASS=
+LDAP_LOOKUP_FILTER=
+
+JAVA_PATH:=$(JAVA_HOME)/bin
+ANT_PATH:=$(ANT_HOME)/bin
+PATH:=$(ANT_PATH):$(JAVA_PATH):${PATH}
+
+USERID:=$(DB_USER)
+GROUPID:=65534
+
 # These allow developers to override the CONFIG_SITE variable
 # settings without having to modify the configure/CONFIG_SITE
 # file itself.

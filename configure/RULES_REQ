@@ -9,7 +9,8 @@ install.pkgs:
 install.jdk.local:
 	$(QUIET)echo "CDB provided OpenJDK will be in $(SRC_PATH)/support/java/linux-x86_64/bin"
 	$(QUIET)bash $(SRC_PATH)/support/bin/install_java.sh
-	$(QUIET)echo "JAVA_PATH=$(TOP)/$(SRC_PATH)/support/java/linux-x86_64/bin" > $(TOP)/configure/CONFIG_COMMON.local
+	$(QUIET)echo "JAVA_HOME=$(TOP)/$(SRC_PATH)/support/java/linux-x86_64" > $(TOP)/configure/CONFIG_COMMON.local
+	$(QUIET)echo "JAVA_PATH=$(JAVA_HOME)/bin"                            >> $(TOP)/configure/CONFIG_COMMON.local
 
 
 # package javax.xml.bind does not exist within JDK 11
@@ -18,4 +19,4 @@ install.ant.local:
 	$(QUIET)echo "CDB provided ANT will be in $(SRC_PATH)/support/java/linux-x86_64/bin"
 	$(QUIET)bash $(SRC_PATH)/support/bin/install_ant.sh
 	$(QUIET)echo "ANT_HOME=$(TOP)/$(SRC_PATH)/support/ant" >> $(TOP)/configure/CONFIG_COMMON.local
-	$(QUIET)echo "ANT_ARGS+=-lib $(SITE_TEMPLATE_PATH)" >> $(TOP)/configure/CONFIG_COMMON.local
+	$(QUIET)echo "ANT_PATH=$(ANT_HOME)/bin"                >> $(TOP)/configure/CONFIG_COMMON.local

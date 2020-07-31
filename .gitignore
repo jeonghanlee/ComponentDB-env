@@ -57,4 +57,7 @@ site-template/.*.sql
 templates
 test
 *.jar
+*.bak
+mariadb.conf*
+payara_mariadb_jdbc_template.xml
 

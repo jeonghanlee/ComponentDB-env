@@ -2,7 +2,7 @@
 #
 #  author  : Jeong Han Lee
 #  email   : jeonghan.lee@gmail.com
-#  version : 0.0.1
+#  version : 0.0.2
 
 declare -g SC_SCRIPT;
 declare -g SC_TOP;
@@ -15,13 +15,13 @@ SC_TOP="${SC_SCRIPT%/*}"
 ENV_TOP="${SC_TOP}/.."
  
 # shellcheck disable=SC1090
-. "${SC_TOP}/mariadb.conf"
+. "${ENV_TOP}/site-template/mariadb.conf"
 
 SQL_ROOT_CMD="sudo mysql --user=root"
 # shellcheck disable=SC2153
-SQL_ADMIN_CMD="mysql --user=${DB_ADMIN_NAME} --password=${DB_ADMIN_PASS} --port=${DB_HOST_PORT} --host=${DB_HOST_IPADDR}"
+SQL_ADMIN_CMD="mysql --user=${DB_ADMIN} --password=${DB_ADMIN_PASS} --port=${DB_HOST_PORT} --host=${DB_HOST_IPADDR}"
 # shellcheck disable=SC2153
-SQL_DBUSER_CMD="mysql --user=${DB_USER_NAME} --password=${DB_USER_PASS} --port=${DB_HOST_PORT} --host=${DB_HOST_IPADDR}"
+SQL_DBUSER_CMD="mysql --user=${DB_USER} --password=${DB_USER_PASS} --port=${DB_HOST_PORT} --host=${DB_HOST_IPADDR}"
 # shellcheck disable=SC2153
 #SQL_BACKUP_CMD="mysqldump --user=${DB_USER_NAME} --password=${DB_USER_PASS} ${DB_NAME}"
 
@@ -69,7 +69,8 @@ function usage
     echo "          allViews           : show the tables, views, and stored_procedures";
     echo "          allDrop            : drop the tables, views, and stored_procedures";
     echo "";
-    echo "          query \"sql query\"  : Send any sql query to DB -${DB_NAME}-"
+    echo "          query \"sql query\"    : Send any sql query to DB -${DB_NAME}-"
+    echo "          queryFile \"sql file\" : Send a query through a sql file to DB -${DB_NAME}-";
     echo "";
     } 1>&2;
     exit 1;
@@ -218,7 +219,7 @@ function commandPrn
     local cmd="$1"; shift;   
     if [ "$VERBOSE" == "YES" ]; then
         # shellcheck disable=SC2001
-        cmd=$(echo "${cmd}" | sed "s/--password=.*--port/--password=* --port/g")
+        cmd=$(echo "${cmd}" | sed -e "s/--password=.*--port/--password=******* --port/g" -e "s/PASSWORD = .*WHERE/set PASSWORD = ******* WHERE/g")
         printf ">> command :\\n"
         printf "%s\\n" "$cmd"
         printf ">>\\n"
@@ -255,9 +256,68 @@ function create_from_sql_file
     fi
 }
 
-function populate_cdb_static_sql
+# 1 : database name
+# 2 : sql file (with path) for database creation
+# 3 : additional options (useful to use -N )
+function query_from_sql_file
 {
-    input3="${ENV_TOP}/ComponentDB-src/db/sql/create_stored_procedures.sql"
+    local db_name="$1"; shift;
+    local sql_file="$1"; shift;
+    local options="$1"; shift;
+    local db_exist;
+    local cmd;
+
+    db_exist=$(isDb "${db_name}");
+
+    if [[ $db_exist -ne "$EXIST" ]]; then
+   	    noDbMessage "${db_name}";
+	    exit;
+    else
+        cmd+="$SQL_DBUSER_CMD";
+        cmd+=" ";
+        cmd+="${options}";
+        cmd+=" ";
+        cmd+="${db_name}";
+        cmd+=" ";
+        cmd+="<";
+        cmd+=" ";
+        cmd+=""\";   
+        cmd+="${sql_file}";
+        cmd+="\"";
+        # The following cmd contains only mysql standard query
+        commandPrn "$cmd"
+        eval "${cmd}"
+    fi
+}
+
+
+function query_from_sql_file_to_get_result_for_further_process
+{
+    local db_name="$1"; shift;
+    local sql_file="$1"; shift;
+    local options="$1"; shift;
+    local db_exist;
+    local cmd;
+
+    db_exist=$(isDb "${db_name}");
+
+    if [[ $db_exist -ne "$EXIST" ]]; then
+   	    noDbMessage "${db_name}";
+	    exit;
+    else
+        cmd+="$SQL_DBUSER_CMD";
+        cmd+=" ";
+        cmd+="${options}";
+        cmd+=" ";
+        cmd+="${db_name}";
+        cmd+=" ";
+        cmd+="<";
+        cmd+=" ";
+        cmd+=""\";   
+        cmd+="${sql_file}";
+        cmd+="\"";
+        eval "${cmd}"
+    fi
 }
 
 
@@ -397,7 +457,7 @@ function drop_tables
             dropCmd+=";\"";
        
             commandPrn "$dropCmd"
-            eval "${dropCmd}"
+#            eval "${dropCmd}"
         fi
 
     fi
@@ -457,6 +517,133 @@ function drop_procedures
 }
 
 
+# 1 : database name
+function drop_triggers
+{
+    local db_name="$1"; shift;
+    local db_exist;
+    local cmd;
+    local dropCmd;
+    db_exist=$(isDb "${db_name}");
+    ## 
+    ## These outputs are defined in $(SRC_PAHT)/db/sql/create_triggers.sql
+    ## So, this function is only valid for this CDB application.
+    outputs=( "insert_item"  "update_item" "insert_item_element" "update_item_element" )
+    if [[ $db_exist -ne "$EXIST" ]]; then
+	    noDbMessage "${db_name}";
+	    exit;
+    else
+
+        # shellcheck disable=SC2086
+        printf "\n";
+        for output in "${outputs[@]}"
+        do
+            dropCmd="$SQL_DBUSER_CMD";
+            dropCmd+=" ";
+            dropCmd+="${db_name}";
+            dropCmd+=" ";
+            dropCmd+="--execute=\"";
+            # Ignore all table orders, drop all
+            dropCmd+="DROP TRIGGER IF EXISTS ${output}"
+            dropCmd+=";\"";
+            if [ "$VERBOSE" == "YES" ]; then
+                printf ". %24s was found. Droping .... \n" "${output}"
+            fi
+	        commandPrn "$dropCmd"
+            eval "${dropCmd}"
+        done
+    fi
+
+}
+
+function generate_admin_local_password
+{
+    local db_name="$1"; shift;
+    local db_user_name="$1"; shift;
+    local local_password="$1"; shift;
+    local python_path="$1";shift;
+    local db_exist;
+    local db_cmd;
+    local python_cmd;
+    
+    local adminWithLocalPassword;
+
+    db_exist=$(isDb "${db_name}");
+
+
+    if [[ $db_exist -ne "$EXIST" ]]; then
+	    noDbMessage "${db_name}";
+	    exit;
+    else
+        adminWithLocalPassword=$(query_from_sql_file_to_get_result_for_further_process "${db_name}" "${ENV_TOP}/site-template/sql/check_cdb_admin.sql" -N)
+        if [ -z "$adminWithLocalPassword" ]; then
+            printf ">>> We've found there is no portal admin user with a local password.\n"
+            printf "    Creating .... \n"
+#           echo "$db_name, $db_user_name, $local_password, $python_path"
+#            python_cmd="PYTHONPATH=${python_path} python -c \"from cdb.common.utility.cryptUtility import CryptUtility; print CryptUtility.cryptPasswordWithPbkdf2('${local_password}')\""
+#            echo "$python_cmd"
+            adminCryptPassword=$(get_admin_crypt_password  "${db_name}" "$local_password" "${python_path}")
+            echo $adminCryptPassword
+            query="UPDATE user_info SET password = '$adminCryptPassword' WHERE username='$db_user_name'"
+            db_cmd+="$SQL_ADMIN_CMD";
+            db_cmd+=" ";
+            db_cmd+="${db_name}";
+            db_cmd+=" ";
+#            db_cmd+="-N";
+            db_cmd+=" ";   
+            db_cmd+="--execute=\"";
+            # The following cmd contains only mysql standard query
+            db_cmd+="${query}";
+            db_cmd+=";\"";
+             commandPrn "$db_cmd"
+ #           echo "$db_cmd"
+            eval "${db_cmd}";
+        fi
+    fi
+}
+
+
+function get_admin_crypt_password
+{
+    local db_name="$1"; shift;
+    local local_password="$1"; shift;
+    local python_path="$1";shift;
+    local db_exist;
+    local db_cmd;
+    local python_cmd;
+    
+    local adminWithLocalPassword;
+
+    db_exist=$(isDb "${db_name}");
+
+
+    if [[ $db_exist -ne "$EXIST" ]]; then
+	    noDbMessage "${db_name}";
+	    exit;
+    else
+        python_cmd="PYTHONPATH=${python_path} python -c \"from cdb.common.utility.cryptUtility import CryptUtility; print CryptUtility.cryptPasswordWithPbkdf2('${local_password}')\""
+        adminCryptPassword=$(eval "$python_cmd")
+        echo "$adminCryptPassword"
+    fi
+}
+
+
+
+#adminWithLocalPassword=`eval $mysqlCmd temporaryAdminCommand.sql`
+#if [ -z "$adminWithLocalPassword" ]; then
+#   echo "No portal admin user with a local password exists"
+#    read -sp "Enter password for local portal admin (username: cdb): [leave blank for no local password] " CDB_LOCAL_SYSTEM_ADMIN_PASSWORD
+#    echo ""
+#    if [ ! -z "$CDB_LOCAL_SYSTEM_ADMIN_PASSWORD" ]; then
+#	adminCryptPassword=`python -c "from cdb.common.utility.cryptUtility import CryptUtility; print CryptUtility.cryptPasswordWithPbkdf2('$CDB_LOCAL_SYSTEM_ADMIN_PASSWORD')"`
+#	echo "update user_info set password = '$adminCryptPassword' where username='cdb'" > temporaryAdminCommand.sql
+#        execute $mysqlCmd temporaryAdminCommand.sql
+#    fi
+#fi
+
+
+
+
 #printf ">> Show current databases .. with admin account\\n\n"
 #${SQL_ADMIN_CMD} -e "SELECT SCHEMA_NAME 'database', default_character_set_name 'charset', DEFAULT_COLLATION_NAME 'collation' FROM information_schema.SCHEMATA;"
 
@@ -489,12 +676,13 @@ function execute_query
 }
 
 
-input="$1";shift;
-additional_input="$1"; shift;
+input="$1";
+additional_input="$2"; 
+
 
 case "$input" in
     secureSetup)
-    	mariadb_secure_setup "${DB_HOST_NAME}" "${DB_HOST_IP_ADDR}";
+    	mariadb_secure_setup "${DB_HOST_NAME}" "${DB_HOST_IPADDR}";
         ;;
     adminAdd)
         # shellcheck disable=SC2153
@@ -555,6 +743,18 @@ case "$input" in
     sProcDrop)
         drop_procedures "${DB_NAME}";
         ;;
+    triggersCreate)
+        if [ -z "${additional_input}" ]; then
+            additional_input="${ENV_TOP}/ComponentDB-src/db/sql/create_triggers.sql"
+        fi
+        create_from_sql_file "${DB_NAME}" "${additional_input}"
+        ;;
+    triggersShow)
+        execute_query "${DB_NAME}" "show TRIGGERS;"
+        ;;
+    triggersDrop)
+        drop_triggers "${DB_NAME}";
+        ;;
     allCreate)
         input1="${ENV_TOP}/ComponentDB-src/db/sql/create_cdb_tables.sql"
         input2="${ENV_TOP}/ComponentDB-src/db/sql/create_views.sql"
@@ -572,12 +772,35 @@ case "$input" in
         drop_tables "${DB_NAME}" "BASE TABLE";  
         drop_tables "${DB_NAME}" "VIEW";
         drop_procedures "${DB_NAME}";
-        ;;        
+        ;;
     query)
-         if [ -z "${additional_input}" ]; then
+        if [ -z "${additional_input}" ]; then
             additional_input="SHOW DATABASES;"
         fi
         execute_query "${DB_NAME}" "$additional_input";
+        ;;
+    queryFile)
+        if [ -z "${additional_input}" ]; then
+            additional_input="${ENV_TOP}/site-template/sql/default_query.sql"
+        fi
+        query_from_sql_file "${DB_NAME}" "$additional_input" "$3"
+        ;;
+    querySFile)
+        query_sql_file="${additional_input}"
+        query_options="$3"
+        if [ -z "${sql_file}" ]; then
+             sql_file="${ENV_TOP}/site-template/sql/default_query.sql"
+        fi
+        query_from_sql_file_to_get_result_for_further_process "${DB_NAME}" "${query_sql_file}" "$query_options"
+        ;;
+    userLocalPassword)
+        username="$additional_input";
+        password="$3"
+        python_path="$4"
+        generate_admin_local_password  "${DB_NAME}" "$username" "$password" "$python_path"
+        ;;
+    showAdminCryptPassword)
+        get_admin_crypt_password  "${DB_NAME}" "$additional_input" "$3"
         ;;
     *)
         usage;

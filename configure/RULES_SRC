@@ -50,8 +50,8 @@ info.ant:
 	$(QUIET)echo "-------------------------------------------------------------"
 
 dist.ant: info.ant
-	mkdir -p $(CDB_JAVA_SRC)/build/web/WEB-INF/lib/
-	cp -rf $(SITE_TEMPLATE_PATH)/jakarta.xml.bind-api-2.3.3.jar $(CDB_JAVA_SRC)/build/web/WEB-INF/lib/
+#	mkdir -p $(CDB_JAVA_SRC)/build/web/WEB-INF/lib/
+#	cp -rf $(SITE_TEMPLATE_PATH)/jakarta.xml.bind-api-2.3.3.jar $(CDB_JAVA_SRC)/build/web/WEB-INF/lib/
 	$(ANT_CDB) -f $(CDB_JAVA_SRC)/build.xml $(ANT_ARGS) dist
 
 clean.ant: info.ant
@@ -65,10 +65,15 @@ compile.ant: info.ant
 
 .PHONY: conf.cdb conf.update_plugin conf.propertiles_file conf.web.xml conf.persistence.xml conf.resources.properties
 
-conf.cdb: conf.update_plugin conf.build_propertiles_file conf.web.xml conf.cdb_portal_properties_file conf.persistence.xml conf.resources.properties conf.css.web
+conf.cdb: conf.install conf.update_plugin conf.build_propertiles_file conf.web.xml conf.cdb_portal_properties_file conf.persistence.xml conf.resources.properties conf.css.web
+
+conf.install:
+	$(if $(wildcard $(_CDB_INSTALL_DIR)), $(QUIET)mv $(_CDB_INSTALL_DIR) $(_CDB_INSTALL_DIR)_backup_$$(date +%Y%m%d-%H%M%S))
+	$(QUIET)$(INSTALL) -d $(_CDB_INSTALL_DIR)
+	$(QUIET)mkdir -p $(_CDB_DATA_DIR) $(_CDB_VAR_DIR) $(_CDB_ETC_DIR) $(_CDB_LOG_DIR) $(_CDB_PROPERTYVALUE_DIR)
 
 conf.update_plugin:
-	CDB_INSTALL_DIR=$(CDB_INSTALL_DIR) CDB_ROOT_DIR=$(CDB_ROOT_DIR) PYTHONPATH=$(SRC_PATH)/src/python  python $(SRC_PATH)/tools/developer_tools/cdb_plugins/update_plugin_generated_files.py $(DB_NAME) 0
+	CDB_INSTALL_DIR=$(_CDB_INSTALL_DIR) CDB_ROOT_DIR=$(SRC_PATH) PYTHONPATH=$(PYTHONPATH)  python $(SRC_PATH)/tools/developer_tools/cdb_plugins/update_plugin_generated_files.py $(DB_NAME) 0
 
 conf.build_propertiles_file:
 ifneq ("$(wildcard $(CDB_BUILD_PROPERTIES_FILE))","")
@@ -97,7 +102,7 @@ conf.cdb_portal_properties_file:
 				-e "s:CDB_LDAP_AUTH_DN_FORMAT:$(CDB_LDAP_AUTH_DN_FORMAT):"g \
 				-e "s:CDB_LDAP_SERVICE_DN:$(CDB_LDAP_SERVICE_DN):g" \
 				-e "s:CDB_LDAP_SERVICE_PASS:$(CDB_LDAP_SERVICE_PASS):g" \
-				-e "s:CDB_LDAP_LOOKUP_FILTER:$(CDB_LDAP_LOOKUP_FILTER):g" \
+				-e "s:CDB_LDAP_LOOKUP_FILTER:\'$(CDB_LDAP_LOOKUP_FILTER)\':g" \
 				< $(CDB_PORTAL_PROPERTIES_FILE).template > $(CDB_PORTAL_PROPERTIES_FILE)
 
 conf.persistence.xml:
@@ -192,7 +197,7 @@ clean.conf.update_plugin:
 
 build.python:
 	$(QUIET)echo "\n>>> This rule is empty, what do we want to do???"
-	PYTHONPATH=$(SRC_PATH)/src/python  $(MAKE) -C $(SRC_PATH)/src/python dist
+	PYTHONPATH=$(PYTHONPATH) make -C $(SRC_PATH)/src/python dist
 
 .PHONY: redeploy.cdb undeploy.cdb deploy.cdb clean.local
 
@@ -211,6 +216,9 @@ clean.local:
 	@-rm -f $(TOP)/*.local
 	@-rm -f $(TOP)/configure/*.local
 	@-rm -f $(TOP)/*.jar
+
+
+libs.CopyLibs.classpath=lib/org-netbeans-modules-java-j2seproject-copylibstask.jar
 
 
 VARS_EXCLUDES+=$(filter CDB_WEB_RESOURCES_%, $(.VARIABLES))

@@ -1,25 +1,21 @@
 
 
-
-JAVA_PATH=/usr/bin
-
-ANT_HOME=/usr/share/ant
-
-ANT_ARGS+=-Dant.home=$(ANT_HOME)
-
+JAVA_HOME:=/usr/lib/jvm/java-11-openjdk-amd64
+ANT_HOME:=/usr/share/ant
 
 PAYARA_INSTALL_PATH:=/opt/payara
 
-DB_NAME:=cdb
-DB_USER:=cdb
-DB_USER_PASS:=cdb
-DB_HOSTNAME:=127.0.0.1
-DB_PORTNUM:=3306
+DB_ADMIN_HOSTS=localhost
+DB_ADMIN=admin
+DB_ADMIN_PASS=admin
+DB_HOST_IPADDR=127.0.0.1
+DB_HOST_PORT=3306
+DB_HOST_NAME=localhost
+DB_NAME=cdb
+DB_USER=cdb
+DB_USER_PASS=cdb
+DB_CHAR_SET=utf8
 
-
-CDB_INSTALL_DIR=$(TOP) 
-
-CDB_ROOT_DIR=$(SRC_PATH) 
 
 # These allow developers to override the variable
 -include $(TOP)/../CONFIG_COMMON.local

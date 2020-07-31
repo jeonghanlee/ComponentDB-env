@@ -1,6 +1,22 @@
-.PHONY: db.init db.create db.drop db.show sql.conf.clean sql.conf 
+.PHONY: db.conf db.init db.create db.drop db.show
 
-db.init:
+db.conf:
+	$(call checkfile, "$(SITE_TEMPLATE_PATH)/$(SQL_CONFIG_FILE)")
+	$(QUIET) echo ">>> Generate $(SITE_TEMPLATE_PATH)/$(SQL_CONFIG_FILE)"
+	$(QUIET)sed -e "s:@DB_ADMIN_HOSTS@:$(DB_ADMIN_HOSTS):g" \
+		    -e "s:@DB_ADMIN@:$(DB_ADMIN):g" \
+			-e "s:@DB_ADMIN_PASS@:$(DB_ADMIN_PASS):g" \
+			-e "s:@DB_CHAR_SET@:$(DB_CHAR_SET):g" \
+			-e "s:@DB_HOST@:$(DB_HOST):g" \
+			-e "s:@DB_HOST_NAME@:$(DB_HOST_NAME):g" \
+			-e "s:@DB_HOST_IPADDR@:$(DB_HOST_IPADDR):g" \
+			-e "s:@DB_NAME@:$(DB_NAME):g" \
+			-e "s:@DB_HOST_PORT@:$(DB_HOST_PORT):g" \
+			-e "s:@DB_USER@:$(DB_USER):g" \
+			-e "s:@DB_USER_PASS@:$(DB_USER_PASS):g" \
+		    < $(SITE_TEMPLATE_PATH)/$(SQL_CONFIG_FILE).in > $(SITE_TEMPLATE_PATH)/$(SQL_CONFIG_FILE)
+
+db.init: db.conf
 	$(QUIET)bash scripts/mariadb_setup.bash secureSetup
 	$(QUIET)bash scripts/mariadb_setup.bash adminAdd
 
@@ -8,57 +24,101 @@ db.create:
 	$(QUIET)bash scripts/mariadb_setup.bash dbCreate
 
 db.drop:
-	$(QUIET)bash scripts/mariadb_setup.bash allDrop
+	$(QUIET)bash scripts/mariadb_setup.bash dbDrop
 
 db.show:
-	$(QUIET)bash scripts/mariadb_setup.bash allShow
+	$(QUIET)bash scripts/mariadb_setup.bash dbShow
 
 
-.PHONY: sql.conf.clean sql.conf sql.Fill sql.top.conf sql.topFill sql.topShow sql.staticpath.conf sql.staticpathFill
+.PHONY: cdb.create cdb.drop cdb.show
+
+cdb.create: sql.Fill sql.triggersFill
+
+cdb.drop: sql.triggersDrop sql.Drop
+
+cdb.show: sql.triggersShow sql.Show
+
+cdb.admin:
+	bash scripts/mariadb_setup.bash userLocalPassword "cdb" "cdb" "$(PYTHONPATH)"
+
+cdb.getadminpass:
+	$(QUIET)bash scripts/mariadb_setup.bash showAdminCryptPassword "123456" "$(PYTHONPATH)"
+
+
+.PHONY: sql.conf sql.top.conf sql.staticpath.conf sql.cleanpath.conf sql.site.conf sql.conf.clean
 
 sql.conf.clean:
 	-rm -f $(TEMP_ALL_SQL) $(TEMP_TOP_SQL) $(TEMP_STATICPATH_SQL) $(TEMP_CLEANPATH_SQL) $(TEMP_SITE_SQL)
 
-sql.conf:
+sql.conf: sql.top.conf sql.staticpath.conf sql.cleanpath.conf sql.site.conf
 	$(QUIET)cat $(SQL_TOP_FILES) $(SQL_STATICPATH_FILES) $(SQL_CLEANPATH_FILES) $(SQL_SITE_FILES) > $(TEMP_ALL_SQL)
-
-sql.Fill: sql.conf
-	$(QUIET)bash scripts/mariadb_setup.bash tableCreate "$(TEMP_ALL_SQL)"
 
 sql.top.conf:
 	$(QUIET)cat $(SQL_TOP_FILES)        > $(TEMP_TOP_SQL)
 
-sql.topFill: sql.top.conf
-	$(QUIET)bash scripts/mariadb_setup.bash tableCreate "$(TEMP_TOP_SQL)"
-
-sql.topShow:
-	$(QUIET)bash scripts/mariadb_setup.bash allShow
-
 sql.staticpath.conf:
 	$(QUIET)cat $(SQL_STATICPATH_FILES) > $(TEMP_STATICPATH_SQL)
-
-sql.staticpathFill: sql.staticpath.conf
-	$(QUIET)bash scripts/mariadb_setup.bash tableCreate "$(TEMP_STATICPATH_SQL)"
-
-.PHONY: sql.cleanpathFill sql.cleanpath.conf sql.site.conf sql.siteFill sql.allShow sql.allDrop
 
 sql.cleanpath.conf:
 	$(QUIET)cat $(SQL_CLEANPATH_FILES)  > $(TEMP_CLEANPATH_SQL)
 
-sql.cleanpathFill: sql.cleanpath.conf
-	$(QUIET)bash scripts/mariadb_setup.bash tableCreate "$(TEMP_CLEANPATH_SQL)"
-
 sql.site.conf:
 	$(QUIET)cat $(SQL_SITE_FILES)       > $(TEMP_SITE_SQL)
+
+.PHONY: sql.Fill sql.topFill sql.staticpathFill sql.cleanpathFill sql.siteFill
+
+# Combine all queries into one single query.
+sql.Fill: sql.conf sql.update
+	$(QUIET)bash scripts/mariadb_setup.bash tableCreate "$(TEMP_ALL_SQL)"
+
+sql.topFill: sql.top.conf
+	$(QUIET)bash scripts/mariadb_setup.bash tableCreate "$(TEMP_TOP_SQL)"
+
+sql.staticpathFill: sql.staticpath.conf
+	$(QUIET)bash scripts/mariadb_setup.bash tableCreate "$(TEMP_STATICPATH_SQL)"
+
+sql.cleanpathFill: sql.cleanpath.conf sql.update
+	$(QUIET)bash scripts/mariadb_setup.bash tableCreate "$(TEMP_CLEANPATH_SQL)"
 
 sql.siteFill: sql.site.conf
 	$(QUIET)bash scripts/mariadb_setup.bash tableCreate "$(TEMP_SITE_SQL)"
 
 
+.PHONY: sql.triggersFill sql.triggersDrop sql.triggersShow  sql.Show sql.Drop sql.update
+
+sql.triggersFill:
+	$(QUIET)bash scripts/mariadb_setup.bash triggersCreate
+
+sql.triggersDrop:
+	$(QUIET)bash scripts/mariadb_setup.bash triggersDrop
+
+sql.triggersShow:
+	$(QUIET)bash scripts/mariadb_setup.bash triggersShow
+
+sql.Show:
+	$(QUIET)bash scripts/mariadb_setup.bash allShow
+
+sql.Drop:
+	$(QUIET)bash scripts/mariadb_setup.bash allDrop
+
+
+## This replace the default aps email to SQL_SYSTEM_ACCOUNT.
+## Have to setup that account according to its purpose.
+sql.update:
+	$(QUIET)sed -i -e "s|cdb@aps.anl.gov|$(SQL_SYSTEM_ACCOUNT)|g" $(TEMP_ALL_SQL)
+	$(QUIET)sed -i -e "s|cdb@aps.anl.gov|$(SQL_SYSTEM_ACCOUNT)|g" $(TEMP_CLEANPATH_SQL)
+
+
+
 .PHONY: jdbc.conf jdbc.conf.show jdbc.install jdbc.ping jdbc.list jdbc.flush
 
 jdbc.conf: 
+ifneq ("$(wildcard $(SITE_TEMPLATE_PATH)/$(JDBC_PAYARA_MARIADB_XML))","")
+	$(QUIET) echo ">>> Found the exist file $(JDBC_PAYARA_MARIADB_XML) at $(SITE_TEMPLATE_PATH)"
+	$(QUIET) echo "    Remove it."
 	-rm -f $(SITE_TEMPLATE_PATH)/$(JDBC_PAYARA_MARIADB_XML)
+endif
+	$(QUIET) echo ">>> Generate $(JDBC_PAYARA_MARIADB_XML) at $(SITE_TEMPLATE_PATH)"
 	$(QUIET)sed -e "s:@JDBC_DATASOURCE_CLASSNAME@:$(JDBC_DATASOURCE_CLASSNAME):g" \
 		    -e "s:@JDBC_RES_TYPE@:$(JDBC_RES_TYPE):g" \
 			-e "s:@JDBC_DB_USER@:$(JDBC_DB_USER):g" \
@@ -74,7 +134,7 @@ jdbc.conf:
 jdbc.conf.show:
 	$(QUIET) cat -b $(SITE_TEMPLATE_PATH)/$(JDBC_PAYARA_MARIADB_XML)
 
-jdbc.install: jdbc.conf domain.restart
+jdbc.install: jdbc.conf
 	$(PAYARA_ASADMIN) add-resources $(SITE_TEMPLATE_PATH)/$(JDBC_PAYARA_MARIADB_XML)
 
 jdbc.ping:

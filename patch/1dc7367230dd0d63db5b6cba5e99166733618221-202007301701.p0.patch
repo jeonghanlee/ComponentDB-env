@@ -1,3 +1,18 @@
+diff --git src/java/CdbWebPortal/web/WEB-INF/web.xml src/java/CdbWebPortal/web/WEB-INF/web.xml
+index d69fbd27c..666a632b3 100644
+--- src/java/CdbWebPortal/web/WEB-INF/web.xml
++++ src/java/CdbWebPortal/web/WEB-INF/web.xml
+@@ -8,6 +8,10 @@ See LICENSE file.
+         <param-name>javax.faces.PROJECT_STAGE</param-name>
+         <param-value>Development</param-value>
+     </context-param>
++    <context-param>
++        <param-name>primefaces.THEME</param-name>
++        <param-value>none</param-value>
++    </context-param>
+     <context-param>
+         <param-name>primefaces.FONT_AWESOME</param-name>
+         <param-value>true</param-value>
 diff --git tools/developer_tools/cdb_plugins/update_plugin_generated_files.py tools/developer_tools/cdb_plugins/update_plugin_generated_files.py
 index 7376782f6..ad0ef2cf6 100755
 --- tools/developer_tools/cdb_plugins/update_plugin_generated_files.py

@@ -1,15 +1,50 @@
 
 
 ## Install Service related files 
-install: deploy.cdb
+install: src_install
+
+deploy: deploy.cdb
+
+## PRE installation is done in conf.install rule in RULES_SRC
+## PRE installation is in $(_CDB_INSTALL_DIR)
+src_install: src_version src_preinst
+	$(QUIET)$(SUDO) $(INSTALL) -d $(CDB_INSTALL_LOCATION)
+	$(QUIET)$(SUDO) $(INSTALL_DATA) -b $(SITE_TEMPLATE_PATH)/.versions  $(CDB_INSTALL_LOCATION)/
+# 	if we need configuration files, should be done in here. 
+	$(QUIET)$(SUDO) cp -rp $(_CDB_INSTALL_DIR)/*  $(CDB_INSTALL_LOCATION)/
+	$(QUIET)$(SUDO)	chown -R $(USERID):$(GROUPID) $(CDB_INSTALL_LOCATION)
+
 
 ## Uninstall 
-uninstall: undeploy.cdb
+undeploy: undeploy.cdb
 
-reinstall: redeploy.cdb
+uninstall: src_postrm src_clean
+	$(QUIET)echo "Removing $(CDB_INSTALL_LOCATION)..."
 
-restart: build reinstall 
+
+#reinstall: redeploy.cdb
+
+#restart: build reinstall 
 
 reset.repo:
 	@git -C $(SCR_PATH) restore ./*
 	
+.PHONY: src_version src_preinst src_postrm src_clean
+
+src_preinst:
+	$(QUIET)sudo -E bash $(SITE_TEMPLATE_PATH)/usergroup.postinst "configure" "$(USERID)" "$(GROUPID)"
+
+src_postrm: 
+	$(QUIET)sudo -E bash $(SITE_TEMPLATE_PATH)/usergroup.postrm "purge" "$(USERID)"
+
+src_version: FORCE
+	$(QUIET)echo "Timestamps : $$(date +%Y%m%d-%H%M%S)/YYYYMMDD-HHMMSS" > $(SITE_TEMPLATE_PATH)/.versions
+	$(QUIET)echo "- SRC REMOTE URL   : $(SRC_GITURL)"  >> $(SITE_TEMPLATE_PATH)/.versions
+	$(QUIET)echo "- SRC SITE VERSION : $(SRC_TAG)"     >> $(SITE_TEMPLATE_PATH)/.versions
+	$(QUIET)echo -n "- SRC GIT  VERSION : "            >> $(SITE_TEMPLATE_PATH)/.versions
+	$(QUIET)cd $(SRC_PATH) && git describe --tags      >> $(SITE_TEMPLATE_PATH)/.versions
+
+src_clean:
+	-rm -rf $(SITE_TEMPLATE_PATH)/.versions
+
+FORCE:

@@ -6,7 +6,7 @@ VARS_EXCLUDES+=LEVEL
 VARS_EXCLUDES+=_%
 
 
-LEVEL?=1
+LEVEL?=2
 
 FILTER?=1
 
@@ -46,7 +46,7 @@ FORCE:
 .PHONY : exist
 
 exist:
-	$(if $(wildcard $(INSTALL_LOCATION)), tree -aL $(LEVEL) $(INSTALL_LOCATION), $(QUIET)echo "No $(INSTALL_LOCATION)")
+	$(if $(wildcard $(CDB_INSTALL_LOCATION)), tree -aL $(LEVEL) $(CDB_INSTALL_LOCATION), $(QUIET)echo "No $(CDB_INSTALL_LOCATION)")
 
 
 .DELETE_ON_ERROR:

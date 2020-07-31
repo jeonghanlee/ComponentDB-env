@@ -4,6 +4,12 @@ SQL_TOP_PATH:=$(SRC_PATH)/db/sql
 SQL_STATICPATH_PATH:=$(SQL_TOP_PATH)/static
 SQL_CLEANPATH_PATH:=$(SQL_TOP_PATH)/clean
 SQL_SITE_PATH:=$(SITE_TEMPLATE_PATH)/sql
+SQL_CONFIG_FILE:=mariadb.conf
+
+SQL_LOCAL_USER_PASS:=$(DB_USER_PASS)
+SQL_SYSTEM_ACCOUNT=jeonglee@lbl.gov
+
+JDBC_PAYARA_MARIADB_XML:=payara_mariadb_jdbc_template.xml
 
 # CREATE TABLE
 SQL_TOP_TYPES:=cdb_tables views stored_procedures
@@ -88,6 +94,8 @@ SQL_STATICPATH_FILES:=$(addprefix $(SQL_STATICPATH_PATH)/, $(addprefix populate_
 SQL_CLEANPATH_FILES:=$(addprefix $(SQL_CLEANPATH_PATH)/, $(addprefix populate_, $(addsuffix .sql,$(basename $(SQL_CLEANPATH_TYPES)))))
 SQL_SITE_FILES:=$(addprefix $(SQL_SITE_PATH)/, $(addprefix populate_, $(addsuffix .sql,$(basename $(SQL_SITE_TYPES)))))
 
+SQL_TRIGGERS_FILE:=$(SQL_TOP_PATH)/create_triggers.sql
+
 TEMP_ALL_SQL:=$(SITE_TEMPLATE_PATH)/.all.sql
 TEMP_TOP_SQL:=$(SITE_TEMPLATE_PATH)/.top.sql
 TEMP_STATICPATH_SQL:=$(SITE_TEMPLATE_PATH)/.staticpath.sql
@@ -99,10 +107,10 @@ TEMP_SITE_SQL:=$(SITE_TEMPLATE_PATH)/.site.sql
 JDBC_DATASOURCE_CLASSNAME=org.mariadb.jdbc.MariaDbDataSource
 JDBC_RES_TYPE=javax.sql.DataSource
 JDBC_DB_USER=$(DB_USER)
-JDBC_DB_USER_PASS=$(DB_USER_PASS)
+JDBC_DB_USER_PASS=$(DB_USERPASS)
 JDBC_DB_TYPE=mariadb
-JDBC_DB_HOSTNAME=$(DB_HOSTNAME)
-JDBC_DB_PORTNUM=$(DB_PORTNUM)
+JDBC_DB_HOSTNAME=$(DB_HOST_IPADDR)
+JDBC_DB_PORTNUM=$(DB_HOST_PORT)
 JDBC_DB_NAME=$(DB_NAME)
 JDBC_DB_CONNECTION_POOLNAME=$(JDBC_DB_TYPE)_$(JDBC_DB_NAME)_DbPool
 JDBC_JNID_NAME=$(JDBC_DB_NAME)_DataSource

@@ -1,5 +1,4 @@
 
-
 include $(TOP)/configure/RULES_FUNC
 include $(TOP)/configure/RULES_PATCH
 -include $(TOP)/configure/RULES_REQ

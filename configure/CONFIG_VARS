@@ -17,8 +17,6 @@ REPO_GITURL:=$(REPO_URL)/tree/$(REPO_SRC_TAG)
 CDB_SHORT_HOSTNAME=$(shell hostname -s)
 CDB_HOST_ARCH=$(shell uname -sm | tr -s '[:upper:][:blank:]' '[:lower:][\-]')
 #CDB_SUPPORT_DIR=$(TOP)/support-$(CDB_SHORT_HOSTNAME)/anaconda/$(CDB_HOST_ARCH)
-#PYTHONPATH=CDB_SUPPORT_DIR
-
 
 # These allow developers to override the variable
 -include $(TOP)/../CONFIG_VARS.local
