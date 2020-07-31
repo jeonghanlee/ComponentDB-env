@@ -1,6 +1,6 @@
 # -*- mode: Makefile;-*-
 
-.PHONY: install.pkgs
+.PHONY: install.pkgs install.jakarta.xml install.jdk.local install.ant.local
 
 install.pkgs:
 	$(QUIET)sudo -E bash -c "$(TOP)/scripts/required_pkgs.sh"
@@ -20,3 +20,6 @@ install.ant.local:
 	$(QUIET)bash $(SRC_PATH)/support/bin/install_ant.sh
 	$(QUIET)echo "ANT_HOME=$(TOP)/$(SRC_PATH)/support/ant" >> $(TOP)/configure/CONFIG_COMMON.local
 	$(QUIET)echo "ANT_PATH=$(ANT_HOME)/bin"                >> $(TOP)/configure/CONFIG_COMMON.local
+
+install.jakarta.xml:
+	$(QUIET)cp $(SITE_TEMPLATE_PATH)/jakarta.xml.bind-api-2.3.3.jar $(TOP)/$(CDB_JAVA_SRC)/lib/
