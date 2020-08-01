@@ -5,16 +5,25 @@ ANT_HOME:=/usr/share/ant
 
 PAYARA_INSTALL_PATH:=/opt/payara
 
-DB_ADMIN_HOSTS=localhost
-DB_ADMIN=admin
-DB_ADMIN_PASS=admin
+
+## MariaDB configuration example
+## Users in the HOSTS can access the SQL server with DB_ADMIN permission
+DB_ADMIN_HOSTS="localhost 127.0.0.1 10.0.0.200"
+## SQL Server 
 DB_HOST_IPADDR=127.0.0.1
 DB_HOST_PORT=3306
 DB_HOST_NAME=localhost
+## SQL server ADMIN user, because we don't use root
+DB_ADMIN=admin
+DB_ADMIN_PASS=admin
+## User for the Database DB_NAME
 DB_NAME=cdb
-DB_USER=cdb
-DB_USER_PASS=cdb
-DB_CHAR_SET=utf8
+DB_USER=cdbpayara
+DB_USER_PASS=cdbpayara
+## ComponentDB Admin Local User
+CDB_USER=cdbuser
+CDB_USER_PASS=cdbuser
+
 
 
 # These allow developers to override the variable

@@ -1,34 +1,39 @@
-.PHONY: db.conf db.init db.create db.drop db.show
+.PHONY: db.conf db.secure db.addAdmin db.rmAdmin db.create db.drop db.show
 
 db.conf:
 	$(call checkfile, "$(SITE_TEMPLATE_PATH)/$(SQL_CONFIG_FILE)")
 	$(QUIET) echo ">>> Generate $(SITE_TEMPLATE_PATH)/$(SQL_CONFIG_FILE)"
-	$(QUIET)sed -e "s:@DB_ADMIN_HOSTS@:$(DB_ADMIN_HOSTS):g" \
-		    -e "s:@DB_ADMIN@:$(DB_ADMIN):g" \
-			-e "s:@DB_ADMIN_PASS@:$(DB_ADMIN_PASS):g" \
-			-e "s:@DB_CHAR_SET@:$(DB_CHAR_SET):g" \
-			-e "s:@DB_HOST@:$(DB_HOST):g" \
-			-e "s:@DB_HOST_NAME@:$(DB_HOST_NAME):g" \
-			-e "s:@DB_HOST_IPADDR@:$(DB_HOST_IPADDR):g" \
-			-e "s:@DB_NAME@:$(DB_NAME):g" \
-			-e "s:@DB_HOST_PORT@:$(DB_HOST_PORT):g" \
-			-e "s:@DB_USER@:$(DB_USER):g" \
-			-e "s:@DB_USER_PASS@:$(DB_USER_PASS):g" \
+	$(QUIET)sed -e "s|@DB_ADMIN_HOSTS@|"$(DB_ADMIN_HOSTS)"|g" \
+		    -e "s|@DB_ADMIN@|$(DB_ADMIN)|g" \
+			-e "s|@DB_ADMIN_PASS@|$(DB_ADMIN_PASS)|g" \
+			-e "s|@DB_HOST@|$(DB_HOST)|g" \
+			-e "s|@DB_HOST_NAME@|$(DB_HOST_NAME)|g" \
+			-e "s|@DB_HOST_IPADDR@|$(DB_HOST_IPADDR)|g" \
+			-e "s|@DB_NAME@|$(DB_NAME)|g" \
+			-e "s|@DB_HOST_PORT@|$(DB_HOST_PORT)|g" \
+			-e "s|@DB_USER@|$(DB_USER)|g" \
+			-e "s|@DB_USER_PASS@|$(DB_USER_PASS)|g" \
+			-e "s|@CDB_USER@|$(CDB_USER)|g" \
+			-e "s|@CDB_USER_PASS@|$(CDB_USER_PASS)|g" \
 		    < $(SITE_TEMPLATE_PATH)/$(SQL_CONFIG_FILE).in > $(SITE_TEMPLATE_PATH)/$(SQL_CONFIG_FILE)
 
-db.init: db.conf
+db.secure: db.conf
 	$(QUIET)bash scripts/mariadb_setup.bash secureSetup
+
+db.addAdmin: db.conf
 	$(QUIET)bash scripts/mariadb_setup.bash adminAdd
 
-db.create:
+db.rmAdmin: db.conf
+	$(QUIET)bash scripts/mariadb_setup.bash adminRemove
+
+db.create: db.conf
 	$(QUIET)bash scripts/mariadb_setup.bash dbCreate
 
-db.drop:
+db.drop: db.conf
 	$(QUIET)bash scripts/mariadb_setup.bash dbDrop
 
-db.show:
+db.show: db.conf
 	$(QUIET)bash scripts/mariadb_setup.bash dbShow
-
 
 .PHONY: cdb.create cdb.drop cdb.show
 
@@ -38,12 +43,15 @@ cdb.drop: sql.triggersDrop sql.Drop
 
 cdb.show: sql.triggersShow sql.Show
 
-cdb.admin:
-	bash scripts/mariadb_setup.bash userLocalPassword "cdb" "cdb" "$(PYTHONPATH)"
 
-cdb.getadminpass:
-	$(QUIET)bash scripts/mariadb_setup.bash showAdminCryptPassword "123456" "$(PYTHONPATH)"
+.PHONY: cdb.reinit
 
+## we don't use this, directly add its password into sql file and fill the db with JDBC Realm
+## Still not sure it works with CDB
+#cdb.admin:
+#	$(QUIET)bash scripts/mariadb_setup.bash userLocalPassword "cdb" "cdb" "$(PYTHONPATH)"
+
+cdb.reinit: db.drop db.create cdb.create
 
 .PHONY: sql.conf sql.top.conf sql.staticpath.conf sql.cleanpath.conf sql.site.conf sql.conf.clean
 
@@ -53,7 +61,7 @@ sql.conf.clean:
 sql.conf: sql.top.conf sql.staticpath.conf sql.cleanpath.conf sql.site.conf
 	$(QUIET)cat $(SQL_TOP_FILES) $(SQL_STATICPATH_FILES) $(SQL_CLEANPATH_FILES) $(SQL_SITE_FILES) > $(TEMP_ALL_SQL)
 
-sql.top.conf:
+sql.top.conf: sql.system.account.update
 	$(QUIET)cat $(SQL_TOP_FILES)        > $(TEMP_TOP_SQL)
 
 sql.staticpath.conf:
@@ -104,9 +112,19 @@ sql.Drop:
 
 ## This replace the default aps email to SQL_SYSTEM_ACCOUNT.
 ## Have to setup that account according to its purpose.
-sql.update:
-	$(QUIET)sed -i -e "s|cdb@aps.anl.gov|$(SQL_SYSTEM_ACCOUNT)|g" $(TEMP_ALL_SQL)
-	$(QUIET)sed -i -e "s|cdb@aps.anl.gov|$(SQL_SYSTEM_ACCOUNT)|g" $(TEMP_CLEANPATH_SQL)
+sql.system.account.update:
+ifneq ("$(wildcard $(SQL_CLEANPATH_PATH)/$(SQL_SYSTEM_ACCOUNT_SQL))","")
+	$(QUIET) echo ">>> Found the exist file $(SQL_SYSTEM_ACCOUNT_SQL) at $(SQL_CLEANPATH_PATH)"
+	$(QUIET) echo "    Remove it."
+	-rm -f $(SQL_CLEANPATH_PATH)/$(SQL_SYSTEM_ACCOUNT_SQL)
+endif
+	$(QUIET)sed -e "s|@SQL_SYSTEM_ACCOUNT_USER@|$(SQL_SYSTEM_ACCOUNT_USER)|g" \
+		-e "s|@SQL_SYSTEM_ACCOUNT_FIRST_NAME@|$(SQL_SYSTEM_ACCOUNT_FIRST_NAME)|g" \
+		-e "s|@SQL_SYSTEM_ACCOUNT_LAST_NAME@|$(SQL_SYSTEM_ACCOUNT_LAST_NAME)|g" \
+		-e "s|@SQL_SYSTEM_ACCOUNT_MIDDLE_NAME@|$(SQL_SYSTEM_ACCOUNT_MIDDLE_NAME)|g" \
+		-e "s|@SQL_SYSTEM_ACCOUNT_EMAIL@|$(SQL_SYSTEM_ACCOUNT_EMAIL)|g" \
+		-e "s|@SQL_SYSTEM_ACCOUNT_PASS@|$(SQL_SYSTEM_ACCOUNT_PASS)|g" \
+		< 	$(SQL_SITE_PATH)/$(SQL_SYSTEM_ACCOUNT_SQL).in > $(SQL_CLEANPATH_PATH)/$(SQL_SYSTEM_ACCOUNT_SQL)
 
 
 
@@ -154,7 +172,7 @@ jdbc.resource.rm:
 	$(PAYARA_ASADMIN) delete-jdbc-resource $(JDBC_JNID_NAME)
 
 jdbc.pool.rm: 
-	$(PAYARA_ASADMIN) delete-jdbc-connection-pool $(JDBC_DB_CONNECTION_POOLNAME)
+	$(PAYARA_ASADMIN) delete-jdbc-connection-pool --cascade=true $(JDBC_DB_CONNECTION_POOLNAME)
 
 domain.start:
 	$(PAYARA_ASADMIN) start-domain $(PAYARA_DOMAIN)

@@ -37,7 +37,7 @@ $ systemctl status mariadb
 * Define all DB varialbes in `configure/CONFIG_COMMON` or its `CONFIG_COMMON.local`. For example,
 
 ```bash
-DB_ADMIN_HOSTS="127.0.0.1"
+DB_ADMIN_HOSTS="localhost 127.0.0.1 10.0.0.200"
 DB_ADMIN="admin"
 DB_ADMIN_PASS="admin"
 DB_HOST_IPADDR="127.0.0.1"
@@ -45,8 +45,7 @@ DB_HOST_PORT="3306"
 DB_HOST_NAME="localhost"
 DB_NAME="cdb"
 DB_USER="cdb"
-DB_USER_PASS="cdb"
-DB_CHAR_SET="utf8"
+DB_USER_PASS="cdbcdbcdb"
 ```
 
 * Generate `mariadb.conf` file for a script
@@ -58,10 +57,18 @@ make db.conf
 * Secure Setup and add administor : only need to do at the beginning of MariaDB configuration
 
 ```bash
-make db.init
+make db.secure
 ```
 
-* Create DB for ComponentDB
+* Add the admin user account for SQL Database. We use the default `root` through `unix_socket` to connect the SQL server, so we would like to create `admin` account to let users allow to connect the database without `unix_socket`.
+
+```bash
+make db.addAdmin
+```
+
+One can remove it via `make db.rmAdmin`.
+
+* Create DB and its corresponding *SQL* user account (By default, `cdb` is used for `mysql.user`) for the connection from `Payara` and `MariaDB (MySQL)` server. Note that the same user name uses everywhere, so please identify it correctly.
 
 ```bash
 make db.create
@@ -87,10 +94,13 @@ make cdb.admin
 make db.drop
 make db.create
 make cdb.create
-make cdb.admin
 ```
 
-* Further information about CDB MariaDB configuration, please see [docs/README.mariaDB.md](MariaDB README)
+or
+
+```bash
+make cdb.reinit
+```
 
 ### Paraya Server Configuration
 
@@ -112,7 +122,7 @@ sudo systemctl start payara
 
 ```bash
 make jdbc.conf             : Build   payara_mariadb_jdbc_template.xml in SITE_TEMPLATE_PATH
-make jdbc.conf.view        : Print   payara_mariabd_jdbc_template.xml
+make jdbc.conf.show        : Print   payara_mariabd_jdbc_template.xml
 make jdbc.install          : Install it to the running payara server
 make jdbc.ping             : Do ping-connection-pool
 make jdbc.list             : Do list-jdbc-connection-pools
@@ -125,7 +135,6 @@ make jdbc.pool.rm          : Do delete-jdbc-connection-pool
 ## Build
 
 ```bash
-
 make build
 make deploy.cdb
 ```

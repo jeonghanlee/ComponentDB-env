@@ -1,0 +1,11 @@
+--
+-- Copyright (c) UChicago Argonne, LLC. All rights reserved.
+-- See LICENSE file.
+--
+
+LOCK TABLES `user_info` WRITE;
+/*!40000 ALTER TABLE `user_info` DISABLE KEYS */;
+INSERT INTO `user_info` VALUES
+(1,'@SQL_SYSTEM_ACCOUNT_USER@','@SQL_SYSTEM_ACCOUNT_FIRST_NAME@','@SQL_SYSTEM_ACCOUNT_LAST_NAME@', '@SQL_SYSTEM_ACCOUNT_MIDDLE_NAME@','@SQL_SYSTEM_ACCOUNT_EMAIL@', SHA2("@SQL_SYSTEM_ACCOUNT_PASS@", 256), "ComponentDB System Account - Local User");
+/*!40000 ALTER TABLE `user_info` ENABLE KEYS */;
+UNLOCK TABLES;

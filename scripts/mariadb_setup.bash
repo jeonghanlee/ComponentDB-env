@@ -19,9 +19,9 @@ ENV_TOP="${SC_TOP}/.."
 
 SQL_ROOT_CMD="sudo mysql --user=root"
 # shellcheck disable=SC2153
-SQL_ADMIN_CMD="mysql --user=${DB_ADMIN} --password=${DB_ADMIN_PASS} --port=${DB_HOST_PORT} --host=${DB_HOST_IPADDR}"
+SQL_ADMIN_CMD="mysql --user=${DB_ADMIN} --password=${DB_ADMIN_PASS} --port=${DB_HOST_PORT} --host=${DB_HOST_NAME}"
 # shellcheck disable=SC2153
-SQL_DBUSER_CMD="mysql --user=${DB_USER} --password=${DB_USER_PASS} --port=${DB_HOST_PORT} --host=${DB_HOST_IPADDR}"
+SQL_DBUSER_CMD="mysql --user=${DB_USER} --password=${DB_USER_PASS} --port=${DB_HOST_PORT} --host=${DB_HOST_NAME}"
 # shellcheck disable=SC2153
 #SQL_BACKUP_CMD="mysqldump --user=${DB_USER_NAME} --password=${DB_USER_PASS} ${DB_NAME}"
 
@@ -38,6 +38,16 @@ function noDbMessage
     fi
 }
 
+function die #@ Print error message and exit with error code
+{
+    #@ USAGE: die [errno [message]]
+    error=${1:-1}
+    ## exits with 1 if error number not given
+    shift
+    [ -n "$*" ] &&
+	printf "%s%s: %s\n" "$SC_SCRIPTNAME" ${SC_VERSION:+" ($SC_VERSION)"} "$*" >&2
+    exit "$error"
+};
 
 
 function usage
@@ -105,13 +115,10 @@ EOF
 }
 
 
-# 1 : MariaDB Hostname 
-# 2 : MariaDB Admin username 
-# 3 : MariaDB Admin password
-# 3 : MariaDB Admin password
-function add_admin_account 
+# 1 : MariaDB Admin name      : 
+# 2 : MariaDB Admin password  :
+function add_admin_account_local
 {
-    local db_hostname="$1"; shift;
     local db_admin_name="$1"; shift;
     local db_admin_pass="$1"; shift;
     # add admin user with the password via the environment variable $CDB_ADMIN_PWD
@@ -119,32 +126,104 @@ function add_admin_account
     #
     printf ">> Add %s user with GRANT ALL in the MariaDB \\n" "${db_admin_name}"
     ${SQL_ROOT_CMD} <<EOF
-    GRANT ALL ON *.* TO '${db_admin_name}'@'${db_hostname}' IDENTIFIED BY '${db_admin_pass}' WITH GRANT OPTION;
+    GRANT ALL ON *.* TO '${db_admin_name}'@'localhost' IDENTIFIED BY '${db_admin_pass}' WITH GRANT OPTION;
+    FLUSH PRIVILEGES;
+EOF
+    ${SQL_ROOT_CMD} <<EOF
+    GRANT ALL ON *.* TO '${db_admin_name}'@'127.0.0.1' IDENTIFIED BY '${db_admin_pass}' WITH GRANT OPTION;
+    FLUSH PRIVILEGES;
+EOF
+    printf "\\n"
+}
+
+function remove_admin_account_local
+{
+    printf ">> Remove local admin user \\n"
+    ${SQL_ROOT_CMD} <<EOF
+    DROP USER 'admin'@'127.0.0.1';
+    FLUSH PRIVILEGES;
+EOF
+    ${SQL_ROOT_CMD} <<EOF
+    DROP USER 'admin'@'localhost';
     FLUSH PRIVILEGES;
 EOF
     printf "\\n"
 }
 
 
-# 1 : MariaDB Hostname 
-# 2 : MariaDB Database name 
-# 3 : User name of the database
-# 4 : User password for the user of the database
-function create_db 
+# 1 : sql file (with path) for database creation
+# 2 : additional options (useful to use -N )
+function admin_query_from_sql_file
 {
-    local db_hostname="$1"; shift;
-    local db_name="$1"; shift;
-    local db_user_name="$1"; shift;
-    local db_user_pass="$1"; shift;
-    local db_char_set="utf8"
+    local sql_file="$1"; shift;
+    local options="$1"; shift;
+    local cmd;
 
-    printf ">> Create the Database %s if not exists with %s and its user name %s \\n" "${db_name}" "${db_char_set}" "${db_user_name}"
-    ${SQL_ADMIN_CMD} <<EOF
-CREATE DATABASE IF NOT EXISTS ${db_name} CHARACTER SET ${db_char_set}; GRANT ALL PRIVILEGES ON ${db_name}.* TO '${db_user_name}'@'${db_hostname}' IDENTIFIED BY '${db_user_pass}';
-EOF
-    printf "\\n"
+    cmd+="$SQL_ADMIN_CMD";
+    cmd+=" ";
+    cmd+="${options}";
+    cmd+=" ";
+    cmd+="<";
+    cmd+=" ";
+    cmd+=""\";   
+    cmd+="${sql_file}";
+    cmd+="\"";
+    # The following cmd contains only mysql standard query
+    commandPrn "$cmd"
+    eval "${cmd}"
 }
 
+function create_db_and_user 
+{
+    local db_name="$1"; shift;
+    local db_admin_hosts="$1"; shift;
+    local db_user_name="$1"; shift;
+    local db_user_pass="$1";shift;
+
+    local temp_sql_file="";
+    temp_sql_file=$(mktemp -q) || die 1 "CANNOT create the $temp_sql_file file, please check the disk space";
+    echo "CREATE DATABASE IF NOT EXISTS ${db_name} CHARACTER SET utf8mb4;" > "$temp_sql_file";
+    for aHost in $db_admin_hosts;  do
+        echo "GRANT ALL PRIVILEGES ON ${db_name}.* TO '$db_user_name'@'$aHost' IDENTIFIED BY '$db_user_pass';" >> "$temp_sql_file";
+    done
+    echo "FLUSH PRIVILEGES;" >> "${temp_sql_file}"; 
+#    echo "${temp_sql_file}"
+    admin_query_from_sql_file "${temp_sql_file}";
+    rm -f "${temp_sql_file}"
+    
+    temp_sql_file=$(mktemp -q) || die 1 "CANNOT create the $temp_sql_file file, please check the disk space";
+    echo "SHOW databases;" >  "$temp_sql_file";
+    echo "SELECT user, host, Password, Grant_priv, Show_db_priv, authentication_string, default_role, is_role FROM mysql.user;" >>  "$temp_sql_file";
+    admin_query_from_sql_file "${temp_sql_file}";
+    rm -f "${temp_sql_file}"
+}
+
+function drop_db_and_user
+{
+    local db_name="$1"; shift;
+    local db_admin_hosts="$1"; shift;
+    local db_user_name="$1"; shift;
+
+    printf ">> Drop the Database -%s- \\n" "${db_name}";
+    printf ">> Drop the user -%s- at -%s- \\n" "${db_user_name}" "${db_admin_hosts[@]}"
+    
+    local temp_sql_file="";
+    temp_sql_file=$(mktemp -q) || die 1 "CANNOT create the $temp_sql_file file, please check the disk space";
+    echo "DROP DATABASE IF EXISTS ${db_name};" > "$temp_sql_file";
+    for aHost in $db_admin_hosts;  do
+        echo "DROP USER '$db_user_name'@'$aHost';" >> "$temp_sql_file";
+    done
+    echo "${temp_sql_file}"
+    admin_query_from_sql_file "${temp_sql_file}";
+
+    temp_sql_file=$(mktemp -q) || die 1 "CANNOT create the $temp_sql_file file, please check the disk space";
+    echo "SHOW databases;" >  "$temp_sql_file";
+    echo "SELECT user, host, Password, Grant_priv, Show_db_priv, authentication_string, default_role, is_role FROM mysql.user;" >>  "$temp_sql_file";
+    admin_query_from_sql_file "${temp_sql_file}";
+    rm -f "${temp_sql_file}"
+}
+
+# Not use anymore
 # 1 : MariaDB Database name 
 # SQL_ADMIN_CMD contains host information which the command can be executed. 
 function drop_db
@@ -255,6 +334,7 @@ function create_from_sql_file
         eval "${cmd}"
     fi
 }
+
 
 # 1 : database name
 # 2 : sql file (with path) for database creation
@@ -563,7 +643,6 @@ function generate_admin_local_password
     local local_password="$1"; shift;
     local python_path="$1";shift;
     local db_exist;
-    local db_cmd;
     local python_cmd;
     
     local adminWithLocalPassword;
@@ -577,28 +656,24 @@ function generate_admin_local_password
     else
         adminWithLocalPassword=$(query_from_sql_file_to_get_result_for_further_process "${db_name}" "${ENV_TOP}/site-template/sql/check_cdb_admin.sql" -N)
         if [ -z "$adminWithLocalPassword" ]; then
-            printf ">>> We've found there is no portal admin user with a local password.\n"
-            printf "    Creating .... \n"
+            printf ">>> We've found there is the CDB admin user %s with a local password.\n" "$db_user_name"
+            printf "    Updating ........ \n"
 #           echo "$db_name, $db_user_name, $local_password, $python_path"
 #            python_cmd="PYTHONPATH=${python_path} python -c \"from cdb.common.utility.cryptUtility import CryptUtility; print CryptUtility.cryptPasswordWithPbkdf2('${local_password}')\""
 #            echo "$python_cmd"
             adminCryptPassword=$(get_admin_crypt_password  "${db_name}" "$local_password" "${python_path}")
-            echo $adminCryptPassword
-            query="UPDATE user_info SET password = '$adminCryptPassword' WHERE username='$db_user_name'"
-            db_cmd+="$SQL_ADMIN_CMD";
-            db_cmd+=" ";
-            db_cmd+="${db_name}";
-            db_cmd+=" ";
-#            db_cmd+="-N";
-            db_cmd+=" ";   
-            db_cmd+="--execute=\"";
-            # The following cmd contains only mysql standard query
-            db_cmd+="${query}";
-            db_cmd+=";\"";
-             commandPrn "$db_cmd"
- #           echo "$db_cmd"
-            eval "${db_cmd}";
+#            echo $adminCryptPassword
+            ## we have to create a temp file to handle this crypt password, because bash cannot handle these special character well within 
+            ##
+            temp_sql_file=$(mktemp -q) || die 1 "CANNOT create the $temp_sql_file file, please check the disk space";
+            echo "UPDATE user_info SET password = ('$adminCryptPassword')  WHERE (username='$db_user_name');" > "${temp_sql_file}"
+            query_from_sql_file_to_get_result_for_further_process "${db_name}" "${temp_sql_file}"
+            rm -f "${temp_sql_file}"
+        else
+            printf ">>> We've found there is the CDB admin user %s with a local password.\n" "$db_user_name"
+            printf "    It is OK.\n"
         fi
+        printf ">>> One can check it via the SQL query \"SELECT username, password FROM user_info;\"\n"
     fi
 }
 
@@ -609,7 +684,6 @@ function get_admin_crypt_password
     local local_password="$1"; shift;
     local python_path="$1";shift;
     local db_exist;
-    local db_cmd;
     local python_cmd;
     
     local adminWithLocalPassword;
@@ -682,27 +756,25 @@ additional_input="$2";
 
 case "$input" in
     secureSetup)
+        # shellcheck disable=SC2153
     	mariadb_secure_setup "${DB_HOST_NAME}" "${DB_HOST_IPADDR}";
         ;;
     adminAdd)
         # shellcheck disable=SC2153
-        add_admin_account "${DB_HOST_NAME}" "${DB_ADMIN_NAME}" "${DB_ADMIN_PASS}";
-        ;;    
+        add_admin_account_local "${DB_ADMIN}" "${DB_ADMIN_PASS}";
+        ;;
+    adminRemove)
+        remove_admin_account_local;
+        ;;
     dbCreate)
-        if [ -z "${additional_input}" ]; then
-            additional_input="${DB_NAME}"
-        fi
-        # shellcheck disable=SC2153
-        create_db "${DB_HOST_NAME}" "${additional_input}" "${DB_USER_NAME}" "${DB_USER_PASS}";
+         # shellcheck disable=SC2153
+         create_db_and_user "${DB_NAME}" "${DB_ADMIN_HOSTS}" "${DB_USER}" "${DB_USER_PASS}";
         ;;     
     dbShow)
         show_dbs;
         ;;
     dbDrop)
-        if [ -z "${additional_input}" ]; then
-            additional_input="${DB_NAME}"
-        fi
-        drop_db "${additional_input}";
+        drop_db_and_user "${DB_NAME}" "${DB_ADMIN_HOSTS}" "${DB_USER}";
         ;;  
     isDb)
         isDb "${DB_NAME}" "YES";

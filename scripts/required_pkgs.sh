@@ -30,8 +30,9 @@ function find_dist
      	dist_rs=$(lsb_release -rs)
      	echo "$dist_id" "${dist_cn}" "${dist_rs}"
     else
+        #shellcheck disable=SC2046 disable=SC2002
      	eval $(cat /etc/os-release | grep -E "^(PRETTY_NAME)=")
-	echo "${PRETTY_NAME}"
+	    echo "${PRETTY_NAME}"
     fi
 }
 
@@ -104,6 +105,7 @@ function debian_pkgs
     if [ ! -f /usr/include/mariadb/mysql.h.bkp ]; then
         sed '/st_mysql_options options;/a unsigned int reconnect;' /usr/include/mariadb/mysql.h -i.bkp
     fi
+
 }
 
 ## Do not test it yet Monday, June 29 15:09:24 PDT 2020
@@ -111,12 +113,11 @@ function centos_pkgs
 {
     yum update
     yum install -y \
-	wget curl expect \
-	git \ 
-        sed gawk unzip \
-	make cmake autoconf automake gcc libgcc \
-	zlib-devel openssl-devel openldap-devel readline-devel \
-	mariadb-server mariadb-libs
+	    wget curl expect \
+	    git sed gawk unzip \
+	    make cmake autoconf automake gcc libgcc \
+	    zlib-devel openssl-devel openldap-devel readline-devel \
+	    mariadb-server mariadb-libs
 	
     ln -sf "$(which mariadb_config)" /usr/bin/mysql_config  
 }
