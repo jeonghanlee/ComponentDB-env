@@ -40,14 +40,16 @@ $ systemctl status mariadb
 
 ```bash
 DB_ADMIN_HOSTS="localhost 127.0.0.1 10.0.0.200"
-DB_ADMIN="admin"
-DB_ADMIN_PASS="admin"
-DB_HOST_IPADDR="127.0.0.1"
-DB_HOST_PORT="3306"
-DB_HOST_NAME="localhost"
-DB_NAME="cdb"
-DB_USER="cdb"
-DB_USER_PASS="cdbcdbcdb"
+DB_HOST_IPADDR=127.0.0.1
+DB_HOST_PORT=3306
+DB_HOST_NAME=localhost
+DB_ADMIN=admin
+DB_ADMIN_PASS=admin
+DB_NAME=cdb
+DB_USER=cdbpayara
+DB_USER_PASS=cdbpayara
+CDB_USER=cdbuser
+CDB_USER_PASS=cdbuser
 ```
 
 * Generate `mariadb.conf` file for a script
@@ -118,9 +120,16 @@ systemctl status payara
 
 ```bash
 sudo systemctl start payara
+
+* Install jdbc into the running payara server
+
+```bash
+make jdbc.conf
+make jdbc.install
+make jdbc.ping
 ```
 
-* `makefile` rules
+** More `makefile` rules
 
 ```bash
 make jdbc.conf             : Build   payara_mariadb_jdbc_template.xml in SITE_TEMPLATE_PATH
