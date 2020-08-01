@@ -1,4 +1,4 @@
-.PHONY: db.conf db.secure db.addAdmin db.rmAdmin db.create db.drop db.show
+.PHONY: db.conf db.conf.show db.secure db.addAdmin db.rmAdmin db.create db.drop db.show
 
 db.conf:
 	$(call checkfile, "$(SITE_TEMPLATE_PATH)/$(SQL_CONFIG_FILE)")
@@ -16,6 +16,9 @@ db.conf:
 			-e "s|@CDB_USER@|$(CDB_USER)|g" \
 			-e "s|@CDB_USER_PASS@|$(CDB_USER_PASS)|g" \
 		    < $(SITE_TEMPLATE_PATH)/$(SQL_CONFIG_FILE).in > $(SITE_TEMPLATE_PATH)/$(SQL_CONFIG_FILE)
+
+db.conf.show:
+	$(QUIET)cat -b $(SITE_TEMPLATE_PATH)/$(SQL_CONFIG_FILE)
 
 db.secure: db.conf
 	$(QUIET)bash scripts/mariadb_setup.bash secureSetup
@@ -44,14 +47,14 @@ cdb.drop: sql.triggersDrop sql.Drop
 cdb.show: sql.triggersShow sql.Show
 
 
-.PHONY: cdb.reinit
+.PHONY: cdb.admin cdb.reinit
 
 ## we don't use this, directly add its password into sql file and fill the db with JDBC Realm
 ## Still not sure it works with CDB
-#cdb.admin:
-#	$(QUIET)bash scripts/mariadb_setup.bash userLocalPassword "cdb" "cdb" "$(PYTHONPATH)"
+cdb.admin:
+	$(QUIET)bash scripts/mariadb_setup.bash updateCDBAdminPassword "$(PYTHONPATH)"
 
-cdb.reinit: db.drop db.create cdb.create
+cdb.reinit: db.drop db.create cdb.create cdb.admin
 
 .PHONY: sql.conf sql.top.conf sql.staticpath.conf sql.cleanpath.conf sql.site.conf sql.conf.clean
 
@@ -61,13 +64,13 @@ sql.conf.clean:
 sql.conf: sql.top.conf sql.staticpath.conf sql.cleanpath.conf sql.site.conf
 	$(QUIET)cat $(SQL_TOP_FILES) $(SQL_STATICPATH_FILES) $(SQL_CLEANPATH_FILES) $(SQL_SITE_FILES) > $(TEMP_ALL_SQL)
 
-sql.top.conf: sql.system.account.update
+sql.top.conf:
 	$(QUIET)cat $(SQL_TOP_FILES)        > $(TEMP_TOP_SQL)
 
 sql.staticpath.conf:
 	$(QUIET)cat $(SQL_STATICPATH_FILES) > $(TEMP_STATICPATH_SQL)
 
-sql.cleanpath.conf:
+sql.cleanpath.conf: 
 	$(QUIET)cat $(SQL_CLEANPATH_FILES)  > $(TEMP_CLEANPATH_SQL)
 
 sql.site.conf:
@@ -76,7 +79,7 @@ sql.site.conf:
 .PHONY: sql.Fill sql.topFill sql.staticpathFill sql.cleanpathFill sql.siteFill
 
 # Combine all queries into one single query.
-sql.Fill: sql.conf sql.update
+sql.Fill: sql.system.account.update sql.conf
 	$(QUIET)bash scripts/mariadb_setup.bash tableCreate "$(TEMP_ALL_SQL)"
 
 sql.topFill: sql.top.conf
@@ -85,7 +88,7 @@ sql.topFill: sql.top.conf
 sql.staticpathFill: sql.staticpath.conf
 	$(QUIET)bash scripts/mariadb_setup.bash tableCreate "$(TEMP_STATICPATH_SQL)"
 
-sql.cleanpathFill: sql.cleanpath.conf sql.update
+sql.cleanpathFill: sql.system.account.update sql.cleanpath.conf 
 	$(QUIET)bash scripts/mariadb_setup.bash tableCreate "$(TEMP_CLEANPATH_SQL)"
 
 sql.siteFill: sql.site.conf
@@ -110,6 +113,7 @@ sql.Drop:
 	$(QUIET)bash scripts/mariadb_setup.bash allDrop
 
 
+.PHONY: sql.system.account.update
 ## This replace the default aps email to SQL_SYSTEM_ACCOUNT.
 ## Have to setup that account according to its purpose.
 sql.system.account.update:

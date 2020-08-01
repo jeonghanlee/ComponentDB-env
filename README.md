@@ -98,6 +98,7 @@ make cdb.admin
 make db.drop
 make db.create
 make cdb.create
+make cdb.admin
 ```
 
 or
@@ -120,12 +121,19 @@ systemctl status payara
 
 ```bash
 sudo systemctl start payara
+```
 
-* Install jdbc into the running payara server
+* Install jdbc into the running payara server.
+Here we use the `mariadb-java-client-2.3.0.jar`[1] instead of the mysql client.
 
 ```bash
 make jdbc.conf
 make jdbc.install
+```
+
+We can check the connection via
+
+```bash
 make jdbc.ping
 ```
 
@@ -150,6 +158,14 @@ make build
 make deploy.cdb
 ```
 
+** More `makefile` rules for `asadmin`
+
+```bash
+make undeploy.cdb          : undeploy the CDB application
+make redeploy.cdb          : undeploy and deploy the CDB application
+make list.cdb              : list all available application -list-application
+```
+
 |![FFCDB1](docs/ff_cdb_about.png)|
 | :---: |
 |**Figure 1** Firefox CDB About Page Screenshot.|
@@ -165,3 +181,5 @@ make deploy.cdb
 ## References
 
 [1] <https://github.com/jeonghanlee/Payara-env>
+
+[2] <https://github.com/jeonghanlee/Payara-env/blob/ee8b8993d895d6c01c21628b43208f7e55353f4b/configure/CONFIG_COMMOM#L8-L20>
