@@ -125,11 +125,9 @@ conf.resources.properties:
 
 
 
-.PHONY: conf.css.web conf.css.portal conf.css.changecolor $(CDB_WEB_RESOURCES_CSS_FILES) conf.copy.images conf.update.images
+.PHONY: conf.css.web conf.css.portal conf.css.changecolor $(CDB_WEB_RESOURCES_CSS_FILES) conf.copy.images conf.update.images  conf.system.accout.update
 
-conf.css.web: conf.css.portal conf.css.changecolor conf.copy.images conf.update.images
-
-
+conf.css.web: conf.css.portal conf.css.changecolor conf.copy.images conf.update.images conf.system.accout.update
 
 conf.css.portal:
 	$(QUIET)echo ">>> Update $(CDB_WEB_RESOURCES_CSS_PORTAL)"
@@ -162,7 +160,7 @@ $(CDB_WEB_RESOURCES_CSS_FILES):
 
 
 conf.copy.images:
-	$(QUIET)cp -rf $(CDB_WEB_RESOURCES_ALS_IMAGES) $(CBS_WEB_RESOURCES_IMAGES_PATH)/
+	$(QUIET)cp -rf $(CDB_WEB_RESOURCES_ALS_IMAGES) $(CDB_WEB_RESOURCES_IMAGES_PATH)/
 
 conf.update.images:
 	$(QUIET)grep -Ril "anl.ico" $(_CDB_WEB) | xargs -i@ sed -i "s/anl.ico/als.ico/g" @
@@ -172,6 +170,16 @@ conf.update.images:
 	$(QUIET)grep -Ril "AnlLogo167x75.png" $(_CDB_WEB) | xargs -i@ sed -i "s/AnlLogo167x75.png/LBNLLogo.png/g" @
 #	$(QUIET)grep -r "LBNLLogo.png" $(_CDB_WEG)
 	$(QUIET)grep -Ril "background-size: 20" $(_CDB_WEB) | xargs -i@ sed -i "s/ackground-size: 20/ackground-size: 100/g" @
+
+
+conf.system.accout.update:
+	$(QUIET)echo ">>> Replace the hard-coded user name cdb with what we define $(SQL_SYSTEM_ACCOUNT_USER)."
+	$(QUIET)echo "    at $(CDB_PORTAL_CONTROLLERS_LOGCONTROLLER_JAVA)."
+	$(QUIET)sed -i \
+		-e "s|private final String DEFAULT_SYSTEM_ADMIN_USERNAME =.*|private final String DEFAULT_SYSTEM_ADMIN_USERNAME = \"$(SQL_SYSTEM_ACCOUNT_USER)\";|g" \
+		$(CDB_PORTAL_CONTROLLERS_LOGCONTROLLER_JAVA)
+	$(QUIET)grep -r "$(SQL_SYSTEM_ACCOUNT_USER)" $(CDB_PORTAL_CONTROLLERS_LOGCONTROLLER_JAVA)
+
 
 .PHONY: revertconf.cdb conf.cdb.view clean.conf.cdb
 

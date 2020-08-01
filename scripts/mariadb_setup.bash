@@ -865,11 +865,12 @@ case "$input" in
         fi
         query_from_sql_file_to_get_result_for_further_process "${DB_NAME}" "${query_sql_file}" "$query_options"
         ;;
-    userLocalPassword)
-        username="$additional_input";
-        password="$3"
-        python_path="$4"
-        generate_admin_local_password  "${DB_NAME}" "$username" "$password" "$python_path"
+    updateCDBAdminPassword)
+        python_path="$additional_input"
+        if [ -z "${python_path}" ]; then
+             python_path="${ENV_TOP}/ComponentDB-src/src/python"
+        fi
+        generate_admin_local_password  "${DB_NAME}" "${CDB_USER}" "${CDB_USER_PASS}" "$python_path"
         ;;
     showAdminCryptPassword)
         get_admin_crypt_password  "${DB_NAME}" "$additional_input" "$3"

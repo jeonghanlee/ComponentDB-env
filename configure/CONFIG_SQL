@@ -17,6 +17,19 @@ SQL_SYSTEM_ACCOUNT_PASS:=$(CDB_USER_PASS)
 # The original sql file is located in SQL_CLEANPATH_PATH
 SQL_SYSTEM_ACCOUNT_SQL:=populate_user_info.sql
 
+## DEFAULT_SYSTEM_ADMIN_USERNAME is the harded code in the following code
+## CDB web server shows the following message with different user name (e.g. cdbuser)
+## -----------------------------------------
+## Error
+## System Admin Missing
+## User 'cdb' needs to be in the system. Please notify system administrator.
+## -----------------------------------------
+## However, cdbuser can login it. And the cdbuser is belong to `CDB_ADMIN` group
+## according to SQL db information. This is a just message. However, we update the following
+## java code in order to use the system defined CDB_USER name as the default one. 
+## Check the rule conf.system.accout.update in configure/RULES_SRC
+CDB_PORTAL_CONTROLLERS_LOGCONTROLLER_JAVA:=$(TOP)/$(CDB_JAVA_SRC)/src/java/gov/anl/aps/cdb/portal/controllers/LogController.java
+
 
 JDBC_PAYARA_MARIADB_XML:=payara_mariadb_jdbc_template.xml
 
