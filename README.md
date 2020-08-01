@@ -1,4 +1,6 @@
-# Configuration Env
+# ComponentDB-env
+
+![ANT CI](https://github.com/jeonghanlee/ComponentDB-env/workflows/ANT%20CI/badge.svg)
 
 Configuration Environment for ComponentDB at <https://github.com/AdvancedPhotonSource/ComponentDB>
 
