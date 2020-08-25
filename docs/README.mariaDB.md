@@ -49,9 +49,8 @@ make db.show
 Due to one issue which was mentioned before, we have to apply a patch file to the upstream repository before creating and populating database.
 
 ```bash
-make patch
 make sql.Fill
-make sql.allShow
+make sql.Show
 ```
 
 * reset step 1 and step 2

@@ -67,7 +67,7 @@ compile.ant: info.ant
 conf.cdb: conf.install conf.update_plugin conf.build_propertiles_file conf.web.xml conf.cdb_portal_properties_file conf.persistence.xml conf.resources.properties conf.css.web
 
 conf.install:
-	$(if $(wildcard $(_CDB_INSTALL_DIR)), $(QUIET)mv $(_CDB_INSTALL_DIR) $(_CDB_INSTALL_DIR)_backup_$$(date +%Y%m%d-%H%M%S))
+#	$(if $(wildcard $(_CDB_INSTALL_DIR)), $(QUIET)mv $(_CDB_INSTALL_DIR) $(_CDB_INSTALL_DIR)_backup_$$(date +%Y%m%d-%H%M%S))
 	$(QUIET)$(INSTALL) -d $(_CDB_INSTALL_DIR)
 	$(QUIET)mkdir -p $(_CDB_DATA_DIR) $(_CDB_VAR_DIR) $(_CDB_ETC_DIR) $(_CDB_LOG_DIR) $(_CDB_PROPERTYVALUE_DIR)
 
@@ -83,7 +83,7 @@ endif
 	$(QUIET)sed -e "s:CDB_GLASSFISH_DIR:$(PAYARA_INSTALL_PATH):g" < $(CDB_GENERIC_BUILD_PROPERTIES_FILE) > $(CDB_BUILD_PROPERTIES_FILE)
 
 conf.web.xml:
-	$(QUIET)echo ">>> Disable primefaces.THEME "
+	$(QUIET)echo ">>> Copying web.xml to $(_CDB_WEB_WEB-INF)/ "
 	$(QUIET)cp -rf $(SITE_TEMPLATE_PATH)/web/web.xml $(_CDB_WEB_WEB-INF)/
 #   This harded-code cdb is strange, because CDB_DATA_DIR is CDB_INSTALL_DIR/data. Of cources, data/$CDB_DB_NAME, where 
 #   CDB_DB_NAME is cdb
@@ -92,12 +92,15 @@ conf.web.xml:
 				-e "s:<context-root.*:<context-root>$(CDB_CONTEXT_ROOT)</context-root>:g" \
 				< $(CDB_GLASSFISH_WEB_XML_FILE).template > $(CDB_GLASSFISH_WEB_XML_FILE)
 
+# 
+# cdb.portal.adminGroupList=CDB_ADMIN
+# CDB_ADMIN is not the variable, but the HARD-coded important definition
+# That is the unique name in MariaDB Table definition.
 conf.cdb_portal_properties_file:
 	$(QUIET)echo ">>> Generate $(CDB_PORTAL_PROPERTIES_FILE)"
 	$(QUIET)sed -e "s:CDB_DATA_DIR:$(CDB_DATA_DIR):g" \
 				-e "s|cdb.webService.url=.*|cdb.webService.url=$(CDB_WEBSERVICE_URL)|g" \
 				-e "s|cdb.permanentContextRoot.url=.*|cdb.permanentContextRoot.url=$(CDB_CONTEXTROOT_URL)|g" \
-				-e "s:CDB_ADMIN:$(CDB_ADMIN):g" \
 				-e "s|CDB_LDAP_AUTH_SERVER_URL|$(CDB_LDAP_AUTH_SERVER_URL)|"g \
 				-e "s:CDB_LDAP_AUTH_DN_FORMAT:$(CDB_LDAP_AUTH_DN_FORMAT):"g \
 				-e "s:CDB_LDAP_SERVICE_DN:$(CDB_LDAP_SERVICE_DN):g" \

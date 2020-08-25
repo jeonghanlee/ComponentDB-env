@@ -1,0 +1,4 @@
+
+
+add.project: mariadb_setup.bash
+	$(QUIET)bash $< "query" "INSERT into item_project (name) VALUES('ALS-U')"
