@@ -59,7 +59,8 @@ _CDB_WEB_WEB-INF:=$(_CDB_WEB)/WEB-INF
 
 ANT_ARGS+=-Dlibs.CopyLibs.classpath=lib/org-netbeans-modules-java-j2seproject-copylibstask.jar
 
-CDB_BUILD_PROPERTIES_FILE=$(CDB_JAVA_SRC)/nbproject/private/private.properties
+CDB_NBPROJECT_PATH:=$(CDB_JAVA_SRC)/nbproject
+CDB_BUILD_PROPERTIES_FILE=$(CDB_NBPROJECT_PATH)/private/private.properties
 CDB_GENERIC_BUILD_PROPERTIES_FILE=$(CDB_BUILD_PROPERTIES_FILE).generic.build
 
 CDB_CONF_PERSISTENCE_XML_FILE=$(CDB_JAVA_SRC)/src/conf/persistence.xml

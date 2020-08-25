@@ -1,6 +1,6 @@
 # -*- mode: Makefile;-*-
 
-.PHONY: install.pkgs install.jakarta.xml install.jdk.local install.ant.local
+.PHONY: install.pkgs install.jdk.local install.ant.local
 
 install.pkgs:
 	$(QUIET)sudo -E bash -c "$(TOP)/scripts/required_pkgs.sh"
@@ -21,5 +21,15 @@ install.ant.local:
 	$(QUIET)echo "ANT_HOME=$(TOP)/$(SRC_PATH)/support/ant" >> $(TOP)/configure/CONFIG_COMMON.local
 	$(QUIET)echo "ANT_PATH=$(ANT_HOME)/bin"                >> $(TOP)/configure/CONFIG_COMMON.local
 
+
+.PHONY: install.jars install.jakarta.xml install.itext
+
+install.jars: install.jakarta.xml install.itext
+
+# with java 11 
 install.jakarta.xml:
-	$(QUIET)cp $(SITE_TEMPLATE_PATH)/jakarta.xml.bind-api-2.3.3.jar $(TOP)/$(CDB_JAVA_SRC)/lib/
+	$(QUIET)cp $(SITE_TEMPLATE_PATH)/jakarta.xml.bind-api-*.jar $(TOP)/$(CDB_JAVA_SRC)/lib/
+
+# pdf export
+install.itext:
+	$(QUIET)cp $(SITE_TEMPLATE_PATH)/itext-*.jar $(TOP)/$(CDB_JAVA_SRC)/lib/
