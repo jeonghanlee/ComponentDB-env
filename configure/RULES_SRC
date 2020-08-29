@@ -99,10 +99,19 @@ conf.web.xml:
 				-e "s:<context-root.*:<context-root>/$(CDB_CONTEXT_ROOT)</context-root>:g" \
 				< $(CDB_GLASSFISH_WEB_XML_FILE).template > $(CDB_GLASSFISH_WEB_XML_FILE)
 
-# 
-# cdb.portal.adminGroupList=CDB_ADMIN
-# CDB_ADMIN is not the variable, but the HARD-coded important definition
-# That is the unique name in MariaDB Table definition.
+## Few variables in cdb.portal.properties used in 
+## src/java/CdbWebPortal/src/java/gov/anl/aps/cdb/common/constants/CdbProperty.java
+##  WEB_SERVICE_URL_PROPERTY_NAME = "cdb.webService.url";
+##  PERMANENT_CONTEXT_ROOT_URL_PROPERTY_NAME = "cdb.permanentContextRoot.url";
+##  STORAGE_DIRECTORY_PROPERTY_NAME = "cdb.portal.storageDirectory";
+##  SCALED_IMAGE_SIZE_PROPERTY_NAME = "cdb.portal.scaledImageSize";
+##  THUMBNAIL_IMAGE_PROPERTY_NAME = "cdb.portal.thumbnailImageSize";
+##  HTTP_LINK_DISPLAY_LENGTH_PROPERTY_NAME = "cdb.portal.handler.http.linkDisplayLength";   
+## src/java/CdbWebPortal/src/java/gov/anl/aps/cdb/portal/controllers/LoginController.java
+## src/java/CdbWebPortal/src/java/gov/anl/aps/cdb/portal/model/db/utilities/EntityInfoUtility.java
+##  AdminGroupListPropertyName = "cdb.portal.adminGroupList";
+## CDB_ADMIN is not the variable, but the HARD-coded important definition
+## That is used for the MariaDB Table definition.
 conf.cdb_portal_properties_file:
 	$(QUIET)echo ">>> Generate $(CDB_PORTAL_PROPERTIES_FILE)"
 	$(QUIET)sed -e "s:CDB_DATA_DIR:$(CDB_DATA_DIR):g" \
