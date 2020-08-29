@@ -1,28 +1,26 @@
 
 
 ## Install Service related files 
-install: src_install
+install: deploy
 
 deploy: deploy.cdb
 
-## PRE installation is done in conf.install rule in RULES_SRC
-## PRE installation is in $(_CDB_INSTALL_DIR)
+## src_install rule is an alias of conf.install in RULES_SRC
+
 src_install: src_version src_preinst
 	$(QUIET)$(SUDO) $(INSTALL) -d $(CDB_INSTALL_LOCATION)
 	$(QUIET)$(SUDO) $(INSTALL_DATA) -b $(SITE_TEMPLATE_PATH)/.versions  $(CDB_INSTALL_LOCATION)/
-# 	if we need configuration files, should be done in here. 
-	$(QUIET)$(SUDO) cp -rp $(_CDB_INSTALL_DIR)/*  $(CDB_INSTALL_LOCATION)/
+	$(QUIET)$(SUDO) mkdir -p $(CDB_DATA_DIR) $(CDB_VAR_DIR) $(CDB_ETC_DIR) $(CDB_LOG_DIR) $(CDB_PROPERTYVALUE_DIR)
 	$(QUIET)$(SUDO)	chown -R $(USERID):$(GROUPID) $(CDB_INSTALL_LOCATION)
 
-
 ## Uninstall 
-undeploy: undeploy.cdb
+undeploy: undeploy.cdb 
 
-uninstall: src_postrm src_clean
+src_uninstall: src_postrm src_clean
 	$(QUIET)echo "Removing $(CDB_INSTALL_LOCATION)..."
+	$(QUIET)-rm -rf  $(CDB_INSTALL_LOCATION)
 
-
-#reinstall: redeploy.cdb
+redeploy: redeploy.cdb
 
 #restart: build reinstall 
 

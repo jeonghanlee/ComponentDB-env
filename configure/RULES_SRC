@@ -62,19 +62,16 @@ library-inclusion-in-archive.ant: info.ant
 compile.ant: info.ant
 	$(ANT_CDB) -f $(CDB_JAVA_SRC)/build.xml $(ANT_ARGS) compile
 
-.PHONY: conf.cdb conf.update_plugin conf.propertiles_file conf.web.xml conf.persistence.xml conf.resources.properties
+.PHONY: conf.cdb conf.install conf.update_plugin conf.properties_file conf.web.xml conf.cdb_portal_properties_file conf.persistence.xml conf.resources.properties
 
-conf.cdb: conf.install conf.update_plugin conf.build_propertiles_file conf.web.xml conf.cdb_portal_properties_file conf.persistence.xml conf.resources.properties conf.css.web
+conf.cdb: conf.install conf.update_plugin conf.build_properties_file conf.web.xml conf.cdb_portal_properties_file conf.persistence.xml conf.resources.properties conf.css.web
 
-conf.install:
-#	$(if $(wildcard $(_CDB_INSTALL_DIR)), $(QUIET)mv $(_CDB_INSTALL_DIR) $(_CDB_INSTALL_DIR)_backup_$$(date +%Y%m%d-%H%M%S))
-	$(QUIET)$(INSTALL) -d $(_CDB_INSTALL_DIR)
-	$(QUIET)mkdir -p $(_CDB_DATA_DIR) $(_CDB_VAR_DIR) $(_CDB_ETC_DIR) $(_CDB_LOG_DIR) $(_CDB_PROPERTYVALUE_DIR)
+conf.install: src_install
 
 conf.update_plugin:
-	CDB_INSTALL_DIR=$(_CDB_INSTALL_DIR) CDB_ROOT_DIR=$(SRC_PATH) PYTHONPATH=$(PYTHONPATH)  python $(SRC_PATH)/tools/developer_tools/cdb_plugins/update_plugin_generated_files.py $(DB_NAME) 0
+	$(SUDO) CDB_INSTALL_DIR=$(CDB_INSTALL_LOCATION) CDB_ROOT_DIR=$(SRC_PATH) PYTHONPATH=$(PYTHONPATH)  python $(SRC_PATH)/tools/developer_tools/cdb_plugins/update_plugin_generated_files.py $(DB_NAME) 0
 
-conf.build_propertiles_file:
+conf.build_properties_file: conf.project_properties
 	$(QUIET)cp -rf $(SITE_TEMPLATE_PATH)/build/* $(CDB_NBPROJECT_PATH)/
 ifneq ("$(wildcard $(CDB_BUILD_PROPERTIES_FILE))","")
 	$(QUIET)echo ">>> Found $(CDB_BUILD_PROPERTIES_FILE), renamed it to $(CDB_BUILD_PROPERTIES_FILE).orig"
@@ -82,14 +79,24 @@ ifneq ("$(wildcard $(CDB_BUILD_PROPERTIES_FILE))","")
 endif
 	$(QUIET)sed -e "s:CDB_GLASSFISH_DIR:$(PAYARA_INSTALL_PATH):g" < $(CDB_GENERIC_BUILD_PROPERTIES_FILE) > $(CDB_BUILD_PROPERTIES_FILE)
 
+.PHONY: conf.project_properties conf.project_properties.show
+
+conf.project_properties: $(CDB_BUILD_PROJECT_PROPERTIES_FILE).in
+	$(QUIET) echo ">>> Generate $(basename $<) from $<"
+	$(QUIET)sed -e "s:@CDB_WAR_FILENAME@:$(CDB_WAR_FILENAME):g" \
+			< $< > $(basename $<)
+
+conf.project_properties.show: $(CDB_BUILD_PROJECT_PROPERTIES_FILE).in
+	@cat -b $(basename $<)
+
+## context-root is the relative path
+## we have to add "/" before CDB_CONTEXT_ROOT
 conf.web.xml:
 	$(QUIET)echo ">>> Copying web.xml to $(_CDB_WEB_WEB-INF)/ "
 	$(QUIET)cp -rf $(SITE_TEMPLATE_PATH)/web/web.xml $(_CDB_WEB_WEB-INF)/
-#   This harded-code cdb is strange, because CDB_DATA_DIR is CDB_INSTALL_DIR/data. Of cources, data/$CDB_DB_NAME, where 
-#   CDB_DB_NAME is cdb
 	$(QUIET)echo ">>> Generate $(CDB_GLASSFISH_WEB_XML_FILE)"
 	$(QUIET)sed -e "s:CDB_DATA_DIR:$(CDB_DATA_DIR):g" \
-				-e "s:<context-root.*:<context-root>$(CDB_CONTEXT_ROOT)</context-root>:g" \
+				-e "s:<context-root.*:<context-root>/$(CDB_CONTEXT_ROOT)</context-root>:g" \
 				< $(CDB_GLASSFISH_WEB_XML_FILE).template > $(CDB_GLASSFISH_WEB_XML_FILE)
 
 # 
@@ -215,10 +222,10 @@ build.python:
 redeploy.cdb: undeploy.cdb deploy.cdb 
 
 deploy.cdb:
-	$(QUIET)$(PAYARA_ASADMIN) deploy $(CDB_JAVA_SRC)/dist/$(WAR_FILENAME)
+	$(QUIET)$(PAYARA_ASADMIN) deploy $(CDB_JAVA_SRC)/dist/$(CDB_WAR_FILENAME)
 
 undeploy.cdb:
-	$(QUIET)$(PAYARA_ASADMIN) undeploy $(WAR_NAME)
+	$(QUIET)$(PAYARA_ASADMIN) undeploy $(CDB_WAR_NAME)
 
 list.cdb:
 	$(QUIET)$(PAYARA_ASADMIN) list-applications
@@ -227,9 +234,6 @@ clean.local:
 	@-rm -f $(TOP)/*.local
 	@-rm -f $(TOP)/configure/*.local
 	@-rm -f $(TOP)/*.jar
-
-
-#libs.CopyLibs.classpath=lib/org-netbeans-modules-java-j2seproject-copylibstask.jar
 
 
 VARS_EXCLUDES+=$(filter CDB_WEB_RESOURCES_%, $(.VARIABLES))

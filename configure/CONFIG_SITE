@@ -4,11 +4,6 @@
 CDB_INSTALL_LOCATION=/opt/${APPNAME}
 
 
-# ### 
-WAR_NAME:=CdbWebPortal
-WAR_FILENAME:=$(WAR_NAME).war
-
-
 # ### Default JAVA path and its options
 # JAVA_PATH:=/usr/bin
 #JAVA_OPTS:=-Xms512m -Xmx512m
@@ -29,7 +24,7 @@ JAVA_PATH:=$(JAVA_HOME)/bin
 ANT_PATH:=$(ANT_HOME)/bin
 PATH:=$(ANT_PATH):$(JAVA_PATH):${PATH}
 
-USERID:=$(DB_USER)
+USERID:=payara
 GROUPID:=65534
 
 # These allow developers to override the CONFIG_SITE variable

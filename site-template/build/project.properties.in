@@ -194,6 +194,6 @@ src.dir=${source.root}/java
 test.src.dir=test
 war.content.additional=
 war.ear.name=${war.name}
-war.name=CdbWebPortal.war
+war.name=@CDB_WAR_FILENAME@
 web.docbase.dir=web
 webinf.dir=web/WEB-INF

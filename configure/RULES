@@ -1,6 +1,6 @@
 
 vpath %.bash $(TOP)/scripts
-
+vpath %.in $(SITE_TEMPLATE_PATH)/build
 
 include $(TOP)/configure/RULES_FUNC
 include $(TOP)/configure/RULES_PATCH
