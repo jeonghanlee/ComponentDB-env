@@ -36,6 +36,9 @@ endif
 SITE_TEMPLATE_PATH:=$(TOP)/site-template
 PYTHONPATH:=$(TOP)/$(SRC_PATH)/src/python
 ANT_CDB=$(ANT_HOME)/bin/ant
+## Suddenly, private/private.properties doesn't work. So I add j2ee.server.home in ant argument
+## And private.properties also is generated just in case
+ANT_ARGS+=-Dj2ee.server.home=$(PAYARA_INSTALL_PATH)/glassfish
 ANT_ARGS+=-Dlibs.CopyLibs.classpath=lib/org-netbeans-modules-java-j2seproject-copylibstask.jar
 
 ### CDB 
@@ -63,11 +66,14 @@ CDB_WAR_NAME:=$(CDB_CONTEXT_ROOT)
 CDB_WAR_FILENAME:=$(CDB_WAR_NAME).war
 ##
 ## CDB_INSTALL_LOCATION is defined in CONFIG_SITE
-CDB_DATA_DIR:=$(CDB_INSTALL_LOCATION)/data
+CDB_DATA_DIR:=$(CDB_INSTALL_LOCATION)/data/$(CDB_CONTEXT_ROOT)
 CDB_VAR_DIR:=$(CDB_INSTALL_LOCATION)/var
 CDB_ETC_DIR:=$(CDB_INSTALL_LOCATION)/etc
-CDB_LOG_DIR:=$(CDB_INSTALL_LOCATION)/log
-CDB_PROPERTYVALUE_DIR:=$(CDB_INSTALL_LOCATION)/propertyValue
+CDB_LOG_DIR:=$(CDB_DATA_DIR)/log
+CDB_PROPERTYVALUE_DIR:=$(CDB_DATA_DIR)/propertyValue
+CDB_SSL_DIR:=$(CDB_ETC_DIR)/ssl
+CDB_CA_DIR:=$(CDB_ETC_DIR)/CA 
+CDB_CERTS_DIR:=$(CDB_CA_DIR)/certs
 
 CDB_BUILD_PROJECT_PROPERTIES_FILE=project.properties
 
@@ -87,6 +93,7 @@ CDB_RESOURCE_PROPERTIES=$(CDB_JAVA_SRC)/src/java/resources.properties
 CDB_PORTAL_PROPERTIES_FILE=$(CDB_JAVA_SRC)/src/java/cdb.portal.properties
 CDB_GLASSFISH_WEB_XML_FILE=$(_CDB_WEB)/WEB-INF/glassfish-web.xml
 
+CDB_PAYARA_WEB_XML=payara-web.xml
 
 ## We have to define them one by one, because before `make init` we have to define them all
 ##

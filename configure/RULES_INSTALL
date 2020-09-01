@@ -1,24 +1,29 @@
 
+.PHONY: install deploy src_install src_paths undeploy src_uninstall redeploy
 
 ## Install Service related files 
-install: deploy
+install: 
+
+uninstall: src_uninstall
 
 deploy: deploy.cdb
 
 ## src_install rule is an alias of conf.install in RULES_SRC
 
-src_install: src_version src_preinst
+src_install: src_version src_preinst src_paths
 	$(QUIET)$(SUDO) $(INSTALL) -d $(CDB_INSTALL_LOCATION)
 	$(QUIET)$(SUDO) $(INSTALL_DATA) -b $(SITE_TEMPLATE_PATH)/.versions  $(CDB_INSTALL_LOCATION)/
-	$(QUIET)$(SUDO) mkdir -p $(CDB_DATA_DIR) $(CDB_VAR_DIR) $(CDB_ETC_DIR) $(CDB_LOG_DIR) $(CDB_PROPERTYVALUE_DIR)
 	$(QUIET)$(SUDO)	chown -R $(USERID):$(GROUPID) $(CDB_INSTALL_LOCATION)
 
-## Uninstall 
+src_paths:
+	$(SUDO) mkdir -p $(CDB_DATA_DIR) $(CDB_VAR_DIR)/log $(CDB_ETC_DIR) $(CDB_LOG_DIR) $(CDB_PROPERTYVALUE_DIR) $(CDB_SSL_DIR) $(CDB_CERTS_DIR)
+
+# Uninstall 
 undeploy: undeploy.cdb 
 
 src_uninstall: src_postrm src_clean
 	$(QUIET)echo "Removing $(CDB_INSTALL_LOCATION)..."
-	$(QUIET)-rm -rf  $(CDB_INSTALL_LOCATION)
+	$(QUIET)$(SUDO) rm -rf  $(CDB_INSTALL_LOCATION)
 
 redeploy: redeploy.cdb
 

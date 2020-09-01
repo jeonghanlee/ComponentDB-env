@@ -1,6 +1,8 @@
 
 vpath %.bash $(TOP)/scripts
 vpath %.in $(SITE_TEMPLATE_PATH)/build
+vpath %.in $(SITE_TEMPLATE_PATH)/web
+vpath %.in $(SITE_TEMPLATE_PATH)/java
 
 include $(TOP)/configure/RULES_FUNC
 include $(TOP)/configure/RULES_PATCH

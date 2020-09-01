@@ -19,7 +19,7 @@ distclean:
 ifneq ($(wildcard $(SRC_PATH)/.*),)
 	$(QUIET)echo "We've found $(SRC_PATH)"
 	$(QUIET)echo "Removing ....."
-	$(QUIET)rm -rf $(SRC_PATH)
+	$(QUIET)$(SUDO) rm -rf $(SRC_PATH)
 else
 	$(QUIET)echo "There is no $(SRC_PATH)."
 endif
@@ -32,7 +32,7 @@ clean: clean.java
 
 .PHONY: conf.cdb dist.ant revertconf.cdb
 
-build.java: conf.cdb dist.ant
+build.java: clean.java conf.cdb dist.ant
 
 clean.java: clean.conf.cdb clean.ant  revertconf.cdb
 
@@ -62,7 +62,7 @@ library-inclusion-in-archive.ant: info.ant
 compile.ant: info.ant
 	$(ANT_CDB) -f $(CDB_JAVA_SRC)/build.xml $(ANT_ARGS) compile
 
-.PHONY: conf.cdb conf.install conf.update_plugin conf.properties_file conf.web.xml conf.cdb_portal_properties_file conf.persistence.xml conf.resources.properties
+.PHONY: conf.cdb conf.install conf.update_plugin conf.properties_file conf.web.xml conf.payara-web.xml conf.cdb_portal_properties_file conf.log4j2.xml conf.persistence.xml conf.resources.properties
 
 conf.cdb: conf.install conf.update_plugin conf.build_properties_file conf.web.xml conf.cdb_portal_properties_file conf.persistence.xml conf.resources.properties conf.css.web
 
@@ -99,6 +99,21 @@ conf.web.xml:
 				-e "s:<context-root.*:<context-root>/$(CDB_CONTEXT_ROOT)</context-root>:g" \
 				< $(CDB_GLASSFISH_WEB_XML_FILE).template > $(CDB_GLASSFISH_WEB_XML_FILE)
 
+
+## context-root is the relative path
+## we have to add "/" before CDB_CONTEXT_ROOT
+#conf.web.xml: conf.payara-web.xml
+#	$(QUIET)echo ">>> Copying web.xml to $(_CDB_WEB_WEB-INF)/ "
+#	$(QUIET)cp -rf $(SITE_TEMPLATE_PATH)/web/*.xml $(_CDB_WEB_WEB-INF)/
+
+#conf.payara-web.xml: $(CDB_PAYARA_WEB_XML).in
+#	$(QUIET)rm -f $(_CDB_WEB_WEB-INF)/glassfish-web.*
+#	$(QUIET)echo ">>> Generate $(basename $<) from $<"
+#	$(QUIET)sed -e "s:@CDB_DATA_DIR@:$(CDB_DATA_DIR):g" \
+#				-e "s:@CDB_CONTEXT_ROOT@:/$(CDB_CONTEXT_ROOT):g" \
+#				< $< > $(basename $<)
+
+
 ## Few variables in cdb.portal.properties used in 
 ## src/java/CdbWebPortal/src/java/gov/anl/aps/cdb/common/constants/CdbProperty.java
 ##  WEB_SERVICE_URL_PROPERTY_NAME = "cdb.webService.url";
@@ -123,6 +138,13 @@ conf.cdb_portal_properties_file:
 				-e "s:CDB_LDAP_SERVICE_PASS:$(CDB_LDAP_SERVICE_PASS):g" \
 				-e "s:CDB_LDAP_LOOKUP_FILTER:\'$(CDB_LDAP_LOOKUP_FILTER)\':g" \
 				< $(CDB_PORTAL_PROPERTIES_FILE).template > $(CDB_PORTAL_PROPERTIES_FILE)
+
+conf.log4j2.xml: log4j2.xml.in
+	$(QUIET)echo ">>> Generate $(basename $<) from $<"
+	$(QUIET)sed -e "s:@CDB_LOG_DIR@:$(CDB_LOG_DIR):g" \
+				-e "s:@CDB_CONTEXT_ROOT@:$(CDB_CONTEXT_ROOT):g" \
+				< $< > $(basename $<)
+	$(QUIET)cp -rf $(basename $<) $(CDB_JAVA_SRC)/src/java/
 
 conf.persistence.xml:
 	$(QUIET)echo ">>> Generate $(CDB_CONF_PERSISTENCE_XML_FILE)"
