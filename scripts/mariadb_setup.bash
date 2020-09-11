@@ -176,7 +176,7 @@ function generate_admin_local_password
             ##
             temp_sql_file=$(mktemp -q) || die 1 "CANNOT create the $temp_sql_file file, please check the disk space";
             echo "UPDATE user_info SET password = ('$adminCryptPassword')  WHERE (username='$db_user_name');" > "${temp_sql_file}"
-            query_from_sql_file_to_get_result_for_further_process "${db_name}" "${temp_sql_file}"
+            query_from_sql_file "${db_name}" "${temp_sql_file}"
             rm -f "${temp_sql_file}"
         else
             printf ">>> We've found there is the CDB admin user %s with a local password.\n" "$db_user_name"
@@ -353,7 +353,7 @@ case "$input" in
         if [ -z "${sql_file}" ]; then
              sql_file="${ENV_TOP}/site-template/sql/default_query.sql"
         fi
-        query_from_sql_file_to_get_result_for_further_process "${DB_NAME}" "${query_sql_file}" "$query_options"
+        query_from_sql_file "${DB_NAME}" "${query_sql_file}" "$query_options"
         ;;
     updateCDBAdminPassword)
         python_path="$additional_input"
