@@ -24,10 +24,12 @@ db.secure: db.conf
 	$(QUIET)bash scripts/mariadb_setup.bash secureSetup
 
 db.addAdmin: db.conf
-	$(QUIET)bash scripts/mariadb_setup.bash adminAdd
+	$(QUIET)bash scripts/mariadb_setup.bash localAdminAdd
+	$(QUIET)bash scripts/mariadb_setup.bash hostnameAdminAdd
 
 db.rmAdmin: db.conf
-	$(QUIET)bash scripts/mariadb_setup.bash adminRemove
+	$(QUIET)bash scripts/mariadb_setup.bash localAdminRemove
+	$(QUIET)bash scripts/mariadb_setup.bash hostnameAdminRemove
 
 db.create: db.conf
 	$(QUIET)bash scripts/mariadb_setup.bash dbCreate

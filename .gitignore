@@ -60,3 +60,4 @@ test
 mariadb.conf*
 payara_mariadb_jdbc_template.xml
 
+project.properties

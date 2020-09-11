@@ -51,16 +51,16 @@ info.ant:
 
 # OpenJDK11 : jakarta.xml.bind.api for error: package javax.xml.bind does not exist
 dist.ant: info.ant install.jars
-	$(ANT_CDB) -f $(CDB_JAVA_SRC)/build.xml $(ANT_ARGS) dist
+	JAVA_HOME=$(JAVA_HOME) $(ANT_CDB) -f $(CDB_JAVA_SRC)/build.xml $(ANT_ARGS) dist
 
 clean.ant: info.ant
-	$(ANT_CDB) -f $(CDB_JAVA_SRC)/build.xml $(ANT_ARGS) clean
+	JAVA_HOME=$(JAVA_HOME) $(ANT_CDB) -f $(CDB_JAVA_SRC)/build.xml $(ANT_ARGS) clean
 
 library-inclusion-in-archive.ant: info.ant
-	$(ANT_CDB) -f $(CDB_JAVA_SRC)/build.xml $(ANT_ARGS) library-inclusion-in-archive
+	JAVA_HOME=$(JAVA_HOME) $(ANT_CDB) -f $(CDB_JAVA_SRC)/build.xml $(ANT_ARGS) library-inclusion-in-archive
 
 compile.ant: info.ant
-	$(ANT_CDB) -f $(CDB_JAVA_SRC)/build.xml $(ANT_ARGS) compile
+	JAVA_HOME=$(JAVA_HOME) $(ANT_CDB) -f $(CDB_JAVA_SRC)/build.xml $(ANT_ARGS) compile
 
 .PHONY: conf.cdb conf.install conf.update_plugin conf.properties_file conf.web.xml conf.payara-web.xml conf.cdb_portal_properties_file conf.log4j2.xml conf.persistence.xml conf.resources.properties
 
