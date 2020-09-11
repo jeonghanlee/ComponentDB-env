@@ -4,6 +4,10 @@
 
 Configuration Environment for ComponentDB at <https://github.com/AdvancedPhotonSource/ComponentDB>
 
+## Notice
+
+This is not the fully functional repository, but **WIP** one.
+
 ## Requirements
 
 ### Download the ComponentDB source under this repository
@@ -22,6 +26,21 @@ make patch.apply
 
 ```bash
 make install.pkgs
+```
+
+For CentOS8, one should define which python2 should be used as default via
+
+```bash
+$ sudo update-alternatives --config python
+There are 3 programs which provide 'python'.
+
+  Selection    Command
+-----------------------------------------------
+*+ 1           /usr/libexec/no-python
+   2           /usr/bin/python3
+   3           /usr/bin/python2
+
+Enter to keep the current selection[+], or type selection number: 3
 ```
 
 ### MariaDB configuration
