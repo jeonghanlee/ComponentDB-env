@@ -2,8 +2,8 @@
 #
 #  author  : Jeong Han Lee
 #  email   : jeonghan.lee@gmail.com
-#  date    : Monday, June 29 14:02:20 PDT 2020
-#  version : 0.0.1
+#  date    : 2020 09 10 17:28
+#  version : 0.0.2
 
 
 declare -g SC_SCRIPT;
@@ -18,6 +18,15 @@ SC_TOP="${SC_SCRIPT%/*}"
 
 function pushd { builtin pushd "$@" > /dev/null || exit; }
 function popd  { builtin popd  > /dev/null || exit; }
+
+function centos_dist
+{
+
+    local VERSION_ID
+    eval $(cat /etc/os-release | grep -E "^(VERSION_ID)=")
+    echo ${VERSION_ID}
+}
+
 
 function find_dist
 {
@@ -108,18 +117,48 @@ function debian_pkgs
 
 }
 
-## Do not test it yet Monday, June 29 15:09:24 PDT 2020
-function centos_pkgs
+
+# Don't test it
+function centos7_pkgs
 {
     yum update
     yum install -y \
-	    wget curl expect \
-	    git sed gawk unzip \
-	    make cmake autoconf automake gcc libgcc \
-	    zlib-devel openssl-devel openldap-devel readline-devel \
-	    mariadb-server mariadb-libs
-	
-    ln -sf "$(which mariadb_config)" /usr/bin/mysql_config  
+	wget curl \
+	sed unzip \
+	mariadb-server mariadb-server-utils \
+	platform-python-setuptools \
+	platform-python-pip \
+	python-click \
+	python-ldap \
+	python-sphinx \
+	twine \
+	python-cherrypy \
+	python-routes \
+	python-sqlalchemy \
+	python-mysql \
+	python-suds
+}
+
+
+function centos8_pkgs
+{
+    dnf update
+    dnf install -y \
+	wget curl \
+	sed unzip \
+	mariadb-server mariadb-server-utils \
+	platform-python-setuptools \
+	platform-python-pip \
+	python3-click \
+	python3-ldap \
+	python3-sphinx \
+	twine \
+	python3-cherrypy \
+	python3-routes \
+	python3-sqlalchemy \
+	python3-mysql \
+	python3-suds
+
 }
 
 
@@ -128,8 +167,15 @@ dist="$(find_dist)"
 case "$dist" in
     *Debian*) debian_pkgs ;;
     *Ubuntu*) debian_pkgs ;;
-#    *CentOS*) centos_pkgs ;;
-#    *RedHat*) centos_pkgs ;;
+    *CentOS*)
+	centos_version=$(centos_dist)
+	if [ "$centos_version" == "8" ]; then
+	    centos8_pkgs
+	else
+	    # assume there is no CentOS6
+	    centos7_pkgs
+	fi
+	;;
     *)
 	printf "\\n";
 	printf "Doesn't support the detected %s\\n" "$dist";
