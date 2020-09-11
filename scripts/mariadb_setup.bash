@@ -163,7 +163,7 @@ function generate_admin_local_password
 	    noDbMessage "${db_name}";
 	    exit;
     else
-        adminWithLocalPassword=$(query_from_sql_file_to_get_result_for_further_process "${db_name}" "${ENV_TOP}/site-template/sql/check_cdb_admin.sql" -N)
+        adminWithLocalPassword=$(query_from_sql_file "${db_name}" "${ENV_TOP}/site-template/sql/check_cdb_admin.sql" -N)
         if [ -z "$adminWithLocalPassword" ]; then
             printf ">>> We've found there is the CDB admin user %s with a local password.\n" "$db_user_name"
             printf "    Updating ........ \n"
