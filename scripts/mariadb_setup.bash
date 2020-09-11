@@ -2,7 +2,7 @@
 #
 #  author  : Jeong Han Lee
 #  email   : jeonghan.lee@gmail.com
-#  version : 0.0.3
+#  version : 0.0.4
 
 declare -g SC_SCRIPT;
 declare -g SC_TOP;
@@ -249,8 +249,8 @@ case "$input" in
         remove_admin_account_local;
         ;;
     dbCreate)
-         # shellcheck disable=SC2153
-         create_db_and_user "${DB_NAME}" "${DB_ADMIN_HOSTS}" "${DB_USER}" "${DB_USER_PASS}";
+        # shellcheck disable=SC2153
+        create_db_and_user "${DB_NAME}" "${DB_ADMIN_HOSTS}" "${DB_USER}" "${DB_USER_PASS}";
         ;;     
     dbShow)
         show_dbs;
@@ -265,7 +265,7 @@ case "$input" in
         if [ -z "${additional_input}" ]; then
             additional_input="${ENV_TOP}/ComponentDB-src/db/sql/create_cdb_tables.sql"
         fi
-        create_from_sql_file "${DB_NAME}" "${additional_input}";
+        query_from_sql_file "${DB_NAME}" "${additional_input}";
         ;;    
     tableShow)
         show_tables "${DB_NAME}" "BASE TABLE";
@@ -277,7 +277,7 @@ case "$input" in
         if [ -z "${additional_input}" ]; then
             additional_input="${ENV_TOP}/ComponentDB-src/db/sql/create_views.sql"
         fi
-        create_from_sql_file "${DB_NAME}" "${additional_input}";
+        query_from_sql_file "${DB_NAME}" "${additional_input}";
         ;;
     viewShow)
         show_tables "${DB_NAME}" "VIEW";
@@ -289,7 +289,7 @@ case "$input" in
         if [ -z "${additional_input}" ]; then
             additional_input="${ENV_TOP}/ComponentDB-src/db/sql/create_stored_procedures.sql"
         fi
-        create_from_sql_file "${DB_NAME}" "${additional_input}";
+        query_from_sql_file "${DB_NAME}" "${additional_input}";
         ;;
     sProcShow)
         show_procedures "${DB_NAME}";
@@ -301,7 +301,7 @@ case "$input" in
         if [ -z "${additional_input}" ]; then
             additional_input="${ENV_TOP}/ComponentDB-src/db/sql/create_triggers.sql"
         fi
-        create_from_sql_file "${DB_NAME}" "${additional_input}"
+        query_from_sql_file "${DB_NAME}" "${additional_input}"
         ;;
     triggersShow)
         execute_query "${DB_NAME}" "show TRIGGERS;"
@@ -313,9 +313,9 @@ case "$input" in
         input1="${ENV_TOP}/ComponentDB-src/db/sql/create_cdb_tables.sql"
         input2="${ENV_TOP}/ComponentDB-src/db/sql/create_views.sql"
         input3="${ENV_TOP}/ComponentDB-src/db/sql/create_stored_procedures.sql"
-        create_from_sql_file "${DB_NAME}" "$input1"
-        create_from_sql_file "${DB_NAME}" "$input2"
-        create_from_sql_file "${DB_NAME}" "$input3"
+        query_from_sql_file "${DB_NAME}" "$input1"
+        query_from_sql_file "${DB_NAME}" "$input2"
+        query_from_sql_file "${DB_NAME}" "$input3"
         ;;
     allShow)
         show_tables "${DB_NAME}" "BASE TABLE";
