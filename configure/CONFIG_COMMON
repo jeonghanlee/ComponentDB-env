@@ -8,11 +8,11 @@ PAYARA_INSTALL_PATH:=/opt/payara
 
 ## MariaDB configuration example
 ## Users in the HOSTS can access the SQL server with DB_ADMIN permission
-DB_ADMIN_HOSTS="localhost 127.0.0.1 131.243.84.71"
+DB_ADMIN_HOSTS="localhost 127.0.0.1 10.0.0.200"
 ## SQL Server 
-DB_HOST_IPADDR=131.243.84.71
+DB_HOST_IPADDR=10.0.0.200
 DB_HOST_PORT=3306
-DB_HOST_NAME=alsudev.als.lbl.gov
+DB_HOST_NAME=localhost
 ## SQL server ADMIN user, because we don't use root
 DB_ADMIN=admin
 DB_ADMIN_PASS=admin
