@@ -3,8 +3,8 @@
 JAVA_HOME:=/usr/lib/jvm/java-11-openjdk-amd64
 ANT_HOME:=/usr/share/ant
 
-PAYARA_INSTALL_PATH:=/opt/payara
 
+PAYARA_INSTALL_PATH:=/opt/payara/5.192
 
 ## MariaDB configuration example
 ## Users in the HOSTS can access the SQL server with DB_ADMIN permission

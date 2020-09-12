@@ -10,6 +10,14 @@ This is not the fully functional repository, but **WIP** one.
 
 ## Requirements
 
+### Define the Payara installation location
+
+The default path is defined in `CONFIG_COMMON` as follows:
+
+```bash
+PAYARA_INSTALL_PATH:=/opt/payara/5.192
+```
+
 ### Download the ComponentDB source under this repository
 
 ```bash

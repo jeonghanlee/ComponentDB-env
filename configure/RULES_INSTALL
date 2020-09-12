@@ -16,7 +16,7 @@ src_install: src_version src_preinst src_paths
 	$(QUIET)$(SUDO)	chown -R $(USERID):$(GROUPID) $(CDB_INSTALL_LOCATION)
 
 src_paths:
-	$(SUDO) mkdir -p $(CDB_DATA_DIR) $(CDB_VAR_DIR)/log $(CDB_ETC_DIR) $(CDB_LOG_DIR) $(CDB_PROPERTYVALUE_DIR) $(CDB_SSL_DIR) $(CDB_CERTS_DIR)
+	$(SUDO) mkdir -p $(CDB_DATA_DIR) $(CDB_VAR_DIR)/log $(CDB_ETC_DIR) $(CDB_LOG_DIR) $(CDB_RUN_DIR) $(CDB_PROPERTYVALUE_DIR) $(CDB_SSL_DIR) $(CDB_CERTS_DIR)
 
 # Uninstall 
 undeploy: undeploy.cdb 
