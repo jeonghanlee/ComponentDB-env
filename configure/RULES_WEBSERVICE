@@ -18,7 +18,7 @@ install.python: $(CDB_WEB_SHELL_FILE).in
 # cdb/common/utility/configurationManager.py:        self.__setFromEnvVar('rootDir', 'CDB_ROOT_DIR')
 conf.cdbweb: $(CDB_WEB_SHELL_FILE).in
 	$(QUIET)echo ">>> Generate $(basename $<) from $<"
-	$(QUIET)sed -e "s|@PYTHONPATH@|$(PYTHONPATH)|g" \
+	$(QUIET)sed -e "s|@PYTHONPATH@|$(CDB_WEB_PYTHONPATH)|g" \
 				-e "s:@PYTHON_CMD@:$(PYTHON_CMD):g" \
                 -e "s:@CDB_ROOT_DIR@:$(CDB_INSTALL_LOCATION):g" \
                 -e "s:@CDB_DAEMON_CMD@:$(CDB_DAEMON_CMD):g" \

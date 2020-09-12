@@ -246,7 +246,7 @@ clean.conf.update_plugin:
 
 dist.python:
 	$(QUIET)echo ">>> This rule is empty, what do we want to do?"
-	PYTHONPATH=$(CDB_PYTHON_SRC) make -C $(SRC_PATH)/src/python dist
+	PYTHONPATH=$(PYTHONPATH) make -C $(SRC_PATH)/src/python dist
 
 .PHONY: redeploy.cdb undeploy.cdb deploy.cdb clean.local
 

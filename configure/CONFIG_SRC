@@ -35,6 +35,8 @@ endif
 #
 SITE_TEMPLATE_PATH:=$(TOP)/site-template
 
+PYTHONPATH=$(CDB_PYTHON_SRC)
+
 ANT_CDB=$(ANT_HOME)/bin/ant
 ## Suddenly, private/private.properties doesn't work. So I add j2ee.server.home in ant argument
 ## And private.properties also is generated just in case
