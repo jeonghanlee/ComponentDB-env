@@ -244,9 +244,9 @@ clean.conf.update_plugin:
 	rm -rf $(CDB_JAVA_SRC)/src/java/gov/anl/aps/cdb/portal/plugins/support
 	rm -rf $(SRC_PATH)/src/python/cdb/cdb_web_service/plugins
 
-build.python:
-	$(QUIET)echo "\n>>> This rule is empty, what do we want to do???"
-	PYTHONPATH=$(PYTHONPATH) make -C $(SRC_PATH)/src/python dist
+dist.python:
+	$(QUIET)echo ">>> This rule is empty, what do we want to do?"
+	PYTHONPATH=$(CDB_PYTHON_SRC) make -C $(SRC_PATH)/src/python dist
 
 .PHONY: redeploy.cdb undeploy.cdb deploy.cdb clean.local
 

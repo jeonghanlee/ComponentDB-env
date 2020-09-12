@@ -6,5 +6,5 @@ include $(TOP)/configure/CONFIG_SITE
 include $(TOP)/configure/CONFIG_VARS
 include $(TOP)/configure/CONFIG_SRC
 include $(TOP)/configure/CONFIG_SQL
+include $(TOP)/configure/CONFIG_WEBSERVICE
 include $(TOP)/configure/CONFIG_EXPORT
-

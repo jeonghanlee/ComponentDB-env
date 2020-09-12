@@ -1,0 +1,33 @@
+
+CDB_HOST_ARCH:=$(shell uname -sm | tr -s '[:upper:][:blank:]' '[:lower:][\-]')
+
+CDB_WEB_CONFIG_FILE=$(CDB_ETC_DIR)/$(DB_NAME).cdb-web-service.conf
+CDB_WEB_PID_FILE=$(CDB_RUN_DIR)/$(DB_NAME).cdb-web-service.pid
+
+CDB_PYTHON_SRC:=$(TOP)/$(SRC_PATH)/src/python
+CDB_PYTHON_CDB_SRC:=$(CDB_PYTHON_SRC)/cdb
+CDB_PYTHON_INSTALL_SHELL:=$(TOP)/$(SRC_PATH)/support/bin/install_python_packages.sh
+
+## after "install_python_packages.sh"
+CDB_PYTHON_SUPPORT_DIR:=$(TOP)/$(SRC_PATH)/support/python/$(CDB_HOST_ARCH)
+CDB_PYTHON_DEVTOOL_DIR:=$(TOP)/$(SRC_PATH)/tools/developer_tools/python-client
+
+## CDB_PYTHON_CDB_SRC installation path
+CDB_PYTHON_ROOT_DIR:=$(CDB_INSTALL_LOCATION)/python
+
+## CDB_PYTHON_SUPPORT_DIR installation path
+CDB_PYTHON_DIR:=$(CDB_PYTHON_ROOT_DIR)/$(CDB_HOST_ARCH)
+
+## CDB_PYTHON_DEVTOOL_DIR installation path
+CDB_PYTHON_CLIENT_DIR:=$(CDB_PYTHON_ROOT_DIR)/python-client
+
+### CDB_PYTHON_CDB_SRC installation path
+CDB_PYTHON_CDB_DIR:=$(CDB_PYTHON_ROOT_DIR)/cdb
+
+PYTHONPATH:=$(CDB_PYTHON_ROOT_DIR):$(CDB_PYTHON_CLIENT_DIR)
+
+CDB_DAEMON_CMD:=$(CDB_PYTHON_CDB_DIR)/cdb_web_service/service/cdbWebService.py
+
+PYTHON_CMD:=$(CDB_PYTHON_DIR)/bin/python
+
+CDB_WEB_SHELL_FILE:=$(SITE_TEMPLATE_PATH)/cdb-web-service.sh

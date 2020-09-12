@@ -1,0 +1,30 @@
+[Unit]
+Description=CDB Web Servicee
+Documentation=https://github.com/AdvancedPhotonSource/ComponentDB
+After=network.target 
+
+[Service]
+
+#
+# Twistd also has the options, but we use the systemd one instead.
+#
+User=@USERID@
+Group=@GROUPID@
+
+# Everything in a local, so we have to tell where PYTHONPATH is
+Environment="PYTHONPATH=@PYTHONPATH@"
+
+# Due to User/Group permission, we cannot generate the recsync.log
+# in /var/log/ folder. So we put in into the recsync installation
+# location instead. In the same way, a PID file also cannot be
+# generated. However, we don't need it, since systemd service will
+# take care of this. 
+# 
+ExecStart=@PYTHON_CMD@ @CDB_DAEMON_CMD@ -d \
+                       -p --config-file @CDB_WEB_CONFIG_FILE@
+
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+#

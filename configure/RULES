@@ -3,6 +3,7 @@ vpath %.bash $(TOP)/scripts
 vpath %.in $(SITE_TEMPLATE_PATH)/build
 vpath %.in $(SITE_TEMPLATE_PATH)/web
 vpath %.in $(SITE_TEMPLATE_PATH)/java
+vpath %.in $(SITE_TEMPLATE_PATH)/cdbweb
 
 include $(TOP)/configure/RULES_FUNC
 include $(TOP)/configure/RULES_PATCH
@@ -12,5 +13,5 @@ include $(TOP)/configure/RULES_INSTALL
 -include $(TOP)/configure/RULES_DOCKER
 include $(TOP)/configure/RULES_SQL
 include $(TOP)/configure/RULES_CDB
+include $(TOP)/configure/RULES_WEBSERVICE
 include $(TOP)/configure/RULES_VARS
-

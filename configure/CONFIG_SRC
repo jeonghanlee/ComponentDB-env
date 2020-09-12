@@ -34,7 +34,7 @@ endif
 #
 #
 SITE_TEMPLATE_PATH:=$(TOP)/site-template
-PYTHONPATH:=$(TOP)/$(SRC_PATH)/src/python
+
 ANT_CDB=$(ANT_HOME)/bin/ant
 ## Suddenly, private/private.properties doesn't work. So I add j2ee.server.home in ant argument
 ## And private.properties also is generated just in case
@@ -68,15 +68,15 @@ CDB_WAR_NAME:=$(CDB_CONTEXT_ROOT)
 CDB_WAR_FILENAME:=$(CDB_WAR_NAME).war
 ##
 ## CDB_INSTALL_LOCATION is defined in CONFIG_SITE
-CDB_DATA_DIR:=$(CDB_INSTALL_LOCATION)/data/$(CDB_CONTEXT_ROOT)
-CDB_VAR_DIR:=$(CDB_INSTALL_LOCATION)/var
-CDB_ETC_DIR:=$(CDB_INSTALL_LOCATION)/etc
-CDB_LOG_DIR:=$(CDB_DATA_DIR)/log
-CDB_RUN_DIR:=$(CDB_DATA_DIR)/run
-CDB_PROPERTYVALUE_DIR:=$(CDB_DATA_DIR)/propertyValue
-CDB_SSL_DIR:=$(CDB_ETC_DIR)/ssl
-CDB_CA_DIR:=$(CDB_ETC_DIR)/CA 
-CDB_CERTS_DIR:=$(CDB_CA_DIR)/certs
+CDB_DATA_DIR:=$(strip $(CDB_INSTALL_LOCATION))/data/$(CDB_CONTEXT_ROOT)
+CDB_VAR_DIR:=$(strip $(CDB_INSTALL_LOCATION))/var
+CDB_ETC_DIR:=$(strip $(CDB_INSTALL_LOCATION))/etc
+CDB_LOG_DIR:=$(strip $(CDB_VAR_DIR))/log
+CDB_RUN_DIR:=$(strip $(CDB_VAR_DIR))/run
+CDB_PROPERTYVALUE_DIR:=$(strip $(CDB_DATA_DIR))/propertyValue
+CDB_SSL_DIR:=$(strip $(CDB_ETC_DIR))/ssl
+CDB_CA_DIR:=$(strip $(CDB_ETC_DIR))/CA
+CDB_CERTS_DIR:=$(strip $(CDB_CA_DIR))/certs
 
 CDB_BUILD_PROJECT_PROPERTIES_FILE=project.properties
 

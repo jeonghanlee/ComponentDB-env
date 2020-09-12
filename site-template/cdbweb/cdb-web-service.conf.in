@@ -1,0 +1,71 @@
+
+### 
+[WebService]
+serviceHost=0.0.0.0
+servicePort=10232
+sslCertFile=/opt/ComponentDB/etc/ssl/cdb.cdb-web-service.crt
+sslKeyFile=/opt/ComponentDB/etc/ssl/cdb.cdb-web-service.key
+sslCaCertFile=/opt/ComponentDB/etc/ssl/cdb-ca-cert.pem
+
+
+
+[Storage]
+storageDirectory=/opt/ComponentDB/data
+cdbInstallationDirectory=/opt/ComponentDB
+
+
+
+[WebPortal]
+portalWebAddress=http://parity:8080/cdb
+
+# modes: development & production
+#       development - Will only print out the email contents in log or send email to developer.
+#       developmentWithEmail - Will forward all emails to adminNotifiactionEmail.
+#       production - Will send emails as specified by users.
+[EmailUtility]
+emailMode=production
+emailSmtpServer=localhost
+emailSenderEmail=cdb@parity
+emailAdminNotificationEmail=jhlee@parity
+emailSubjectStart=[CDB]
+
+
+[AuthorizationManager]
+adminGroupName=CDB_ADMIN
+principalRetriever=DbPrincipalRetriever()
+#principalRetriever=NoOpPrincipalRetriever()
+principalAuthenticator1=CryptedPasswordPrincipalAuthenticator()
+principalAuthenticator2=LdapPasswordPrincipalAuthenticator(serverUrl='', dnFormat='')
+#principalAuthenticator3=LdapPasswordPrincipalAuthenticator(serverUrl='', dnFormat='',serviceDn='', servicePass='', 
+userLookupFilter='')
+
+
+##
+##
+## SQL or CDB?
+##
+#DB_NAME=cdb
+#DB_USER=cdbpayara
+#DB_USER_PASS=cdbpayara
+
+[DbManager]
+dbSchema=cdb
+dbUser=cdbpayara
+#dbPasswordFile=/home/jhlee/CDB/etc/cdb.db.passwd
+dbPasswordFile=/opt/ComponentDB/etc/cdb.db.passwd
+
+
+# Available logger levels: debug, info, warn, error, critical
+[ConsoleLogging]
+handler=ConsoleLoggingHandler(sys.stdout,)
+level=debug
+format=%(asctime)s,%(msecs)003d %(levelname)s %(filename)s:%(lineno)d %(process)d:  %(message)s
+dateFormat=%Y/%m/%d %H:%M:%S
+
+
+## /opt/ComponentDB
+[FileLogging]
+handler=TimedRotatingFileLoggingHandler("/opt/ComponentDB/var/log/cdb.cdb-web-service.log")
+level=debug
+format=%(asctime)s,%(msecs)003d %(levelname)s %(filename)s:%(lineno)d %(process)d:  %(message)s
+dateFormat=%Y/%m/%d %H:%M:%S

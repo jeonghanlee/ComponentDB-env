@@ -1,0 +1,40 @@
+# -*- mode: Makefile;-*-
+
+.PHONY: build.python install.python
+
+build.python:
+	$(QUIET) sh $(CDB_PYTHON_INSTALL_SHELL)
+
+install.python: $(CDB_WEB_SHELL_FILE).in
+	$(QUIET)$(SUDO) $(INSTALL) -d $(CDB_PYTHON_ROOT_DIR)
+	$(QUIET)$(SUDO) cp -r $(CDB_PYTHON_CDB_SRC) $(CDB_PYTHON_ROOT_DIR)/
+	$(QUIET)$(SUDO) cp -r $(CDB_PYTHON_SUPPORT_DIR) $(CDB_PYTHON_ROOT_DIR)/
+	$(QUIET)$(SUDO) cp -r $(CDB_PYTHON_DEVTOOL_DIR) $(CDB_PYTHON_ROOT_DIR)/
+	$(QUIET)$(SUDO) $(INSTALL) -m 755 $(basename $<) $(CDB_INSTALL_LOCATION)/
+
+.PHONY: conf.cdbweb conf.cdbweb.show
+
+# 
+# cdb/common/utility/configurationManager.py:        self.__setFromEnvVar('rootDir', 'CDB_ROOT_DIR')
+conf.cdbweb: $(CDB_WEB_SHELL_FILE).in
+	$(QUIET)echo ">>> Generate $(basename $<) from $<"
+	$(QUIET)sed -e "s|@PYTHONPATH@|$(PYTHONPATH)|g" \
+				-e "s:@PYTHON_CMD@:$(PYTHON_CMD):g" \
+                -e "s:@CDB_ROOT_DIR@:$(CDB_INSTALL_LOCATION):g" \
+                -e "s:@CDB_DAEMON_CMD@:$(CDB_DAEMON_CMD):g" \
+				-e "s:@CDB_WEB_PID_FILE@:$(CDB_WEB_PID_FILE):g" \
+                -e "s:@CDB_WEB_CONFIG_FILE@:$(CDB_WEB_CONFIG_FILE):g" \
+                < $< > $(basename $<)
+
+conf.cdbweb.show: $(CDB_WEB_SHELL_FILE).in
+	@cat -b $(basename $<)
+
+#conf.cdbweb: $(CDB_WEB_SHELL_FILE).in
+#	$(QUIET)echo ">>> Generate $(basename $<) from $<"
+#	$(QUIET)sed -e "s|@DOCURL@|$(DOCURL)|g" \
+#				-e "s:@USERID@:$(USERID):g" \
+#				-e "s:@GROUPID@:$(GROUPID):g" \
+#				-e "s:@INSTALL_LOCATION@:$(INSTALL_LOCATION):g" \
+#				-e "s:@ARCHAPPL_MAIN_SCRIPT@:$(ARCHAPPL_MAIN_SCRIPT):g" \
+#				-e "s:@ARCHAPPL_SITEID@:$(ARCHAPPL_SITEID):g" \
+#                < $< > $(basename $<)
