@@ -15,7 +15,7 @@ jobs:
         uses: actions/checkout@v2
       - name: Preparation 
         run: |
-          sudo apt-get install tree libldap2-dev
+          sudo apt-get install tree libldap2-dev libssl-dev libsasl2-dev libcurses-ocaml-dev libmariadbclient-dev
       - name: JAVA 
         run: |
           make init
