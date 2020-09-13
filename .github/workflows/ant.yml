@@ -30,4 +30,5 @@ jobs:
           echo "PATH"
           echo ">>> PATH:       $PATH"
           echo ">>> JAVA_HOME : $JAVA_HOME"
+          make install.cdbpython
           make build
