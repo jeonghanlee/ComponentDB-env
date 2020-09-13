@@ -15,7 +15,7 @@ jobs:
         uses: actions/checkout@v2
       - name: Preparation 
         run: |
-          sudo apt-get install tree
+          sudo apt-get install tree libldap2-dev
       - name: JAVA 
         run: |
           make init
