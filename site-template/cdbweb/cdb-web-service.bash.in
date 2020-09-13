@@ -1,0 +1,110 @@
+#!/usr/bin/env bash
+#
+#  Copyright (c) 2020   Jeong Han Lee
+#
+#  The program is free software: you can redistribute
+#  it and/or modify it under the terms of the GNU General Public License
+#  as published by the Free Software Foundation, either version 2 of the
+#  License, or any newer version.
+#
+#  This program is distributed in the hope that it will be useful, but WITHOUT
+#  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+#  FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+#  more details.
+#
+#  You should have received a copy of the GNU General Public License along with
+#  this program. If not, see https://www.gnu.org/licenses/gpl-2.0.txt
+#
+#  author  : Jeong Han Lee
+#  email   : jeonghan.lee@gmail.com
+#  version : 0.0.1
+
+EXIST=1
+NON_EXIST=0
+
+export PYTHONPATH=@PYTHONPATH@
+export CDB_ROOT_DIR=@CDB_ROOT_DIR@
+export PYTHON_EGG_CACHE=@PYTHON_EGG_CACHE@
+
+function checkIfVar()
+{
+    local var=$1
+    local result=""
+    if [ -z "$var" ]; then
+    	result=$NON_EXIST
+	    # doesn't exist
+    else
+    	result=$EXIST
+    	# exist
+    fi
+    echo "${result}"
+}
+
+function startup 
+{
+    @PYTHON_CMD@ @CDB_DAEMON_CMD@ --daemon --pid-file @CDB_WEB_PID_FILE@ --config-file @CDB_WEB_CONFIG_FILE@
+}
+
+function shutdown
+{
+    local pid=""
+    pid=$(pgrep -F @CDB_WEB_PID_FILE@)
+    if [[ $(checkIfVar "${pid}") -eq "$NON_EXIST" ]]; then
+        printf ">> CDB Web Service is not running\n"
+    else
+        printf ">> CDB Web Service was found with PID %s\n" "${pid}"
+	    printf "   Killing the running application ....\n"
+	    kill -9 "${pid}"
+	fi
+}
+
+function status
+{
+    local pid=""
+    pid=$(pgrep -F @CDB_WEB_PID_FILE@)
+    if [[ $(checkIfVar "${pid}") -eq "$NON_EXIST" ]]; then
+       printf ">> CDB Web Service is not running\n"
+    else
+       printf ">> CDB Web Service with PID %s is found.\n" "${pid}"
+       printf ">> One may try to run systemctl status cdbweb\n"
+	fi
+}
+
+function log 
+{
+    cat -b @CDB_WEB_LOG_FILE@
+}
+
+function usage
+{
+    {
+        echo "";
+        echo "Usage    : $0  args"
+        echo "";
+        echo "              possbile args";
+        echo "";
+        echo "               startup   : startup a CDB WEB service";
+        echo "               shutdown  : shutdown a CDB WEB service";
+        echo "               restartup : shutdown and startup";
+        echo "               status    : running or not";
+        echo "               log       : print log file";
+        echo "               h         : this screen";
+        echo "";
+        echo " bash $0 startup "
+        echo ""
+    } 1>&2;
+    exit 1;
+}
+
+
+
+case "$1" in
+    startup)  startup ;;
+    shutdown) shutdown ;;
+    restart)  startup; shutdown;;
+    status)   status ;;
+    log)      log;;
+    h)        usage ;;
+    help)     usage ;;
+    *)        usage ;;
+esac

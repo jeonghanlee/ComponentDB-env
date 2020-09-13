@@ -178,6 +178,13 @@ make jdbc.resouces.rm      : Do delete-jdbc-resource
 make jdbc.pool.rm          : Do delete-jdbc-connection-pool
 ```
 
+## Configuration
+
+```bash
+make install.cdbpython
+
+```
+
 ## Build
 
 ```bash
@@ -206,6 +213,8 @@ make list.cdb              : list all available application -list-application
 |**Figure 3** Chrome CDB About Page Screenshot.|
 
 ## CDB Web Service
+
+See [docs/README.cdbwebservice.md](docs/README.cdbwebservice.md)
 
 ## References
 

@@ -1,40 +1,72 @@
 # -*- mode: Makefile;-*-
 
-.PHONY: build.python install.python
+.PHONY: install.cdbpython build.cdbpython conf.cdbpython 
 
-build.python:
+install.cdbpython: build.cdbpython conf.cdbpython 
+
+build.cdbpython:
 	$(QUIET) sh $(CDB_PYTHON_INSTALL_SHELL)
 
-install.python: $(CDB_WEB_SHELL_FILE).in
+# Still unclear yet, about PLUGIS_SRC and UTILITIES
+conf.cdbpython:
 	$(QUIET)$(SUDO) $(INSTALL) -d $(CDB_PYTHON_ROOT_DIR)
 	$(QUIET)$(SUDO) cp -r $(CDB_PYTHON_CDB_SRC) $(CDB_PYTHON_ROOT_DIR)/
 	$(QUIET)$(SUDO) cp -r $(CDB_PYTHON_SUPPORT_DIR) $(CDB_PYTHON_ROOT_DIR)/
-	$(QUIET)$(SUDO) cp -r $(CDB_PYTHON_DEVTOOL_DIR) $(CDB_PYTHON_ROOT_DIR)/
-	$(QUIET)$(SUDO) $(INSTALL) -m 755 $(basename $<) $(CDB_INSTALL_LOCATION)/
+	$(QUIET)$(SUDO) cp -r $(CDB_PYTHON_CLIENT_SRC_DIR) $(CDB_PYTHON_PLUGINS_SRC_DIR) $(CDB_PYTHON_UTILITIES_SRC_DIR) $(CDB_PYTHON_ROOT_DIR)/
 
-.PHONY: conf.cdbweb conf.cdbweb.show
+
+.PHONY: conf.cdbweb conf.cdbweb.show db.cdbweb  conf.cdbwebscript install.cdbweb
 
 # 
 # cdb/common/utility/configurationManager.py:        self.__setFromEnvVar('rootDir', 'CDB_ROOT_DIR')
-conf.cdbweb: $(CDB_WEB_SHELL_FILE).in
+conf.cdbwebscript: $(CDB_WEB_SHELL_FILE).in
 	$(QUIET)echo ">>> Generate $(basename $<) from $<"
 	$(QUIET)sed -e "s|@PYTHONPATH@|$(CDB_WEB_PYTHONPATH)|g" \
 				-e "s:@PYTHON_CMD@:$(PYTHON_CMD):g" \
                 -e "s:@CDB_ROOT_DIR@:$(CDB_INSTALL_LOCATION):g" \
                 -e "s:@CDB_DAEMON_CMD@:$(CDB_DAEMON_CMD):g" \
 				-e "s:@CDB_WEB_PID_FILE@:$(CDB_WEB_PID_FILE):g" \
-                -e "s:@CDB_WEB_CONFIG_FILE@:$(CDB_WEB_CONFIG_FILE):g" \
+				-e "s:@PYTHON_EGG_CACHE@:$(CDB_PYTHON_ROOT_DIR):g" \
+				-e "s:@CDB_WEB_LOG_FILE@:$(CDB_LOG_DIR)/$(CDB_WEB_LOG_FILE):g" \
+                -e "s:@CDB_WEB_CONFIG_FILE@:$(CDB_ETC_DIR)/$(CDB_WEB_CONFIG_FILE):g" \
                 < $< > $(basename $<)
 
-conf.cdbweb.show: $(CDB_WEB_SHELL_FILE).in
-	@cat -b $(basename $<)
+conf.cdbweb.show: 
+	@cat -b $(SITE_TEMPLATE_PATH)/cdbweb/$(CDB_WEB_CONFIG_FILE)
 
-#conf.cdbweb: $(CDB_WEB_SHELL_FILE).in
-#	$(QUIET)echo ">>> Generate $(basename $<) from $<"
-#	$(QUIET)sed -e "s|@DOCURL@|$(DOCURL)|g" \
-#				-e "s:@USERID@:$(USERID):g" \
-#				-e "s:@GROUPID@:$(GROUPID):g" \
-#				-e "s:@INSTALL_LOCATION@:$(INSTALL_LOCATION):g" \
-#				-e "s:@ARCHAPPL_MAIN_SCRIPT@:$(ARCHAPPL_MAIN_SCRIPT):g" \
-#				-e "s:@ARCHAPPL_SITEID@:$(ARCHAPPL_SITEID):g" \
-#                < $< > $(basename $<)
+conf.cdbweb:
+	$(QUIET)echo ">>> Generate $(SITE_TEMPLATE_PATH)/cdbweb/$(CDB_WEB_CONFIG_FILE) from $(SITE_TEMPLATE_PATH)/cdbweb/cdb-web-service.conf.in"
+	$(QUIET)sed -e "s:@CDB_WEBSERVICE_HOST@:$(CDB_WEBSERVICE_HOST):g" \
+				-e "s:@CDB_WEBSERVICE_PORT@:$(CDB_WEBSERVICE_PORT):g" \
+				-e "s:@CDB_WEBSERVICE_SSLCERT@:$(CDB_WEBSERVICE_SSLCERT):g" \
+				-e "s:@CDB_WEBSERVICE_SSLKEY@:$(CDB_WEBSERVICE_SSLKEY):g" \
+				-e "s:@CDB_WEBSERVICE_SSLCACERT@:$(CDB_WEBSERVICE_SSLCACERT):g" \
+				-e "s:@CDB_DATA_DIR@:$(CDB_DATA_DIR):g" \
+				-e "s:@CDB_INSTALL_LOCATION@:$(CDB_INSTALL_LOCATION):g" \
+				-e "s|@CDB_CONTEXTROOT_URL@|$(CDB_CONTEXTROOT_URL)|g" \
+				-e "s:@CDB_SMTP_SERVER@:$(CDB_SMTP_SERVER):g" \
+				-e "s:@CDB_EMAIL_SENDER@:$(CDB_EMAIL_SENDER):g" \
+				-e "s:@CDB_ADMIN_EMAIL@:$(CDB_ADMIN_EMAIL):g" \
+				-e "s:@DB_NAME@:$(DB_NAME):g" \
+				-e "s:@DB_USER@:$(DB_USER):g" \
+				-e "s:@CDB_WEB_DB_PASSWORD_FILE@:$(CDB_ETC_DIR)/$(CDB_WEB_DB_PASSWORD_FILE):g" \
+				-e "s:@CDB_WEB_LOG_FILE@:$(CDB_LOG_DIR)/$(CDB_WEB_LOG_FILE):g" \
+				-e "s:@TIMESTAMP@:$(TIMESTAMP):g" \
+                < $(SITE_TEMPLATE_PATH)/cdbweb/cdb-web-service.conf.in > $(SITE_TEMPLATE_PATH)/cdbweb/$(CDB_WEB_CONFIG_FILE)
+
+db.cdbweb:
+	$(QUIET)echo "$(DB_USER_PASS)" > $(SITE_TEMPLATE_PATH)/cdbweb/$(CDB_WEB_DB_PASSWORD_FILE)
+
+install.cdbweb: conf.cdbwebscript conf.cdbweb db.cdbweb sd_install sd_enable
+	$(QUIET)$(SUDO) $(INSTALL) -m 600 $(SITE_TEMPLATE_PATH)/cdbweb/$(CDB_WEB_CONFIG_FILE) $(CDB_ETC_DIR)/
+	$(QUIET)$(SUDO) $(INSTALL) -m 400 $(SITE_TEMPLATE_PATH)/cdbweb/$(CDB_WEB_DB_PASSWORD_FILE) $(CDB_ETC_DIR)/
+	$(QUIET)$(SUDO) $(INSTALL) -m 755 $(SITE_TEMPLATE_PATH)/cdbweb/$(CDB_WEB_SHELL_FILE) $(CDB_INSTALL_LOCATION)/
+	$(QUIET)$(SUDO)	chown -R $(USERID):$(GROUPID) $(CDB_INSTALL_LOCATION)
+
+uninstall.cdbweb: sd_stop sd_disable sd_clean
+	$(QUIET)$(SUDO) rm -f $(CDB_ETC_DIR)/$(CDB_WEB_CONFIG_FILE)
+	$(QUIET)$(SUDO) rm -f $(CDB_ETC_DIR)/$(CDB_WEB_DB_PASSWORD_FILE)
+	$(QUIET)$(SUDO) rm -f $(CDB_INSTALL_LOCATION)/$(CDB_WEB_SHELL_FILE)
+	$(QUIET)sudo systemctl daemon-reload		
+
+

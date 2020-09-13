@@ -1,71 +1,58 @@
 
-### 
+### Generated at @TIMESTAMP@
+###
 [WebService]
-serviceHost=0.0.0.0
-servicePort=10232
-sslCertFile=/opt/ComponentDB/etc/ssl/cdb.cdb-web-service.crt
-sslKeyFile=/opt/ComponentDB/etc/ssl/cdb.cdb-web-service.key
-sslCaCertFile=/opt/ComponentDB/etc/ssl/cdb-ca-cert.pem
+serviceHost=@CDB_WEBSERVICE_HOST@
+servicePort=@CDB_WEBSERVICE_PORT@
+sslCertFile=@CDB_WEBSERVICE_SSLCERT@
+sslKeyFile=@CDB_WEBSERVICE_SSLKEY@
+sslCaCertFile=@CDB_WEBSERVICE_SSLCACERT@
 
-
-
+###
 [Storage]
-storageDirectory=/opt/ComponentDB/data
-cdbInstallationDirectory=/opt/ComponentDB
+storageDirectory=@CDB_DATA_DIR@
+cdbInstallationDirectory=@CDB_INSTALL_LOCATION@
 
-
-
+###
 [WebPortal]
-portalWebAddress=http://parity:8080/cdb
+portalWebAddress=@CDB_CONTEXTROOT_URL@
 
-# modes: development & production
-#       development - Will only print out the email contents in log or send email to developer.
-#       developmentWithEmail - Will forward all emails to adminNotifiactionEmail.
-#       production - Will send emails as specified by users.
+### modes: development & production
+### - development - Will only print out the email contents in log or send email to developer.
+### - developmentWithEmail - Will forward all emails to adminNotifiactionEmail.
+### - production - Will send emails as specified by users.
 [EmailUtility]
 emailMode=production
-emailSmtpServer=localhost
-emailSenderEmail=cdb@parity
-emailAdminNotificationEmail=jhlee@parity
+emailSmtpServer=@CDB_SMTP_SERVER@
+emailSenderEmail=@CDB_EMAIL_SENDER@
+emailAdminNotificationEmail=@CDB_ADMIN_EMAIL@
 emailSubjectStart=[CDB]
 
-
+### CDB_ADMIN is the hard-coded NAME, it should match with SQL table data
 [AuthorizationManager]
 adminGroupName=CDB_ADMIN
 principalRetriever=DbPrincipalRetriever()
 #principalRetriever=NoOpPrincipalRetriever()
 principalAuthenticator1=CryptedPasswordPrincipalAuthenticator()
 principalAuthenticator2=LdapPasswordPrincipalAuthenticator(serverUrl='', dnFormat='')
-#principalAuthenticator3=LdapPasswordPrincipalAuthenticator(serverUrl='', dnFormat='',serviceDn='', servicePass='', 
-userLookupFilter='')
+#principalAuthenticator3=LdapPasswordPrincipalAuthenticator(serverUrl='', dnFormat='',serviceDn='', servicePass='', userLookupFilter='')
 
-
-##
-##
-## SQL or CDB?
-##
-#DB_NAME=cdb
-#DB_USER=cdbpayara
-#DB_USER_PASS=cdbpayara
-
+### MySQL / MariaDB
 [DbManager]
-dbSchema=cdb
-dbUser=cdbpayara
-#dbPasswordFile=/home/jhlee/CDB/etc/cdb.db.passwd
-dbPasswordFile=/opt/ComponentDB/etc/cdb.db.passwd
+dbSchema=@DB_NAME@
+dbUser=@DB_USER@
+dbPasswordFile=@CDB_WEB_DB_PASSWORD_FILE@
 
-
-# Available logger levels: debug, info, warn, error, critical
+### Available logger levels: debug, info, warn, error, critical
 [ConsoleLogging]
 handler=ConsoleLoggingHandler(sys.stdout,)
 level=debug
 format=%(asctime)s,%(msecs)003d %(levelname)s %(filename)s:%(lineno)d %(process)d:  %(message)s
 dateFormat=%Y/%m/%d %H:%M:%S
 
-
-## /opt/ComponentDB
+### 
 [FileLogging]
-handler=TimedRotatingFileLoggingHandler("/opt/ComponentDB/var/log/cdb.cdb-web-service.log")
+handler=TimedRotatingFileLoggingHandler("@CDB_WEB_LOG_FILE@")
 level=debug
 format=%(asctime)s,%(msecs)003d %(levelname)s %(filename)s:%(lineno)d %(process)d:  %(message)s
 dateFormat=%Y/%m/%d %H:%M:%S

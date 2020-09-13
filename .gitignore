@@ -61,3 +61,8 @@ mariadb.conf*
 payara_mariadb_jdbc_template.xml
 
 project.properties
+cdb-web-service.conf
+*.cdb-web-service.conf
+*.cdb-web-service.db
+cdbweb.service
+cdb-web-service.bash

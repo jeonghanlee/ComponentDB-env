@@ -1,0 +1,62 @@
+.PHONY: sd_install sd_status sd_start sd_stop sd_restart sd_clean sd_enable sd_disable
+
+
+sd_install: conf.systemd install.systemd
+	$(QUIET)sudo systemctl daemon-reload
+
+.PHONY: conf.systemd conf.systemd.show
+
+conf.systemd: $(CDB_WEBSERVICE_SYSTEMD_FILENAME).in
+	$(QUIET)echo ">>> Generate $(basename $<) from $<"
+	$(QUIET)sed -e "s|@CDB_WEB_DOCURL@|$(CDB_WEB_DOCURL)|g" \
+	        -e "s:@USERID@:$(USERID):g" \
+	        -e "s:@GROUPID@:$(GROUPID):g" \
+            -e "s:@PYTHON_CMD@:$(PYTHON_CMD):g" \
+            -e "s|@PYTHONPATH@|$(CDB_WEB_PYTHONPATH)|g" \
+            -e "s:@CDB_ROOT_DIR@:$(CDB_INSTALL_LOCATION):g" \
+            -e "s:@PYTHON_EGG_CACHE@:$(CDB_PYTHON_ROOT_DIR):g" \
+            -e "s:@CDB_DAEMON_CMD@:$(CDB_DAEMON_CMD):g" \
+            -e "s:@CDB_WEB_PID_FILE@:$(CDB_WEB_PID_FILE):g" \
+            -e "s:@CDB_WEB_CONFIG_FILE@:$(CDB_ETC_DIR)/$(CDB_WEB_CONFIG_FILE):g" \
+            < $< > $(basename $<)
+
+conf.systemd.show: $(CDB_WEBSERVICE_SYSTEMD_FILENAME).in
+	$(QUIET)cat -b $(basename $<)
+
+install.systemd:: $(CDB_WEBSERVICE_SYSTEMD_FILENAME).in
+	$(QUIET)sudo $(INSTALL_DATA) -b $(basename $<) $(SYSTEMD_PATH)/
+
+install.systemd.show:
+	$(QUIET)cat -b $(SYSTEMD_PATH)/$(CDB_WEBSERVICE_SYSTEMD_FILENAME)
+
+	
+#
+#	
+sd_status:
+	$(QUIET) systemctl status -l $(CDB_WEBSERVICE_SYSTEMD_FILENAME) | cat -b
+#
+#
+sd_start:
+	$(QUIET)sudo systemctl start $(CDB_WEBSERVICE_SYSTEMD_FILENAME)
+#
+# We ignore its error
+sd_stop:
+	-$(QUIET)sudo systemctl stop $(CDB_WEBSERVICE_SYSTEMD_FILENAME)
+#
+#
+sd_restart:
+	$(QUIET)sudo systemctl restart $(CDB_WEBSERVICE_SYSTEMD_FILENAME)
+#
+# We ignore its error
+sd_clean:
+	$(if $(wildcard $(SYSTEMD_PATH)/$(CDB_WEBSERVICE_SYSTEMD_FILENAME)), $(QUIET)sudo rm -f $(SYSTEMD_PATH)/$(CDB_WEBSERVICE_SYSTEMD_FILENAME))
+
+#
+#
+sd_enable:
+	$(if $(wildcard $(SYSTEMD_PATH)/$(CDB_WEBSERVICE_SYSTEMD_FILENAME)), sudo systemctl enable $(CDB_WEBSERVICE_SYSTEMD_FILENAME))
+#
+#
+sd_disable:
+	$(if $(wildcard $(SYSTEMD_PATH)/$(CDB_WEBSERVICE_SYSTEMD_FILENAME)), sudo systemctl disable $(CDB_WEBSERVICE_SYSTEMD_FILENAME))
+#

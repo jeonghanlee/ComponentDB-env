@@ -10,9 +10,7 @@ CDB_INSTALL_LOCATION=/opt/${APPNAME}
 # # Two more potential interesting options are
 # # JAVA_OPTS=-XX:MaxMetaspaceSize=256M -XX:+UseG1GC -Xms2G -Xmx2G
 
-#SYSTEMD_PATH:=/etc/systemd/system
-#SYSTEMD_FILENAME:=${APPNAME}.service
-
+SYSTEMD_PATH:=/etc/systemd/system
 
 LDAP_AUTH_SERVER_URL=
 LDAP_AUTH_DN_FORMAT=

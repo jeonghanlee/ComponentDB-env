@@ -34,8 +34,10 @@ endif
 #
 #
 SITE_TEMPLATE_PATH:=$(TOP)/site-template
+TIMESTAMP:=$(shell date +%Y-%m-%d-%H%M)
 
-PYTHONPATH=$(CDB_PYTHON_SRC)
+
+SRC_PYTHONPATH=$(CDB_PYTHON_SRC)
 
 ANT_CDB=$(ANT_HOME)/bin/ant
 ## Suddenly, private/private.properties doesn't work. So I add j2ee.server.home in ant argument
@@ -51,13 +53,11 @@ CDB_CONTEXT_ROOT=cdb
 CDB_HOST_NAME=$(shell hostname -f)
 CDB_CONTEXT_ROOT_PORT=8080
 CDB_PORTAL_TITLE:="ALS-U Component Database Portal"
-CDB_SW_VERSION=$(SRC_VERSION)-Build-$(shell date +%y%m%d%H%M)
+CDB_SW_VERSION=$(SRC_VERSION)-Build-$(TIMESTAMP)
 CDB_BUG_REPORT_URL=$(SRC_URL)/$(SRC_NAME)/issues/new
 CDB_SW_VERSION_URL=$(REPO_GITURL)
 CDB_CODE_REPO:=$(SRC_URL)/$(SRC_NAME)
-## Unclear what is this? What is webserver? I cannot connect this port at all
-CDB_WEBSERVER_PORT=10232
-CDB_WEBSERVICE_URL:=http://$(CDB_HOST_NAME):$(CDB_WEBSERVER_PORT)/$(CDB_CONTEXT_ROOT)
+
 CDB_CONTEXTROOT_URL=http://$(CDB_HOST_NAME):$(CDB_CONTEXT_ROOT_PORT)/$(CDB_CONTEXT_ROOT)
 CDB_ADMIN=admin
 CDB_LDAP_AUTH_SERVER_URL=$(LDAP_AUTH_SERVER_URL)
