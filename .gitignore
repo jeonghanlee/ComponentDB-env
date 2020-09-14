@@ -66,3 +66,4 @@ cdb-web-service.conf
 *.cdb-web-service.db
 cdbweb.service
 cdb-web-service.bash
+cdb-cli.conf

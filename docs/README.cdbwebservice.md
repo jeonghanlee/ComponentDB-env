@@ -17,9 +17,22 @@ $ make sd_status
      9             └─11959 /opt/ComponentDB/python/linux-x86_64/bin/python /opt/ComponentDB/python/cdb/cdb_web_service/service/cdbWebService.py --pid-file /opt/ComponentDB/var/run/cdb.cdb-web-service.pid --config-file /opt/ComponentDB/etc/cdb.cdb-web-service.conf
 ```
 
+* Redesigned CDB Web service CLI bash scripts will be located in `CDB_INSTALL_LOCATION/bin`.
+
 ```bash
-ComponentDB-env (master)$ bash ComponentDB-src/bin/cdb-get-users  --service-url=http://parity:10232
+$ source /opt/ComponentDB/setCdbWeb.bash
+bash: rintf: command not found
+THIS Source NAME    : setCdbWeb.bash
+THIS Source PATH    : /opt/ComponentDB
+CDB BIN PATH        : /opt/ComponentDB/bin
+
+Enjoy ComponentDB Web Service CLI!
+
+$ get-users.bash
 id=1 username=cdbuser firstName=Han lastName=Lee middleName=NULL email=jeonglee@lbl.gov description=ComponentDB System Account - Local User
+
+$ get-user-groups.bash
+id=1 name=CDB_ADMIN description=System Admin Group
 ```
 
 ```bash

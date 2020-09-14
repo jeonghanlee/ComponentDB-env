@@ -4,6 +4,7 @@ vpath %.in $(SITE_TEMPLATE_PATH)/build
 vpath %.in $(SITE_TEMPLATE_PATH)/web
 vpath %.in $(SITE_TEMPLATE_PATH)/java
 vpath %.in $(SITE_TEMPLATE_PATH)/cdbweb
+vpath %.in $(TOP)/cdbweb-cli
 
 include $(TOP)/configure/RULES_FUNC
 include $(TOP)/configure/RULES_PATCH

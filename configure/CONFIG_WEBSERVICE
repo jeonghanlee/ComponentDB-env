@@ -9,6 +9,7 @@ CDB_HOST_ARCH:=$(shell uname -sm | tr -s '[:upper:][:blank:]' '[:lower:][\-]')
 
 CDB_WEBSERVICE_PORT=10232
 CDB_WEBSERVICE_HOST=$(CDB_HOST_NAME)
+CDB_WEBSERVICE_URL=http://$(CDB_HOST_NAME):$(CDB_WEBSERVICE_PORT)
 
 # Absolute path and file name
 #CDB_WEBSERVICE_SSLCERT=$(CDB_SSL_DIR)/cdb.cdb-web-service.crt
@@ -29,8 +30,8 @@ CDB_WEB_CONFIG_FILE=$(DB_NAME).cdb-web-service.conf
 CDB_WEB_DB_PASSWORD_FILE=$(DB_NAME).cdb-web-service.db
 CDB_WEB_LOG_FILE=$(DB_NAME).cdb-web-service.log
 CDB_WEB_PID_FILE=$(CDB_RUN_DIR)/$(DB_NAME).cdb-web-service.pid
-
-
+CDB_WEB_CLI_CONFIG_FILE=cdb-cli.conf
+CDB_WEB_SETENV_FILE=setCdbWeb.bash
 
 CDB_PYTHON_SRC:=$(TOP)/$(SRC_PATH)/src/python
 CDB_PYTHON_CDB_SRC:=$(CDB_PYTHON_SRC)/cdb
