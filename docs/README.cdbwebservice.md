@@ -21,7 +21,8 @@ $ make sd_status
 
 ```bash
 $ source /opt/ComponentDB/setCdbWeb.bash
-bash: rintf: command not found
+
+Set the CDB Web Service Environment as follows:
 THIS Source NAME    : setCdbWeb.bash
 THIS Source PATH    : /opt/ComponentDB
 CDB BIN PATH        : /opt/ComponentDB/bin
