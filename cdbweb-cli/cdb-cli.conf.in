@@ -4,3 +4,9 @@ PYTHONPATH=@PYTHONPATH@
 CDB_SERVICE_URL=@CDB_SERVICE_URL@
 
 CDB_PYTHON_CDB_DIR=@CDB_PYTHON_CDB_DIR@
+
+# Still unclear the following three environment varialbes are used
+# in CDB Web Service Clients
+#CDB_INSTALL_DIR=@CDB_INSTALL_DIR@
+#CDB_DATA_DIR=@CDB_DATA_DIR@
+#CDB_VAR_DIR=@CDB_VAR_DIR@

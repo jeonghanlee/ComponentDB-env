@@ -104,7 +104,7 @@ new_PATH="${CDB_BIN_PATH}"
 PATH=$(set_variable "${old_path}" "${new_PATH}")
 export PATH
 
-rintf "\nSet the EPICS Environment as follows:\n";
+printf "\nSet the CDB Web Service Environment as follows:\n";
 printf "THIS Source NAME    : %s\n" "${SRC_NAME}"
 printf "THIS Source PATH    : %s\n" "${SRC_PATH}"
 printf "CDB BIN PATH        : %s\n" "${CDB_BIN_PATH}"

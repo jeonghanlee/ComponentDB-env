@@ -64,7 +64,12 @@ cli.cdbweb: $(CDB_WEB_CLI_CONFIG_FILE).in
 	$(QUIET)sed -e "s:@CDB_PYTHON_CDB_DIR@:$(CDB_PYTHON_CDB_DIR):g" \
 				-e "s|@PYTHONPATH@|$(CDB_WEB_PYTHONPATH)|g" \
 				-e "s|@CDB_SERVICE_URL@|$(CDB_WEBSERVICE_URL)|g" \
-                < $< > $(basename $<)
+               < $< > $(basename $<)
+
+#				-e "s|@CDB_INSTALL_DIR@|$(CDB_INSTALL_LOCATION)|g" \
+#				-e "s|@CDB_DATA_DIR@|$(CDB_DATA_DIR)|g" \
+#				-e "s|@CDB_VAR_DIR@|$(CDB_VAR_DIR)|g" \
+
 
 cli.cdbweb.show: $(CDB_WEB_CLI_CONFIG_FILE).in
 	@cat -b $(basename $<)				
