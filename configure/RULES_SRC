@@ -69,8 +69,8 @@ conf.cdb: conf.install conf.update_plugin conf.build_properties_file conf.web.xm
 conf.install: src_install
 
 conf.update_plugin:
-#	$(SUDO) CDB_INSTALL_DIR=$(CDB_INSTALL_LOCATION) CDB_ROOT_DIR=$(SRC_PATH) PYTHONPATH=$(SRC_PYTHONPATH)  python $(CDB_PYTHON_PLUGINS_SRC_DIR)/update_plugin_generated_files.py $(DB_NAME) 0
-	$(SUDO) CDB_INSTALL_DIR=$(CDB_INSTALL_LOCATION) CDB_ROOT_DIR=$(SRC_PATH) PYTHONPATH=$(CDB_WEB_PYTHONPATH)  python $(CDB_PYTHON_PLUGINS_DIR)/update_plugin_generated_files.py $(DB_NAME) 0
+#	$(SUDO) CDB_INSTALL_DIR=$(CDB_INSTALL_LOCATION) CDB_ROOT_DIR=$(SRC_PATH) PYTHONPATH=$(SRC_PYTHONPATH) $(PYTHON_CMD) $(CDB_PYTHON_PLUGINS_SRC_DIR)/update_plugin_generated_files.py $(DB_NAME) 0
+	$(SUDO) CDB_INSTALL_DIR=$(CDB_INSTALL_LOCATION) CDB_ROOT_DIR=$(SRC_PATH) PYTHONPATH=$(CDB_WEB_PYTHONPATH) $(PYTHON_CMD) $(CDB_PYTHON_PLUGINS_DIR)/update_plugin_generated_files.py $(DB_NAME) 0
 
 conf.build_properties_file: conf.project_properties
 	$(QUIET)cp -rf $(SITE_TEMPLATE_PATH)/build/* $(CDB_NBPROJECT_PATH)/
