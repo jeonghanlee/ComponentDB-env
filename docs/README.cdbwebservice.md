@@ -100,4 +100,4 @@ add-item-project.bash --name=ALSU
 
 ### Detailed Commands
 
-See [/../cdbweb-cli/README.md](/../cdbweb-cli/README..md)
+See [./../cdbweb-cli/README.md](./../cdbweb-cli/README.md)
