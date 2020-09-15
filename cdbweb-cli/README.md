@@ -1,23 +1,32 @@
 # CDB Web CLI
 
-## MariaDB Dependency
+## Commands
 
-* `add-user.bash` : Add a new user into `user_info` table in MariaDB `$(DB_NAME)`. This command goes directly to the MairaDB with `$(DB_USER)` permission. Users in $(GROUPID) can do this job.
+### User / Group
 
+* `add-group.bash`       :
+* `get-groups.bash`      :
 
-
-## MariaDB and CDB Web Service
-
-* `get-users.bash` : Show all users
-* `get-user.bash`  : Get an user information (id, username, its name, email, description)
+* `add-user.bash`        : Add a new user into `user_info` table in MariaDB `$(DB_NAME)`. This command goes directly to the MairaDB with `$(DB_USER)` permission. Users in $(GROUPID) can do this job.
+* `get-users.bash`       : Show all users
+* `get-user.bash`        : Get an user information (id, username, its name, email, description)
 * `get-user-groups.bash` : Show all user groups.
-* `get-item.bash` : Get an Item information
+
+### Item / Log
+
+* `add-item-project.bash`  :
+* `get-item-projects.bash` :
+
+* `add-item-log-entry.bash` :
+* `add-item-property.bash`  :
+
+* `get-item.bash`      : Get an Item information
 * `get-item-logs.bash` :  Get the log entries for an item with a qrId
 
-* `update-log.bash` : Update attributes of a log entry.
-
-* `delete-log.bash` : Remove a log entry.
 * `delete-item-properties.bash` : Delete property values from an item with an id.
+
+* `update-log.bash` : Update attributes of a log entry.
+* `delete-log.bash` : Remove a log entry.
 
 ## Trouble Shooting
 

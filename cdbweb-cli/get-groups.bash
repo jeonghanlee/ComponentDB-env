@@ -7,7 +7,7 @@
 #  See LICENSE.ComponentDB file.
 #  ----------------------------------------------------------
 # 
-#  Copyright (c) 2020   Jeong Han Lee
+#  #  Copyright (c) 2020 Lawrence Berkeley National Laboratory
 #
 #  The program is free software: you can redistribute
 #  it and/or modify it under the terms of the GNU General Public License
@@ -22,26 +22,30 @@
 #  You should have received a copy of the GNU General Public License along with
 #  this program. If not, see https://www.gnu.org/licenses/gpl-2.0.txt
 #
-#  Modified version of cdb_command_setup.sh
 #  author  : Jeong Han Lee
 #  email   : jeonghan.lee@gmail.com
 #  version : 0.0.1
 
+declare -g SC_RPATH;
+#declare -g SC_NAME;
+declare -g SC_TOP;
+#declare -g SC_TIME;
 
-CDB_COMMAND_ARGS=""
-while [ $# -ne 0 ]; do
-    arg="$1"
-    if [[ $arg == -* ]]; then
-        key=$(echo "$arg" | cut -f1 -d'=')
-        keyHasValue=$(echo "$arg" | grep '=')
-        if [ -n "$keyHasValue" ]; then
-            value=$(echo "$arg" | cut -f2- -d'=')
-            CDB_COMMAND_ARGS="$CDB_COMMAND_ARGS $key=\"$value\""
-        else
-            CDB_COMMAND_ARGS="$CDB_COMMAND_ARGS $key"
-        fi
-    else
-        CDB_COMMAND_ARGS="$CDB_COMMAND_ARGS \"$arg\""
-    fi
-    shift;
-done
+SC_RPATH="$(realpath "$0")";
+#SC_NAME=${0##*/};
+SC_TOP="${SC_RPATH%/*}"
+#SC_TIME="$(date +%y%m%d%H%M)"
+
+set -a
+# shellcheck disable=SC1091,SC1090
+. "${SC_TOP}/cdb-cli.conf"
+set +a
+
+# shellcheck disable=SC1091,SC1090
+. "${SC_TOP}/cdb_command_setup.bash"
+
+cmd="${SC_TOP}/"
+cmd+="python/"
+cmd+="getGroupsCli.py"
+
+eval "$cmd" "$CDB_COMMAND_ARGS"
