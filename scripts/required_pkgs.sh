@@ -2,8 +2,8 @@
 #
 #  author  : Jeong Han Lee
 #  email   : jeonghan.lee@gmail.com
-#  date    : 2020 09 10 17:28
-#  version : 0.0.2
+#  date    : 2020 09 15 13:01
+#  version : 0.0.3
 
 
 declare -g SC_SCRIPT;
@@ -121,43 +121,69 @@ function debian_pkgs
 # Don't test it
 function centos7_pkgs
 {
+    local mysql_header="";
+    mysql_header="/usr/include/mysql/mysql.h";
+
     yum update
     yum install -y \
 	wget curl \
 	sed unzip \
-	mariadb-server mariadb-server-utils \
+	mariadb-server \
+	mariadb-server-utils \
+	mariadb-devel \
+	openssl-devel \
+	openldap-devel \
+	libgsasl-devel \
+	ncurses-devel \
 	platform-python-setuptools \
-	platform-python-pip \
-	python-click \
-	python-ldap \
-	python-sphinx \
-	twine \
-	python-cherrypy \
-	python-routes \
-	python-sqlalchemy \
-	python-mysql \
-	python-suds
+	platform-python-pip ;
+#	python-click \
+#	python-ldap \
+#	python-sphinx \
+#	twine \
+#	python-cherrypy \
+#	python-routes \
+#	python-sqlalchemy \
+#	python-mysql \
+#	python-suds
+
+    if [ ! -f "${mysql_header}.bkp" ]; then
+	sed '/st_mysql_options options;/a unsigned int reconnect;' "${mysql_header}" -i.bkp
+    fi
 }
 
 
 function centos8_pkgs
 {
-    dnf update
+    local mysql_header="";
+    mysql_header="/usr/include/mysql/mysql.h";
+
+    dnf update ;
     dnf install -y \
 	wget curl \
 	sed unzip \
-	mariadb-server mariadb-server-utils \
+	mariadb-server \
+        mariadb-server-utils \
+	mariadb-devel \
+	openssl-devel \
+	openldap-devel \
+	libgsasl-devel \
+	ncurses-devel \
 	platform-python-setuptools \
-	platform-python-pip \
-	python3-click \
-	python3-ldap \
-	python3-sphinx \
-	twine \
-	python3-cherrypy \
-	python3-routes \
-	python3-sqlalchemy \
-	python3-mysql \
-	python3-suds
+	platform-python-pip ;
+#	python3-click \
+#	python3-ldap \
+#	python3-sphinx \
+#	python3-cherrypy \
+#	python3-routes \
+#	python3-sqlalchemy \
+#	python3-mysql \
+#	python3-suds
+
+
+    if [ ! -f "${mysql_heade}.bkp" ]; then
+	sed '/st_mysql_options options;/a unsigned int reconnect;' "${mysql_header}" -i.bkp
+    fi
 
 }
 

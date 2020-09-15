@@ -35,8 +35,12 @@ CDB_WEB_SETENV_FILE=setCdbWeb.bash
 
 CDB_PYTHON_SRC:=$(TOP)/$(SRC_PATH)/src/python
 CDB_PYTHON_CDB_SRC:=$(CDB_PYTHON_SRC)/cdb
+CDB_ANACONDA_INSTALL_SHELL:=$(TOP)/$(SRC_PATH)/support/bin/install_anaconda.sh
 CDB_PYTHON_INSTALL_SHELL:=$(TOP)/$(SRC_PATH)/support/bin/install_python_packages.sh
 
+## after "install_anaconda.sh" : CentOS8 needs pip, but system doesn't have it, but pip2 and pip3.
+## It is better to use the local version instead of system one
+CDB_ANACONDA_SUPPORT_DIR:=$(TOP)/$(SRC_PATH)/support/anaconda/$(CDB_HOST_ARCH)
 ## after "install_python_packages.sh"
 CDB_PYTHON_SUPPORT_DIR:=$(TOP)/$(SRC_PATH)/support/python/$(CDB_HOST_ARCH)
 ## exist developer_tools
