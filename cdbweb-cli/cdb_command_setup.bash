@@ -7,7 +7,7 @@
 #  See LICENSE.ComponentDB file.
 #  ----------------------------------------------------------
 # 
-#  Copyright (c) 2020   Jeong Han Lee
+#  Copyright (c) 2020 Lawrence Berkeley National Laboratory
 #
 #  The program is free software: you can redistribute
 #  it and/or modify it under the terms of the GNU General Public License

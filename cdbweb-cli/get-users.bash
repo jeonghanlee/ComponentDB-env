@@ -7,7 +7,7 @@
 #  See LICENSE.ComponentDB file.
 #  ----------------------------------------------------------
 # 
-#  Copyright (c) 2020   Jeong Han Lee
+#  Copyright (c) 2020 Lawrence Berkeley National Laboratory
 #
 #  The program is free software: you can redistribute
 #  it and/or modify it under the terms of the GNU General Public License
@@ -24,25 +24,28 @@
 #
 #  author  : Jeong Han Lee
 #  email   : jeonghan.lee@gmail.com
-#  version : 0.0.1
+#  version : 0.0.2
 
 declare -g SC_RPATH;
-#declare -g SC_NAME;
 declare -g SC_TOP;
-#declare -g SC_TIME;
+declare -g cmd;
 
 SC_RPATH="$(realpath "$0")";
-#SC_NAME=${0##*/};
-SC_TOP="${SC_RPATH%/*}"
-#SC_TIME="$(date +%y%m%d%H%M)"
+SC_TOP="${SC_RPATH%/*}";
+cmd="";
 
 set -a
 # shellcheck disable=SC1091,SC1090
 . "${SC_TOP}/cdb-cli.conf"
 set +a
 
-cmd="${CDB_PYTHON_CDB_DIR}/"
+# shellcheck disable=SC1091,SC1090
+. "${SC_TOP}/cdb_command_setup.bash"
+
+cmd+="${PYTHON_CMD}"
+cmd+=" "
+cmd+="${CDB_PYTHON_CDB_DIR}/"
 cmd+="cdb_web_service/cli/"
 cmd+="getUsersCli.py"
 
-"$cmd" "$@"
+eval "$cmd" "$@"

@@ -69,6 +69,7 @@ cli.cdbweb: $(CDB_WEB_CLI_CONFIG_FILE).in
 	$(QUIET)echo ">>> Generate $(basename $<) from $<"
 	$(QUIET)sed -e "s:@CDB_PYTHON_CDB_DIR@:$(CDB_PYTHON_CDB_DIR):g" \
 			-e "s|@PYTHONPATH@|$(CDB_WEB_PYTHONPATH)|g" \
+			-e "s|@PYTHON_CMD@|$(PYTHON_CMD)|g" \
 			-e "s|@CDB_SERVICE_URL@|$(CDB_WEBSERVICE_URL)|g" \
 			-e "s|@CDB_INSTALL_DIR@|$(CDB_INSTALL_LOCATION)|g" \
 			-e "s|@CDB_DATA_DIR@|$(CDB_DATA_DIR)|g" \
