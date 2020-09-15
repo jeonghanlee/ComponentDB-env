@@ -206,7 +206,6 @@ make undeploy
 make deploy
 ```
 
-
 ** More `makefile` rules for `asadmin`
 
 ```bash
@@ -221,11 +220,15 @@ make list.cdb              : list all available application -list-application
 
 |![FFCDB2](docs/ff_cdb_catalog.png)|
 | :---: |
-|**Figure 2** Chrome CDB Catalog Page Screenshot.|
+|**Figure 2** Firefox CDB Catalog Page Screenshot.|
 
 |![CRCDB](docs/chrome_cdb_about.png)|
 | :---: |
 |**Figure 3** Chrome CDB About Page Screenshot.|
+
+|![CRCDB2](docs/chrome_cdb_catalog.png)|
+| :---: |
+|**Figure 4** Chrome CDB Catalog Page Screenshot.|
 
 ## CDB Web Service
 
