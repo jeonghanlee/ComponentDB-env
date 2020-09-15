@@ -2,7 +2,7 @@
 #
 #  author  : Jeong Han Lee
 #  email   : jeonghan.lee@gmail.com
-#  version : 0.0.4
+#  version : 0.0.5
 
 declare -g SC_SCRIPT;
 declare -g SC_TOP;
@@ -151,8 +151,10 @@ function generate_admin_local_password
     local db_user_name="$1"; shift;
     local local_password="$1"; shift;
     local python_path="$1";shift;
+    local python_cmd="$1"; shift;   
+
     local db_exist;
-    local python_cmd;
+    local cmd;
     
     local adminWithLocalPassword;
 
@@ -168,9 +170,9 @@ function generate_admin_local_password
             printf ">>> We've found there is the CDB admin user %s with a local password.\n" "$db_user_name"
             printf "    Updating ........ \n"
 #           echo "$db_name, $db_user_name, $local_password, $python_path"
-#            python_cmd="PYTHONPATH=${python_path} python -c \"from cdb.common.utility.cryptUtility import CryptUtility; print CryptUtility.cryptPasswordWithPbkdf2('${local_password}')\""
-#            echo "$python_cmd"
-            adminCryptPassword=$(get_admin_crypt_password  "${db_name}" "$local_password" "${python_path}")
+#            cmd="PYTHONPATH=${python_path} ${python_cmd} -c \"from cdb.common.utility.cryptUtility import CryptUtility; print CryptUtility.cryptPasswordWithPbkdf2('${local_password}')\""
+#            echo "$cmd"
+            adminCryptPassword=$(get_admin_crypt_password  "${db_name}" "$local_password" "${python_path}" "${python_cmd}")
 #            echo $adminCryptPassword
             ## we have to create a temp file to handle this crypt password, because bash cannot handle these special character well within 
             ##
@@ -192,8 +194,9 @@ function get_admin_crypt_password
     local db_name="$1"; shift;
     local local_password="$1"; shift;
     local python_path="$1";shift;
+    local python_cmd="$1"; shift;
     local db_exist;
-    local python_cmd;
+    local cmd;
     
     local adminWithLocalPassword;
 
@@ -204,8 +207,8 @@ function get_admin_crypt_password
 	    noDbMessage "${db_name}";
 	    exit;
     else
-        python_cmd="PYTHONPATH=${python_path} python -c \"from cdb.common.utility.cryptUtility import CryptUtility; print CryptUtility.cryptPasswordWithPbkdf2('${local_password}')\""
-        adminCryptPassword=$(eval "$python_cmd")
+        cmd="PYTHONPATH=${python_path} ${python_cmd} -c \"from cdb.common.utility.cryptUtility import CryptUtility; print CryptUtility.cryptPasswordWithPbkdf2('${local_password}')\""
+        adminCryptPassword=$(eval "$cmd")
         echo "$adminCryptPassword"
     fi
 }
@@ -233,7 +236,7 @@ function get_admin_crypt_password
 
 
 input="$1";
-additional_input="$2"; 
+additional_input="$2";
 
 
 case "$input" in
@@ -374,10 +377,12 @@ case "$input" in
         ;;
     updateCDBAdminPassword)
         python_path="$additional_input"
+        # local python command instead of the system-wide
+        python_cmd="$3"
         if [ -z "${python_path}" ]; then
              python_path="${ENV_TOP}/ComponentDB-src/src/python"
         fi
-        generate_admin_local_password  "${DB_NAME}" "${CDB_USER}" "${CDB_USER_PASS}" "$python_path"
+        generate_admin_local_password  "${DB_NAME}" "${CDB_USER}" "${CDB_USER_PASS}" "$python_path" "$3"
         ;;
     showAdminCryptPassword)
         get_admin_crypt_password  "${DB_NAME}" "$additional_input" "$3"

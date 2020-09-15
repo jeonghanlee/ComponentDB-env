@@ -54,7 +54,7 @@ cdb.show: sql.triggersShow sql.Show
 ## we don't use this, directly add its password into sql file and fill the db with JDBC Realm
 ## Still not sure it works with CDB
 cdb.admin:
-	$(QUIET)bash scripts/mariadb_setup.bash updateCDBAdminPassword "$(SRC_PYTHONPATH)"
+	$(QUIET)bash scripts/mariadb_setup.bash updateCDBAdminPassword "$(SRC_PYTHONPATH)" "$(PYTHON_CMD)"
 
 cdb.reinit: db.drop db.create cdb.create cdb.admin
 

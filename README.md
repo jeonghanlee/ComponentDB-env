@@ -30,28 +30,14 @@ make init
 make patch.apply
 ```
 
-### Install packages
+### Install packages / local Python environment
 
 ```bash
 make install.pkgs
+make install.cdbpython
 ```
 
-For CentOS8, one should define which python2 should be used as default via
-
-```bash
-$ sudo update-alternatives --config python
-There are 3 programs which provide 'python'.
-
-  Selection    Command
------------------------------------------------
-*+ 1           /usr/libexec/no-python
-   2           /usr/bin/python3
-   3           /usr/bin/python2
-
-Enter to keep the current selection[+], or type selection number: 3
-```
-
-### MariaDB configuration
+## MariaDB configuration
 
 * Check the mariadb status
 
@@ -119,7 +105,7 @@ make cdb.show
 make cdb.admin
 ```
 
-#### Reset the Database
+### Reset the Database
 
 ```bash
 make db.drop
@@ -176,13 +162,6 @@ make jdbc.flush            : Do flush-connection-pool
 make jdbc.uninstall        : Delete resource and connection-pool
 make jdbc.resouces.rm      : Do delete-jdbc-resource
 make jdbc.pool.rm          : Do delete-jdbc-connection-pool
-```
-
-## Configuration
-
-```bash
-make install.cdbpython
-
 ```
 
 ## Building and Deployment
