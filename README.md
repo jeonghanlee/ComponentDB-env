@@ -185,12 +185,27 @@ make install.cdbpython
 
 ```
 
-## Build
+## Building and Deployment
+
+* Build
 
 ```bash
 make build
-make deploy.cdb
 ```
+
+* If the cdb is running, please undeploy first.
+
+```bash
+make list.cdb  
+make undeploy
+```
+
+* Deploy
+
+```bash
+make deploy
+```
+
 
 ** More `makefile` rules for `asadmin`
 

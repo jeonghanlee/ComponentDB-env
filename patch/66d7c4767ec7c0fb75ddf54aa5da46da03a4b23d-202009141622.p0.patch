@@ -1,0 +1,27 @@
+diff --git src/python/cdb/common/utility/configurationManager.py src/python/cdb/common/utility/configurationManager.py
+index 6425489fe..b7ab7d276 100755
+--- src/python/cdb/common/utility/configurationManager.py
++++ src/python/cdb/common/utility/configurationManager.py
+@@ -199,6 +199,9 @@ class ConfigurationManager(UserDict.UserDict):
+         self.__setFromEnvVar('sslKeyFile', 'CDB_SSL_KEY_FILE')
+ 
+         self.__setFromEnvVar('configFile', 'CDB_CONFIG_FILE')
++
++        self.__setFromEnvVar('dbSchema', 'CDB_DB_SCHEMA')
++        self.__setFromEnvVar('dbUser', 'CDB_DB_USER')
+         self.__setFromEnvVar('dbPasswordFile', 'CDB_DB_PASSWORD_FILE')
+ 
+         # Settings that might come from file.
+diff --git tools/developer_tools/cdb_plugins/utilities/plugin_manager.py tools/developer_tools/cdb_plugins/utilities/plugin_manager.py
+index 7ecdc61e4..c8cc7fc54 100644
+--- tools/developer_tools/cdb_plugins/utilities/plugin_manager.py
++++ tools/developer_tools/cdb_plugins/utilities/plugin_manager.py
+@@ -159,6 +159,8 @@ class PluginManager():
+             os.mkdir(CDB_JAVA_PLUGIN_PATH)
+         if not os.path.exists(CDB_XHTML_PLUGIN_PATH):
+             os.makedirs(CDB_XHTML_PLUGIN_PATH)
++        if not os.path.exists(CDB_PYTHON_PLUGIN_PATH):
++            os.makedirs(CDB_PYTHON_PLUGIN_PATH)
+         if not os.path.exists(self.cdb_plugin_configuration_storage):
+             os.makedirs(self.cdb_plugin_configuration_storage)
+ 

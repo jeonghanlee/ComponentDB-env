@@ -1,10 +1,10 @@
 
-.PHONY: install deploy src_install src_paths undeploy src_uninstall redeploy
+.PHONY: deploy src_install src_paths undeploy src_uninstall redeploy
 
 ## Install Service related files 
-install: 
+#install:
 
-uninstall: src_uninstall
+#uninstall: src_uninstall
 
 deploy: deploy.cdb
 
@@ -28,6 +28,8 @@ src_uninstall: src_postrm src_clean
 redeploy: redeploy.cdb
 
 #restart: build reinstall 
+
+.PHONY: reset.repo
 
 reset.repo:
 	@git -C $(SCR_PATH) restore ./*

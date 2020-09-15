@@ -15,7 +15,7 @@ conf.cdbpython:
 	$(QUIET)$(SUDO) cp -r $(CDB_PYTHON_CLIENT_SRC_DIR) $(CDB_PYTHON_PLUGINS_SRC_DIR) $(CDB_PYTHON_UTILITIES_SRC_DIR) $(CDB_PYTHON_ROOT_DIR)/
 
 
-.PHONY: conf.cdbweb conf.cdbweb.show db.cdbweb conf.cdbwebscript cli.cdbweb install.cdbweb
+.PHONY: conf.cdbweb conf.cdbweb.show db.cdbweb conf.cdbwebscript cli.cdbweb
 
 # 
 # cdb/common/utility/configurationManager.py:        self.__setFromEnvVar('rootDir', 'CDB_ROOT_DIR')
@@ -64,28 +64,36 @@ cli.cdbweb: $(CDB_WEB_CLI_CONFIG_FILE).in
 	$(QUIET)sed -e "s:@CDB_PYTHON_CDB_DIR@:$(CDB_PYTHON_CDB_DIR):g" \
 				-e "s|@PYTHONPATH@|$(CDB_WEB_PYTHONPATH)|g" \
 				-e "s|@CDB_SERVICE_URL@|$(CDB_WEBSERVICE_URL)|g" \
-               < $< > $(basename $<)
-
-#				-e "s|@CDB_INSTALL_DIR@|$(CDB_INSTALL_LOCATION)|g" \
-#				-e "s|@CDB_DATA_DIR@|$(CDB_DATA_DIR)|g" \
-#				-e "s|@CDB_VAR_DIR@|$(CDB_VAR_DIR)|g" \
-
+				-e "s|@CDB_INSTALL_DIR@|$(CDB_INSTALL_LOCATION)|g" \
+				-e "s|@CDB_DATA_DIR@|$(CDB_DATA_DIR)|g" \
+				-e "s|@CDB_VAR_DIR@|$(CDB_VAR_DIR)|g" \
+				-e "s|@CDB_DB_SCHEMA@|$(DB_NAME)|g" \
+				-e "s|@CDB_DB_USER@|$(DB_USER)|g" \
+				-e "s|@CDB_DB_PASSWORD_FILE@|$(CDB_ETC_DIR)/$(CDB_WEB_DB_PASSWORD_FILE)|g" \
+               	< $< > $(basename $<)
 
 cli.cdbweb.show: $(CDB_WEB_CLI_CONFIG_FILE).in
 	@cat -b $(basename $<)				
 
+.PHONY: install.cdbweb uninstall.cdbweb reinstall.cdbweb
+
 install.cdbweb: conf.cdbwebscript conf.cdbweb db.cdbweb sd_install sd_enable
 	$(QUIET)$(SUDO) $(INSTALL) -m 600 $(SITE_TEMPLATE_PATH)/cdbweb/$(CDB_WEB_CONFIG_FILE) $(CDB_ETC_DIR)/
-	$(QUIET)$(SUDO) $(INSTALL) -m 400 $(SITE_TEMPLATE_PATH)/cdbweb/$(CDB_WEB_DB_PASSWORD_FILE) $(CDB_ETC_DIR)/
+	$(QUIET)$(SUDO) $(INSTALL) -m 440 $(SITE_TEMPLATE_PATH)/cdbweb/$(CDB_WEB_DB_PASSWORD_FILE) $(CDB_ETC_DIR)/
 	$(QUIET)$(SUDO) $(INSTALL) -d $(CDB_INSTALL_LOCATION)/bin
-	$(QUIET)$(SUDO) $(INSTALL) -m 755 $(SITE_TEMPLATE_PATH)/cdbweb/$(CDB_WEB_SHELL_FILE) $(CDB_INSTALL_LOCATION)/bin/
-	$(QUIET)$(SUDO) cp -rf $(TOP)/cdbweb-cli/* $(CDB_INSTALL_LOCATION)/bin/
-	$(QUIET)$(SUDO) $(INSTALL) -m 755 $(SITE_TEMPLATE_PATH)/cdbweb/$(CDB_WEB_SETENV_FILE) $(CDB_INSTALL_LOCATION)/
+	$(QUIET)$(SUDO) $(INSTALL) -m 750 $(SITE_TEMPLATE_PATH)/cdbweb/$(CDB_WEB_SHELL_FILE) $(CDB_INSTALL_LOCATION)/bin/
+	$(QUIET)$(SUDO) $(INSTALL) -m 660 $(TOP)/cdbweb-cli/*.conf $(CDB_INSTALL_LOCATION)/bin/
+	$(QUIET)$(SUDO) cp -rf $(TOP)/cdbweb-cli/*.bash $(CDB_INSTALL_LOCATION)/bin/
+	$(QUIET)$(SUDO) cp -rf $(TOP)/cdbweb-cli/python $(CDB_INSTALL_LOCATION)/bin/
+	$(QUIET)$(SUDO) $(INSTALL) -m 750 $(SITE_TEMPLATE_PATH)/cdbweb/$(CDB_WEB_SETENV_FILE) $(CDB_INSTALL_LOCATION)/
 	$(QUIET)$(SUDO)	chown -R $(USERID):$(GROUPID) $(CDB_INSTALL_LOCATION)
 
 uninstall.cdbweb: sd_stop sd_disable sd_clean
 	$(QUIET)$(SUDO) rm -f $(CDB_ETC_DIR)/$(CDB_WEB_CONFIG_FILE)
 	$(QUIET)$(SUDO) rm -f $(CDB_ETC_DIR)/$(CDB_WEB_DB_PASSWORD_FILE)
+	$(QUIET)$(SUDO) rm -rf $(CDB_INSTALL_LOCATION)/bin
 	$(QUIET)$(SUDO) rm -f $(CDB_INSTALL_LOCATION)/$(CDB_WEB_SHELL_FILE)
+	$(QUIET)$(SUDO) rm -f $(CDB_INSTALL_LOCATION)/$(CDB_WEB_SETENV_FILE)
 	$(QUIET)sudo systemctl daemon-reload		
 
+reinstall.cdbweb: uninstall.cdbweb install.cdbweb

@@ -42,7 +42,7 @@ set -a
 set +a
 
 # shellcheck disable=SC1091,SC1090
-. "${SC_TOP}/cdb_command_setup.sh"
+. "${SC_TOP}/cdb_command_setup.bash"
 
 cmd="${CDB_PYTHON_CDB_DIR}/"
 cmd+="common/db/cli/"

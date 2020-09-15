@@ -82,3 +82,18 @@ systemctl stop cdbweb
 ### sd_clean
 
 Remove the installed systemd unit file from the system
+
+## Pratical Command Examples
+
+```bash
+$ add-user.bash --username jeonglee --first-name=Han --last-name=Lee --middle-name=none --email="jeonghan.lee@gmail.com" --description="Test account" --password="jeonglee"
+
+$get-users.bash
+id=1 username=cdbuser firstName=Han lastName=Lee middleName=NULL email=jeonglee@lbl.gov description=ComponentDB System Account - Local User
+id=2 username=jeonglee firstName=Han lastName=Lee middleName=none email=jeonghan.lee@gmail.com description=Test account
+
+```
+
+```bash
+add-item-project.bash --name=ALSU
+```

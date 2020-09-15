@@ -13,11 +13,13 @@ SRC_NAME:=${APPNAME}
 #SRC_TAG:=tags/v3.9.6
 #SRC_TAG:=3ff7e94
 #SRC_TAG:=1dc736723
-SRC_TAG:=f476381
+# 66d7c4767v3 is tags/v3.10.0
+# We have to use this hasd id instead of tag release version, because this relase needs to be patched via patch files
+SRC_TAG:=66d7c4767
 
 #install_support
 # Placeholder for the site-specific version control 
-SRC_VERSION:=ALSU-${SRC_TAG}
+SRC_VERSION:=ALSU-3.10.0
 
 -include $(TOP)/../RELEASE.local
 -include $(TOP)/configure/RELEASE.local

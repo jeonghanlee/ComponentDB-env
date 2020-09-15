@@ -23,7 +23,8 @@ ANT_PATH:=$(ANT_HOME)/bin
 PATH:=$(ANT_PATH):$(JAVA_PATH):${PATH}
 
 USERID:=payara
-GROUPID:=65534
+GROUPID:=sudo
+#GROUPID:=65534
 
 # These allow developers to override the CONFIG_SITE variable
 # settings without having to modify the configure/CONFIG_SITE

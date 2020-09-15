@@ -7,7 +7,7 @@
 #  See LICENSE.ComponentDB file.
 #  ----------------------------------------------------------
 # 
-#  Copyright (c) 2020   Jeong Han Lee
+#  #  Copyright (c) 2020 Lawrence Berkeley National Laboratory
 #
 #  The program is free software: you can redistribute
 #  it and/or modify it under the terms of the GNU General Public License
@@ -44,8 +44,8 @@ set +a
 # shellcheck disable=SC1091,SC1090
 . "${SC_TOP}/cdb_command_setup.bash"
 
-cmd="${CDB_PYTHON_CDB_DIR}/"
-cmd+="cdb_web_service/cli/"
-cmd+="addItemPropertyValueCli.py"
+cmd="${SC_TOP}/"
+cmd+="python/"
+cmd+="addItemProjectCli.py"
 
 eval "$cmd" "$CDB_COMMAND_ARGS"

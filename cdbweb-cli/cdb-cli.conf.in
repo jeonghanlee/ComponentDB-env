@@ -5,8 +5,24 @@ CDB_SERVICE_URL=@CDB_SERVICE_URL@
 
 CDB_PYTHON_CDB_DIR=@CDB_PYTHON_CDB_DIR@
 
-# Still unclear the following three environment varialbes are used
-# in CDB Web Service Clients
-#CDB_INSTALL_DIR=@CDB_INSTALL_DIR@
-#CDB_DATA_DIR=@CDB_DATA_DIR@
-#CDB_VAR_DIR=@CDB_VAR_DIR@
+CDB_INSTALL_DIR=@CDB_INSTALL_DIR@
+
+CDB_DATA_DIR=@CDB_DATA_DIR@
+
+CDB_VAR_DIR=@CDB_VAR_DIR@
+
+
+## src/python/cdb/common/utility/configurationManager.py
+## Somehow, I cannot change their default DB_SCHEMA, and DB_USER
+## With the patch file, I can override the default values, which
+## now I have no idea where it is.
+## cdb.cdb-web-service.conf doesn't work either, 
+## I think, there are many places to use hard-corded `cdb` in many different variables
+## 
+## 2020-09-14 
+##
+CDB_DB_SCHEMA=@CDB_DB_SCHEMA@
+
+CDB_DB_USER=@CDB_DB_USER@
+
+CDB_DB_PASSWORD_FILE=@CDB_DB_PASSWORD_FILE@
