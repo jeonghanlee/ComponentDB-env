@@ -97,3 +97,7 @@ id=2 username=jeonglee firstName=Han lastName=Lee middleName=none email=jeonghan
 ```bash
 add-item-project.bash --name=ALSU
 ```
+
+### Detailed Commands
+
+See [../cdbweb-cli//README.md](../cdbweb-cli/README..md)
