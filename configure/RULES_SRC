@@ -114,6 +114,7 @@ conf.web.xml:
 #				-e "s:@CDB_CONTEXT_ROOT@:/$(CDB_CONTEXT_ROOT):g" \
 #				< $< > $(basename $<)
 
+.PHONY: conf.cdb_portal_properties_file conf.cdb_portal_properties_file.show
 
 ## Few variables in cdb.portal.properties used in 
 ## src/java/CdbWebPortal/src/java/gov/anl/aps/cdb/common/constants/CdbProperty.java
@@ -137,8 +138,11 @@ conf.cdb_portal_properties_file:
 				-e "s:CDB_LDAP_AUTH_DN_FORMAT:$(CDB_LDAP_AUTH_DN_FORMAT):"g \
 				-e "s:CDB_LDAP_SERVICE_DN:$(CDB_LDAP_SERVICE_DN):g" \
 				-e "s:CDB_LDAP_SERVICE_PASS:$(CDB_LDAP_SERVICE_PASS):g" \
-				-e "s:CDB_LDAP_LOOKUP_FILTER:\'$(CDB_LDAP_LOOKUP_FILTER)\':g" \
+				-e "s:CDB_LDAP_LOOKUP_FILTER:$(CDB_LDAP_LOOKUP_FILTER):g" \
 				< $(CDB_PORTAL_PROPERTIES_FILE).template > $(CDB_PORTAL_PROPERTIES_FILE)
+
+conf.cdb_portal_properties_file.show:
+	$(QUIET)cat -b $(CDB_PORTAL_PROPERTIES_FILE)
 
 conf.log4j2.xml: log4j2.xml.in
 	$(QUIET)echo ">>> Generate $(basename $<) from $<"

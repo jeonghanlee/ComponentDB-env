@@ -62,7 +62,7 @@ conf.cdbweb:
 			-e "s:@CDB_LDAP_AUTH_DN_FORMAT@:$(CDB_LDAP_AUTH_DN_FORMAT):"g \
 			-e "s:@CDB_LDAP_SERVICE_DN@:$(CDB_LDAP_SERVICE_DN):g" \
 			-e "s:@CDB_LDAP_SERVICE_PASS@:$(CDB_LDAP_SERVICE_PASS):g" \
-			-e "s:@CDB_LDAP_LOOKUP_FILTER@:\'$(CDB_LDAP_LOOKUP_FILTER)\':g" \
+			-e "s:@CDB_LDAP_LOOKUP_FILTER@:$(CDB_LDAP_LOOKUP_FILTER):g" \
             < $(SITE_TEMPLATE_PATH)/cdbweb/cdb-web-service.conf.in > $(SITE_TEMPLATE_PATH)/cdbweb/$(CDB_WEB_CONFIG_FILE)
 
 
