@@ -58,7 +58,14 @@ conf.cdbweb:
 			-e "s:@CDB_WEB_DB_PASSWORD_FILE@:$(CDB_ETC_DIR)/$(CDB_WEB_DB_PASSWORD_FILE):g" \
 			-e "s:@CDB_WEB_LOG_FILE@:$(CDB_LOG_DIR)/$(CDB_WEB_LOG_FILE):g" \
 			-e "s:@TIMESTAMP@:$(TIMESTAMP):g" \
-                < $(SITE_TEMPLATE_PATH)/cdbweb/cdb-web-service.conf.in > $(SITE_TEMPLATE_PATH)/cdbweb/$(CDB_WEB_CONFIG_FILE)
+			-e "s|@CDB_LDAP_AUTH_SERVER_URL@|$(CDB_LDAP_AUTH_SERVER_URL)|"g \
+			-e "s:@CDB_LDAP_AUTH_DN_FORMAT@:$(CDB_LDAP_AUTH_DN_FORMAT):"g \
+			-e "s:@CDB_LDAP_SERVICE_DN@:$(CDB_LDAP_SERVICE_DN):g" \
+			-e "s:@CDB_LDAP_SERVICE_PASS@:$(CDB_LDAP_SERVICE_PASS):g" \
+			-e "s:@CDB_LDAP_LOOKUP_FILTER@:\'$(CDB_LDAP_LOOKUP_FILTER)\':g" \
+            < $(SITE_TEMPLATE_PATH)/cdbweb/cdb-web-service.conf.in > $(SITE_TEMPLATE_PATH)/cdbweb/$(CDB_WEB_CONFIG_FILE)
+
+
 
 db.cdbweb:
 	$(QUIET)echo "$(DB_USER_PASS)" > $(SITE_TEMPLATE_PATH)/cdbweb/$(CDB_WEB_DB_PASSWORD_FILE)

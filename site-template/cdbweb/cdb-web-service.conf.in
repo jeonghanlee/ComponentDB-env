@@ -2,8 +2,12 @@
 ### Generated at @TIMESTAMP@
 ###
 [WebService]
+serviceUrl=
+serviceProtocol=
 serviceHost=@CDB_WEBSERVICE_HOST@
 servicePort=@CDB_WEBSERVICE_PORT@
+serviceUsername=
+servicePassword=
 sslCertFile=@CDB_WEBSERVICE_SSLCERT@
 sslKeyFile=@CDB_WEBSERVICE_SSLKEY@
 sslCaCertFile=@CDB_WEBSERVICE_SSLCACERT@
@@ -34,8 +38,8 @@ adminGroupName=CDB_ADMIN
 principalRetriever=DbPrincipalRetriever()
 #principalRetriever=NoOpPrincipalRetriever()
 principalAuthenticator1=CryptedPasswordPrincipalAuthenticator()
-principalAuthenticator2=LdapPasswordPrincipalAuthenticator(serverUrl='', dnFormat='')
-#principalAuthenticator3=LdapPasswordPrincipalAuthenticator(serverUrl='', dnFormat='',serviceDn='', servicePass='', userLookupFilter='')
+principalAuthenticator2=LdapPasswordPrincipalAuthenticator(serverUrl='@CDB_LDAP_AUTH_SERVER_URL@', dnFormat='@CDB_LDAP_AUTH_DN_FORMAT@')
+#principalAuthenticator3=LdapPasswordPrincipalAuthenticator(serverUrl='@CDB_LDAP_AUTH_SERVER_URL@',dnFormat='@CDB_LDAP_AUTH_DN_FORMAT@',serviceDn='@CDB_LDAP_SERVICE_DN@', servicePass='@CDB_LDAP_SERVICE_PASS@', userLookupFilter='@CDB_LDAP_LOOKUP_FILTER@')
 
 ### MySQL / MariaDB
 [DbManager]
