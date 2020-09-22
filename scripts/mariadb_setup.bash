@@ -2,7 +2,7 @@
 #
 #  author  : Jeong Han Lee
 #  email   : jeonghan.lee@gmail.com
-#  version : 0.0.6
+#  version : 0.0.7
 
 declare -g SC_SCRIPT;
 declare -g SC_TOP;
@@ -22,7 +22,7 @@ ENV_TOP="${SC_TOP}/.."
 
 
 declare -g DEFAULT_DB_BACKUP_PATH;
-
+# shellcheck disable=SC2153
 DEFAULT_DB_BACKUP_PATH="${ENV_TOP}/${DB_NAME}_sql_backup";
 
 function usage
@@ -306,9 +306,9 @@ function restore_db
     fi
 
     db_backup_file="${DB_NAME}_${date}.sql.gz"
-    cmd="${SQL_DBUSER_CMD} ${DB_NAME}";
+    cmd="${SQL_ADMIN_CMD} ${DB_NAME}";
 
-    gunzip < "${db_backup_path}/${db_backup_file}" | "${cmd}" ;
+    gunzip < "${db_backup_path}/${db_backup_file}" | ${cmd} ;
 }
 
 
@@ -329,23 +329,23 @@ case "$input" in
         ;;
     hostnameAdminAdd)
         # shellcheck disable=SC2153
-	add_admin_account_hostname "${DB_ADMIN}" "${DB_ADMIN_PASS}" "${DB_HOST_NAME}";
+	    add_admin_account_hostname "${DB_ADMIN}" "${DB_ADMIN_PASS}" "${DB_HOST_NAME}";
 	;;
     localAdminRemove)
         remove_admin_account_local;
         ;;
     hostnameAdminRemove)
-	remove_admin_account_hostname "${DB_HOST_NAME}";
+	    remove_admin_account_hostname "${DB_HOST_NAME}";
 	;;
     adminAdd)
 	# shellcheck disable=SC2153
         add_admin_account_local "${DB_ADMIN}" "${DB_ADMIN_PASS}";
 	# shellcheck disable=SC2153
-	add_admin_account_hostname "${DB_ADMIN}" "${DB_ADMIN_PASS}" "${DB_HOST_NAME}";
+	    add_admin_account_hostname "${DB_ADMIN}" "${DB_ADMIN_PASS}" "${DB_HOST_NAME}";
 	;;
     adminRemove)
-	remove_admin_account_local;
-	remove_admin_account_hostname "${DB_HOST_NAME}";
+	    remove_admin_account_local;
+	    remove_admin_account_hostname "${DB_HOST_NAME}";
 	;;
     dbCreate)
         # shellcheck disable=SC2153
@@ -361,26 +361,26 @@ case "$input" in
         isDb "${DB_NAME}" "YES";
         ;;
     dbBackup)
-	backup_path="$additional_input"
-	if [ -z "${backup_path}" ]; then
-             backup_path="${DEFAULT_DB_BACKUP_PATH}"
+	    backup_path="$additional_input"
+	    if [ -z "${backup_path}" ]; then
+            backup_path="${DEFAULT_DB_BACKUP_PATH}"
         fi
-	backup_db "${DB_NAME}" "${backup_path}";
+	    backup_db "${DB_NAME}" "${backup_path}";
 	;;
     dbBackupList)
-	backup_path="$additional_input"
-	if [ -z "${backup_path}" ]; then
-             backup_path="${DEFAULT_DB_BACKUP_PATH}"
+	    backup_path="$additional_input"
+	    if [ -z "${backup_path}" ]; then
+            backup_path="${DEFAULT_DB_BACKUP_PATH}"
         fi
-	backup_db_list "${backup_path}"
+        backup_db_list "${backup_path}"
 	;;
     dbRestore)
-	backup_path="$additional_input"
-	if [ -z "${backup_path}" ]; then
-             backup_path="${DEFAULT_DB_BACKUP_PATH}"
+        date="$additional_input";
+	    backup_path="$3"
+	    if [ -z "${backup_path}" ]; then
+            backup_path="${DEFAULT_DB_BACKUP_PATH}"
         fi
-	date="$3";
-	restore_db "${backup_path}" "${date}";
+        restore_db "${date}" "${backup_path}";
 	;;
     tableCreate)
         if [ -z "${additional_input}" ]; then

@@ -10,7 +10,7 @@ SQL_ROOT_CMD="sudo mysql --user=root"
 SQL_ADMIN_CMD="mysql --user=${DB_ADMIN} --password=${DB_ADMIN_PASS} --port=${DB_HOST_PORT} --host=${DB_HOST_NAME}"
 # shellcheck disable=SC2153
 SQL_DBUSER_CMD="mysql --user=${DB_USER} --password=${DB_USER_PASS} --port=${DB_HOST_PORT} --host=${DB_HOST_NAME}"
-# shellcheck disable=SC2153
+# shellcheck disable=SC2034
 SQL_BACKUP_CMD="mysqldump --user=${DB_USER} --password=${DB_USER_PASS} --port=${DB_HOST_PORT} --host=${DB_HOST_NAME}"
 
 EXIST=1
