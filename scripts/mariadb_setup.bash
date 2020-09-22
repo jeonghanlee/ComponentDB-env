@@ -2,16 +2,17 @@
 #
 #  author  : Jeong Han Lee
 #  email   : jeonghan.lee@gmail.com
-#  version : 0.0.5
+#  version : 0.0.6
 
 declare -g SC_SCRIPT;
 declare -g SC_TOP;
+declare -g LOGDATE;
 declare -g ENV_TOP;
 
 SC_SCRIPT="$(realpath "$0")";
 #SC_SCRIPTNAME=${0##*/};
 SC_TOP="${SC_SCRIPT%/*}"
-#LOGDATE="$(date +%y%m%d%H%M)"
+LOGDATE="$(date +%y%m%d%H%M)"
 ENV_TOP="${SC_TOP}/.."
  
 # shellcheck disable=SC1090
@@ -19,38 +20,49 @@ ENV_TOP="${SC_TOP}/.."
 # shellcheck disable=SC1090
 . "${SC_TOP}/mariadb_generic_function.bash"
 
+
+declare -g DEFAULT_DB_BACKUP_PATH;
+
+DEFAULT_DB_BACKUP_PATH="${ENV_TOP}/${DB_NAME}_sql_backup";
+
 function usage
 {
     {
 	echo "";
 	echo "Usage    : $0 <arg>";
 	echo "";
-    echo "          <arg>              : info";
+	echo "          <arg>              : info";
 	echo "";
 	echo "          secureSetup        : mariaDB secure installation";
-    echo "          adminAdd           : add the admin account";
-    echo "";
-    # shellcheck disable=SC2153 
-    echo "          dbCreate           : create the DB -${DB_NAME}- at -${DB_HOST_NAME}-";
-    echo "          dbDrop             : drop   the DB -${DB_NAME}- at -${DB_HOST_NAME}-";
-    echo "          dbShow             : show all dbs exist";
-    echo "          tableCreate        : create the tables";
-    echo "          tableDrop          : drop   the tables";
-    echo "          tableShow          : show   the tables";
-    echo "          viewCreate         : create the views";
-    echo "          viewDrop           : drop   the views";
-    echo "          viewShow           : show   the views";
-    echo "          sProcCreate        : create the stored_procedures";
-    echo "          sProcDrop          : drop   the stored_procedures";
-    echo "          sProcShow          : show   the stored_procedures";
-    echo "";
-    echo "          allCreate          : create the tables, views, and stored_procedures";
-    echo "          allViews           : show the tables, views, and stored_procedures";
-    echo "          allDrop            : drop the tables, views, and stored_procedures";
-    echo "";
-    echo "          query \"sql query\"    : Send any sql query to DB -${DB_NAME}-"
-    echo "          queryFile \"sql file\" : Send a query through a sql file to DB -${DB_NAME}-";
-    echo "";
+	echo "          adminAdd           : add the admin account";
+	echo "";
+	# shellcheck disable=SC2153
+	echo "          dbCreate           : create the DB -${DB_NAME}- at -${DB_HOST_NAME}-";
+	echo "          dbDrop             : drop   the DB -${DB_NAME}- at -${DB_HOST_NAME}-";
+	echo "          dbShow             : show all dbs exist";
+	echo "";
+	echo "";
+	echo "          dbBackup           : back up the DB -${DB_NAME}- at default -${DEFAULT_DB_BACKUP_PATH}.";
+	echo "          dbBackupList       : show all backup DB list at default -${DEFAULT_DB_BACKUP_PATH}.";
+	echo "          dbRestore          : restore the DB into the running sql at default -${DEFAULT_DB_BACKUP_PATH}.";
+	echo "";
+	echo "          tableCreate        : create the tables";
+	echo "          tableDrop          : drop   the tables";
+	echo "          tableShow          : show   the tables";
+	echo "          viewCreate         : create the views";
+	echo "          viewDrop           : drop   the views";
+	echo "          viewShow           : show   the views";
+	echo "          sProcCreate        : create the stored_procedures";
+	echo "          sProcDrop          : drop   the stored_procedures";
+	echo "          sProcShow          : show   the stored_procedures";
+	echo "";
+	echo "          allCreate          : create the tables, views, and stored_procedures";
+	echo "          allViews           : show the tables, views, and stored_procedures";
+	echo "          allDrop            : drop the tables, views, and stored_procedures";
+	echo "";
+	echo "          query \"sql query\"    : Send any sql query to DB -${DB_NAME}-"
+	echo "          queryFile \"sql file\" : Send a query through a sql file to DB -${DB_NAME}-";
+	echo "";
     } 1>&2;
     exit 1;
 }
@@ -137,8 +149,7 @@ function drop_triggers
             dropCmd+="DROP TRIGGER IF EXISTS ${output}"
             dropCmd+=";\"";
             printf ". %24s was found. Droping .... \n" "${output}"
-
-	        commandPrn "$dropCmd"
+	    commandPrn "$dropCmd"
             eval "${dropCmd}"
         done
     fi
@@ -234,6 +245,74 @@ function get_admin_crypt_password
 #${SQL_ADMIN_CMD} -e "SELECT SCHEMA_NAME 'database', default_character_set_name 'charset', DEFAULT_COLLATION_NAME 'collation' FROM information_schema.SCHEMATA;"
 
 
+function backup_db
+{
+    local db_name="$1"; shift;
+    local db_backup_path="$1"; shift;
+    local dbDir;
+    local db_exist;
+
+    db_exist=$(isDb "${db_name}");
+
+    if [[ $db_exist -ne "$EXIST" ]]; then
+	    noDbMessage "${db_name}";
+	    exit;
+    else
+	dbDir=$(isDir "${db_backup_path}")
+	if [[ $dbDir -ne "$EXIST" ]]; then
+	    mkdir -p "${db_backup_path}"
+	fi
+	${SQL_BACKUP_CMD} ${db_name} | gzip -9 > "${db_backup_path}/${db_name}_${LOGDATE}.sql.gz"
+    fi
+}
+
+
+function backup_db_list
+{
+    local db_backup_path="$1"; shift;
+    local dbDir;
+
+    dbDir=$(isDir "${db_backup_path}");
+    if [[ $dbDir -ne "$EXIST" ]]; then
+	printf "\nThere is no >> %s << directory, please check your enviornment.\n\n" "${db_backup_path}"
+	exit;
+    fi
+
+    ls --almost-all -m -o --author --human-readable --time-style=iso -v  ${db_backup_path}
+}
+
+
+
+function restore_db
+{
+    local date="$1"; shift;
+    local db_backup_path="$1"; shift;
+    local dbDir;
+    local dbDate;
+    local cmd;
+
+    dbDate=$(isVar "${date}")
+
+    if [[ $dbDate -ne "$EXIST" ]]; then
+	printf "\nDate is missing, please check the backup data file name.\n\n"
+	exit;
+    fi
+
+    dbDir=$(isDir "${db_backup_path}")
+
+    if [[ $dbDir -ne "$EXIST" ]]; then
+	printf "\nThere is no >> %s << directory, please check your enviornment.\n\n" "${db_backup_path}"
+	exit;
+    fi
+
+    db_backup_file="${DB_NAME}_${date}.sql.gz"
+    cmd="${SQL_DBUSER_CMD} ${DB_NAME}";
+
+    gunzip < "${db_backup_path}/${db_backup_file}" | "${cmd}" ;
+}
+
+
+
 
 input="$1";
 additional_input="$2";
@@ -281,6 +360,28 @@ case "$input" in
     isDb)
         isDb "${DB_NAME}" "YES";
         ;;
+    dbBackup)
+	backup_path="$additional_input"
+	if [ -z "${backup_path}" ]; then
+             backup_path="${DEFAULT_DB_BACKUP_PATH}"
+        fi
+	backup_db "${DB_NAME}" "${backup_path}";
+	;;
+    dbBackupList)
+	backup_path="$additional_input"
+	if [ -z "${backup_path}" ]; then
+             backup_path="${DEFAULT_DB_BACKUP_PATH}"
+        fi
+	backup_db_list "${backup_path}"
+	;;
+    dbRestore)
+	backup_path="$additional_input"
+	if [ -z "${backup_path}" ]; then
+             backup_path="${DEFAULT_DB_BACKUP_PATH}"
+        fi
+	date="$3";
+	restore_db "${backup_path}" "${date}";
+	;;
     tableCreate)
         if [ -z "${additional_input}" ]; then
             additional_input="${ENV_TOP}/ComponentDB-src/db/sql/create_cdb_tables.sql"

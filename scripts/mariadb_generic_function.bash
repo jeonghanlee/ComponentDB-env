@@ -2,7 +2,8 @@
 #
 #  author  : Jeong Han Lee
 #  email   : jeonghan.lee@gmail.com
-#  version : 0.0.3
+#  version : 0.0.5
+
 
 SQL_ROOT_CMD="sudo mysql --user=root"
 # shellcheck disable=SC2153
@@ -10,12 +11,34 @@ SQL_ADMIN_CMD="mysql --user=${DB_ADMIN} --password=${DB_ADMIN_PASS} --port=${DB_
 # shellcheck disable=SC2153
 SQL_DBUSER_CMD="mysql --user=${DB_USER} --password=${DB_USER_PASS} --port=${DB_HOST_PORT} --host=${DB_HOST_NAME}"
 # shellcheck disable=SC2153
-#SQL_BACKUP_CMD="mysqldump --user=${DB_USER_NAME} --password=${DB_USER_PASS} ${DB_NAME}"
+SQL_BACKUP_CMD="mysqldump --user=${DB_USER} --password=${DB_USER_PASS} --port=${DB_HOST_PORT} --host=${DB_HOST_NAME}"
 
 EXIST=1
 NON_EXIST=0
 
 VERBOSE=YES
+
+function isDir
+{
+    local dir=$1; shift;
+    local result;
+    result="";
+    if [ ! -d "$dir" ]; then result=$NON_EXIST
+    else                     result=$EXIST
+    fi
+    echo "${result}"
+}
+
+function isVar() {
+
+    local var=$1; shift;
+    local result;
+    result=""
+    if [ -z "$var" ]; then result=$NON_EXIST
+    else                   result=$EXIST
+    fi
+    echo "${result}"
+}
 
 function noDbMessage
 {
@@ -276,6 +299,7 @@ function isDb
         echo "${result}"
     fi
 }   
+
 
 function commandPrn
 {
