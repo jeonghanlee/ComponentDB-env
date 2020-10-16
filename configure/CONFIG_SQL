@@ -30,9 +30,6 @@ SQL_SYSTEM_ACCOUNT_SQL:=populate_user_info.sql
 ## Check the rule conf.system.accout.update in configure/RULES_SRC
 CDB_PORTAL_CONTROLLERS_LOGCONTROLLER_JAVA:=$(TOP)/$(CDB_JAVA_SRC)/src/java/gov/anl/aps/cdb/portal/controllers/LogController.java
 
-
-JDBC_PAYARA_MARIADB_XML:=payara_mariadb_jdbc_template.xml
-
 # CREATE TABLE
 SQL_TOP_TYPES:=cdb_tables views stored_procedures
 
@@ -123,8 +120,6 @@ TEMP_TOP_SQL:=$(SITE_TEMPLATE_PATH)/.top.sql
 TEMP_STATICPATH_SQL:=$(SITE_TEMPLATE_PATH)/.staticpath.sql
 TEMP_CLEANPATH_SQL:=$(SITE_TEMPLATE_PATH)/.cleanpath.sql
 TEMP_SITE_SQL:=$(SITE_TEMPLATE_PATH)/.site.sql
-
-
 
 JDBC_DATASOURCE_CLASSNAME=org.mariadb.jdbc.MariaDbDataSource
 JDBC_RES_TYPE=javax.sql.DataSource

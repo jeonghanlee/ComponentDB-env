@@ -3,7 +3,7 @@
 db.conf:
 	$(call checkfile, "$(SITE_TEMPLATE_PATH)/$(SQL_CONFIG_FILE)")
 	$(QUIET) echo ">>> Generate $(SITE_TEMPLATE_PATH)/$(SQL_CONFIG_FILE)"
-	$(QUIET)sed -e "s|@DB_ADMIN_HOSTS@|"$(DB_ADMIN_HOSTS)"|g" \
+	$(QUIET)sed -e "s|@DB_ADMIN_HOST@|"$(DB_ADMIN_HOST)"|g" \
 		    -e "s|@DB_ADMIN@|$(DB_ADMIN)|g" \
 			-e "s|@DB_ADMIN_PASS@|$(DB_ADMIN_PASS)|g" \
 			-e "s|@DB_HOST@|$(DB_HOST)|g" \
@@ -23,22 +23,20 @@ db.conf.show:
 db.secure: db.conf
 	$(QUIET)bash scripts/mariadb_setup.bash secureSetup
 
-db.addAdmin: db.conf
-	$(QUIET)bash scripts/mariadb_setup.bash localAdminAdd
-	$(QUIET)bash scripts/mariadb_setup.bash hostnameAdminAdd
+db.addAdmin: mariadb_setup.bash db.conf
+	$(QUIET)bash $< adminAdd
 
-db.rmAdmin: db.conf
-	$(QUIET)bash scripts/mariadb_setup.bash localAdminRemove
-	$(QUIET)bash scripts/mariadb_setup.bash hostnameAdminRemove
+db.rmAdmin: mariadb_setup.bash db.conf
+	$(QUIET)bash $< adminRemove
 
-db.create: db.conf
-	$(QUIET)bash scripts/mariadb_setup.bash dbCreate
+db.create: mariadb_setup.bash db.conf
+	$(QUIET)bash $< dbUserCreate
 
-db.drop: db.conf
-	$(QUIET)bash scripts/mariadb_setup.bash dbDrop
+db.drop: mariadb_setup.bash db.conf
+	$(QUIET)bash $< dbUserDrop
 
-db.show: db.conf
-	$(QUIET)bash scripts/mariadb_setup.bash dbShow
+db.show: mariadb_setup.bash db.conf
+	$(QUIET)bash $< dbShow
 
 .PHONY: cdb.create cdb.drop cdb.show
 

@@ -1,6 +1,6 @@
 ## MariaDB configuration example
 ## Users in the HOSTS can access the SQL server with DB_ADMIN permission
-DB_ADMIN_HOSTS="@DB_ADMIN_HOSTS@"
+DB_ADMIN_HOSTS="@DB_ADMIN_HOST@"
 ## SQL Server 
 DB_HOST_IPADDR=@DB_HOST_IPADDR@
 DB_HOST_PORT=@DB_HOST_PORT@

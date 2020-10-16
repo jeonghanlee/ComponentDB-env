@@ -2,7 +2,7 @@
 #
 #  author  : Jeong Han Lee
 #  email   : jeonghan.lee@gmail.com
-#  version : 0.0.7
+#  version : 0.0.8
 
 declare -g SC_SCRIPT;
 declare -g SC_TOP;
@@ -40,7 +40,10 @@ function usage
 	echo "          dbCreate           : create the DB -${DB_NAME}- at -${DB_HOST_NAME}-";
 	echo "          dbDrop             : drop   the DB -${DB_NAME}- at -${DB_HOST_NAME}-";
 	echo "          dbShow             : show all dbs exist";
-	echo "";
+    echo "";
+ 	echo "          dbUserCreate       : create the DB -${DB_NAME}- with ${DB_USER} at -${DB_HOST_NAME}-";
+	echo "          dbUserDrop         : drop   the DB -${DB_NAME}- with ${DB_USER} at -${DB_HOST_NAME}-";
+ 
 	echo "";
 	echo "          dbBackup           : back up the DB -${DB_NAME}- at default -${DEFAULT_DB_BACKUP_PATH}.";
 	echo "          dbBackupList       : show all backup DB list at default -${DEFAULT_DB_BACKUP_PATH}.";
@@ -262,7 +265,7 @@ function backup_db
 	if [[ $dbDir -ne "$EXIST" ]]; then
 	    mkdir -p "${db_backup_path}"
 	fi
-	${SQL_BACKUP_CMD} ${db_name} | gzip -9 > "${db_backup_path}/${db_name}_${LOGDATE}.sql.gz"
+	${SQL_BACKUP_CMD} "${db_name}" | gzip -9 > "${db_backup_path}/${db_name}_${LOGDATE}.sql.gz"
     fi
 }
 
@@ -278,7 +281,7 @@ function backup_db_list
 	exit;
     fi
 
-    ls --almost-all -m -o --author --human-readable --time-style=iso -v  ${db_backup_path}
+    ls --almost-all -m -o --author --human-readable --time-style=iso -v  "${db_backup_path}"
 }
 
 
@@ -329,34 +332,43 @@ case "$input" in
         ;;
     hostnameAdminAdd)
         # shellcheck disable=SC2153
-	    add_admin_account_hostname "${DB_ADMIN}" "${DB_ADMIN_PASS}" "${DB_HOST_NAME}";
-	;;
+        add_admin_account_hostname "${DB_ADMIN}" "${DB_ADMIN_PASS}" "${DB_HOST_NAME}";
+	    ;;
     localAdminRemove)
         remove_admin_account_local;
         ;;
     hostnameAdminRemove)
-	    remove_admin_account_hostname "${DB_HOST_NAME}";
-	;;
+        remove_admin_account_hostname "${DB_HOST_NAME}";
+        ;;
     adminAdd)
-	# shellcheck disable=SC2153
+        #shellcheck disable=SC2153
         add_admin_account_local "${DB_ADMIN}" "${DB_ADMIN_PASS}";
-	# shellcheck disable=SC2153
-	    add_admin_account_hostname "${DB_ADMIN}" "${DB_ADMIN_PASS}" "${DB_HOST_NAME}";
-	;;
+        ##shellcheck disable=SC2153
+        #add_admin_account_hostname "${DB_ADMIN}" "${DB_ADMIN_PASS}" "${DB_HOST_NAME}";
+	    ;;
     adminRemove)
-	    remove_admin_account_local;
-	    remove_admin_account_hostname "${DB_HOST_NAME}";
-	;;
+        remove_admin_account_local;
+        #remove_admin_account_hostname "${DB_HOST_NAME}";
+	    ;;
     dbCreate)
+        create_db "${DB_NAME}";
+        ;;
+    dbUserCreate)
         # shellcheck disable=SC2153
-        create_db_and_user "${DB_NAME}" "${DB_ADMIN_HOSTS}" "${DB_USER}" "${DB_USER_PASS}";
-        ;;     
+        create_db_and_user "${DB_NAME}" "${DB_HOST_NAME}" "${DB_USER}" "${DB_USER_PASS}";
+        ;;
     dbShow)
         show_dbs;
         ;;
+    dbUserDrop)
+        drop_db_and_user "${DB_NAME}" "${DB_HOST_NAME}" "${DB_USER}";
+        ;;
+    userDrop)
+      drop_user "${DB_HOST_NAME}" "${DB_USER}";
+        ;;
     dbDrop)
-        drop_db_and_user "${DB_NAME}" "${DB_ADMIN_HOSTS}" "${DB_USER}";
-        ;;  
+        drop_db "${DB_NAME}"
+        ;;
     isDb)
         isDb "${DB_NAME}" "YES";
         ;;
@@ -366,14 +378,14 @@ case "$input" in
             backup_path="${DEFAULT_DB_BACKUP_PATH}"
         fi
 	    backup_db "${DB_NAME}" "${backup_path}";
-	;;
+        ;;
     dbBackupList)
 	    backup_path="$additional_input"
 	    if [ -z "${backup_path}" ]; then
             backup_path="${DEFAULT_DB_BACKUP_PATH}"
         fi
         backup_db_list "${backup_path}"
-	;;
+        ;;
     dbRestore)
         date="$additional_input";
 	    backup_path="$3"
@@ -381,7 +393,7 @@ case "$input" in
             backup_path="${DEFAULT_DB_BACKUP_PATH}"
         fi
         restore_db "${date}" "${backup_path}";
-	;;
+        ;;
     tableCreate)
         if [ -z "${additional_input}" ]; then
             additional_input="${ENV_TOP}/ComponentDB-src/db/sql/create_cdb_tables.sql"
@@ -490,6 +502,6 @@ case "$input" in
         ;;
     *)
         usage;
-    ;;
+        ;;
 
 esac

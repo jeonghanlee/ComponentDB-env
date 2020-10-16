@@ -52,17 +52,11 @@ $ systemctl status mariadb
 * Define all DB varialbes in `configure/CONFIG_COMMON` or its `CONFIG_COMMON.local`. For example,
 
 ```bash
-DB_ADMIN_HOSTS="localhost 127.0.0.1 10.0.0.200"
+DB_ADMIN_HOST=localhost
 DB_HOST_IPADDR=127.0.0.1
 DB_HOST_PORT=3306
 DB_HOST_NAME=localhost
-DB_ADMIN=admin
-DB_ADMIN_PASS=admin
-DB_NAME=cdb
-DB_USER=cdbpayara
-DB_USER_PASS=cdbpayara
-CDB_USER=cdbuser
-CDB_USER_PASS=cdbuser
+#
 ```
 
 * Generate `mariadb.conf` file for a script
